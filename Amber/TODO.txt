@@ -1,0 +1,19 @@
+Critical:
+------------------------------------
+GIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Quaternion
+Camera
+Texture loader
+Render to texture
+
+
+Major:
+------------------------------------
+Uniform buffer object
+Proper logging
+Fix freetype includes
+Fix component memory layout
+Proper font rendering
+
+Minor:
+------------------------------------
