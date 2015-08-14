@@ -12,7 +12,7 @@ MeshManager::~MeshManager()
 {
 }
 
-bool MeshManager::loadMesh(const std::string& fileName, bool loadGLData)
+bool MeshManager::preloadMesh(const std::string& fileName, bool loadGLData)
 {
     std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
     std::vector<Vector3f> temp_vertices;
@@ -107,7 +107,7 @@ Mesh* MeshManager::getMesh(const std::string& name, bool loadGLData)
 {
     if (meshes.find(name) == meshes.end())
     {
-        loadMesh(name, loadGLData);
+        preloadMesh(name, loadGLData);
     }
 
     return meshes[name].get();

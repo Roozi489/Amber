@@ -3,8 +3,6 @@
 #include "Vector.h"
 #include "Matrix.h"
 
-#include <GL/glew.h>
-
 #include <cmath>
 
 Camera::Camera()
@@ -14,127 +12,101 @@ Camera::Camera()
 
 void Camera::init()
 {
-    mPosition = Vector3f(0.f);
-    mTarget = mPosition + Vector3f(0.f, 0.f, 0.1f);
+    position = Vector3f::Zero;
+	orientation = Quaternion::Identity;
+    viewTarget = position + Vector3f::Forward;
 
-    mProjectionMatrix = Matrix4x4f::perspectiveFov(50.f, (float)gWindowWidth, (float)gWindowHeight, 0.1f, 10000.f);
+	// TODO: check whether the fov should't be in radians
+	projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(gWindowWidth), static_cast<float>(gWindowHeight), nearPlane, farPlane);
 }
-
 
 void Camera::update(float delta)
 {
-    moveForward(mMoveDirection.z * (delta));
-    moveSideways(mMoveDirection.x * (delta));
+	// TODO: move to postionTarget
+	// 
 }
 
-void Camera::move(float x, float y, float z)
+void Camera::offsetOrientation(float yaw, float pitch)
 {
-    mPosition.x += x;
-    mPosition.y += y;
-    mPosition.z += z;
+	// absolute up
+	const Quaternion yawRot = angleAxis(yaw, Vector3f::Up);
+	// relative right
+	const Quaternion pitchRot = angleAxis(pitch, orientation * Vector3f::Right);
+
+	orientation = yawRot * pitchRot * orientation;
 }
 
 void Camera::moveForward(float value)
 {
-    Vector3f distance = mTarget - mPosition;
-    mPosition = mPosition + (distance * value);
-    mTarget = mTarget + (distance * value);
+	position += orientation * Vector3f::Forward * value;
 }
 
-void Camera::moveSideways(float value)
+void Camera::moveBackward(float value)
 {
-    Vector3f distance = mTarget - mPosition;
-    Vector2f tmp(distance.x, distance.z);
-    Vector2f tmpNormal(tmp.y, -tmp.x);
-    distance.x = tmpNormal.x;
-    distance.y = 0.f;
-    distance.z = tmpNormal.y;
-    mPosition = mPosition + distance * value;
-    mTarget = mTarget + (distance * value);
+	position += orientation * Vector3f::Backward * value;
 }
 
-
-void Camera::rotate(float x, float y, float z)
+void Camera::moveLeft(float value)
 {
-    Vector3f distance = mTarget - mPosition;
-    float curAngleX = toDegrees(std::atan2f(distance.z, distance.y));
-    float curAngleY = toDegrees(std::atan2f(distance.z, distance.x));
+	position += orientation * Vector3f::Left * value;
+}
 
-    Vector3f newDistance;
-    newDistance.z = std::sinf(toRadians(curAngleY + y)) * 0.1f;
-    newDistance.x = std::cosf(toRadians(curAngleY + y)) * 0.1f;
-    float tmpY = mTarget.y;
-    mTarget = mPosition + newDistance;
-    mTarget.y = tmpY;// -x / 10000.f;
+void Camera::moveRight(float value)
+{
+	position += orientation * Vector3f::Right * value;
+}
 
-    mTarget.toString();
+void Camera::moveUp(float value)
+{
+	position += orientation * Vector3f::Up * value;
+}
+
+void Camera::moveDown(float value)
+{
+	position += orientation * Vector3f::Down * value;
+}
+
+void Camera::rotateUp(float value)
+{
+	offsetOrientation(0.f, value);
+}
+
+void Camera::rotateDown(float value)
+{
+	offsetOrientation(0.f, -value);
+}
+
+void Camera::rotateLeft(float value)
+{
+	offsetOrientation(value, 0.f);
+}
+
+void Camera::rotateRight(float value)
+{
+	offsetOrientation(-value, 0.f);
 }
 
 Vector3f Camera::getPosition() const
 {
-    return mPosition;
+    return position;
 }
 
 void Camera::setPosition(Vector3f pos)
 {
-    setPosition(pos.x, pos.y, pos.z);
+	position = pos;
 }
 
-void Camera::setPosition(float x, float y, float z)
+Vector3f Camera::getViewTarget() const
 {
-    Vector3f distance = mTarget - mPosition;
-    mPosition.x = x;
-    mPosition.y = y;
-    mPosition.z = z;
-    mTarget = mPosition + distance;
+    return viewTarget;
 }
 
-Vector3f Camera::getTarget() const
+void Camera::setViewTarget(Vector3f t)
 {
-    return mTarget;
+    viewTarget = t;
 }
 
-void Camera::setTarget(Vector3f pos)
+const Matrix4x4f& Camera::getProjectionMatrix()
 {
-    mTarget = pos;
-}
-
-void Camera::setTarget(float x, float y, float z)
-{
-    mTarget.x = x;
-    mTarget.y = y;
-    mTarget.z = z;
-}
-
-float Camera::getRotationY()
-{
-    Vector3f distance = mTarget - mPosition;
-    return std::atan2f(distance.z, distance.x);
-}
-
-void Camera::setMoveDirection(float x, float y, float z)
-{
-    mMoveDirection.x = x;
-    mMoveDirection.y = y;
-    mMoveDirection.z = z;
-}
-
-void Camera::setMoveDirectionX(float value)
-{
-    mMoveDirection.x = value;
-}
-
-void Camera::setMoveDirectionY(float value)
-{
-    mMoveDirection.y = value;
-}
-
-void Camera::setMoveDirectionZ(float value)
-{
-    mMoveDirection.z = value;
-}
-
-Matrix4x4f Camera::getProjectionMatrix()
-{
-    return mProjectionMatrix;
+    return projectionMatrix;
 }

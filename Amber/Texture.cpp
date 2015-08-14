@@ -1,26 +1,26 @@
-﻿#include "Texture2D.h"
+﻿#include "Texture.h"
 #include "Utility.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Texture2D::Texture2D()
+Texture::Texture()
 : textureID(-1)
 {
 
 }
 
-Texture2D::~Texture2D()
+Texture::~Texture()
 {
-
+	
 }
 
-GLuint Texture2D::getTextureID() const
+GLuint Texture::getTextureID() const
 {
     return textureID;
 }
 
-bool Texture2D::load(std::string filename)
+bool Texture::load(const std::string& filename)
 {
     int width, height, componentsPerPixel;
     int forceChannels = 4;
@@ -32,12 +32,12 @@ bool Texture2D::load(std::string filename)
         return false;
     }
 
-    // some magic formula i found
-    int num_mipmaps = 1 + static_cast<int>(floor(log2(max(width, height, componentsPerPixel))));
+    // some magic formula I found
+    int numMipmaps = 1 + static_cast<int>(floor(log2(max(width, height, componentsPerPixel))));
 
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexStorage2D(GL_TEXTURE_2D, num_mipmaps, GL_RGBA8, width, height);
+    glTexStorage2D(GL_TEXTURE_2D, numMipmaps, GL_RGBA8, width, height);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);  // Generate num_mipmaps number of mipmaps here.
@@ -50,4 +50,10 @@ bool Texture2D::load(std::string filename)
 
     stbi_image_free(data);
     return true;
+}
+
+void Texture::freeGLData()
+{
+	if (textureID != -1)
+		glDeleteTextures(1, &textureID);
 }

@@ -46,9 +46,6 @@
     <ClCompile Include="CubeTexture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Framebuffer.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -61,11 +58,7 @@
     <ClCompile Include="Model.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Amber.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Utility.cpp" />
@@ -97,7 +90,21 @@
     <ClCompile Include="SoundSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -133,9 +140,6 @@
     <ClInclude Include="CubeTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Framebuffer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -148,11 +152,7 @@
     <ClInclude Include="Model.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Amber.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="World.h" />
@@ -186,7 +186,21 @@
     <ClInclude Include="SoundSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
-    <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="Quaternion.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">
@@ -223,6 +237,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\Shaders\font.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\renderTexture.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\renderTexture.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

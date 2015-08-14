@@ -24,13 +24,13 @@ void GameplaySystem::update(float delta)
     {
         cameraFollowBall = false;
         gCamera.setPosition(Vector3f(0.f, 170.f, -120.f));
-        gCamera.setTarget(Vector3f(0.f, -0.1f, 0.f));
+        gCamera.setViewTarget(Vector3f(0.f, -0.1f, 0.f));
     }
     if (gKeystate[SDL_SCANCODE_F2])
     {
         cameraFollowBall = false;
         gCamera.setPosition(Vector3f(0.f, 250.f, -0.1f));
-        gCamera.setTarget(Vector3f(0.f, -0.1f, 0.f));
+        gCamera.setViewTarget(Vector3f(0.f, -0.1f, 0.f));
     }
     if (gKeystate[SDL_SCANCODE_F3])
     {
@@ -156,7 +156,7 @@ void GameplaySystem::update(float delta)
                 if (cameraFollowBall)
                 {
                     gCamera.setPosition(transformComp.position + Vector3f(0.f, 30.f, -0.1f) - physicsComp.velocity * 3.f);
-                    gCamera.setTarget(transformComp.position);
+                    gCamera.setViewTarget(transformComp.position);
                 }
 
                 Sphere sphere(transformComp.position, 1.f);

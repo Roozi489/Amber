@@ -55,15 +55,9 @@ bool Mesh::loadGLData()
     return true;
 }
 
-void Mesh::loadTexture(std::string filename)
+void Mesh::setTexture(const std::string& name)
 {
-    texture.load(filename);
-    hasTexture = true;
-}
-
-void Mesh::changeTexture(Texture2D newTexture)
-{
-    texture = newTexture;
+	texture = gTextureManager.getTexture(name);
     hasTexture = true;
 }
 

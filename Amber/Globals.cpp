@@ -12,3 +12,4 @@ const Uint8* gKeystate;
 
 ShaderManager gShaderManager;
 MeshManager gMeshManager;
+TextureManager gTextureManager;

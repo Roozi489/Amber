@@ -238,7 +238,7 @@ bool compareStringsCaseInsensitive(const std::string& a, const std::string& b)
 }
 
 
-void _checkGlError(const char *file, int line)
+void _checkGlError(const char* file, int line, const char* function)
 {
     GLenum err(glGetError());
 
@@ -265,7 +265,7 @@ void _checkGlError(const char *file, int line)
                 break;
         }
 
-        log("GL Error - " + error + " - " + file + ":" + std::to_string(line));
+        log("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "\n" + function);
         err = glGetError();
     }
 }
@@ -276,15 +276,22 @@ void log(std::string message)
     log_file << message << std::endl;
 }
 
-void criticalError(const char* message)
+void clearLog()
 {
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message, gMainWindow);
-    std::exit(1);
+	std::ofstream log_file("log.txt", std::ios_base::out | std::ios_base::trunc);
 }
 
-void criticalError(std::string message)
+void _criticalError(const char* message, const char* file, int line, const char* function)
 {
-    criticalError(message.c_str());
+	std::stringstream sstream;
+	sstream << message << std::endl << file << ":" << line << "  -  " << function;
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sstream.str().c_str(), gMainWindow);
+	std::exit(1);
+}
+
+void _criticalError(const std::string& message, const char* file, int line, const char* function)
+{
+	_criticalError(message.c_str(), file, line, function);
 }
 
 void quit()

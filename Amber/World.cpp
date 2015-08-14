@@ -29,7 +29,7 @@ Entity* World::addFloor()
     floor->addComponent<TransformComponent>(Vector3f::zero(), Vector3f(1.f));
     floor->addComponent<PhysicsComponent>(BodyType::Static);
     RenderComponent* renderComp = floor->addComponent<RenderComponent>("default", "floor.obj");
-    renderComp->mesh->loadTexture("marble2.jpg");
+    renderComp->mesh->setTexture("marble2.jpg");
 
     return floor;
 }
@@ -94,8 +94,8 @@ void World::setupLevel()
 
     for (int i = 0; i < 3; ++i)
     {
-        Entity* e = addPad(Vector3f(sinf(toRadians(180.f + 120.f * i)) * 25, 0.5f, cosf(toRadians(180.f + 120.f * i)) * 25));
-        e->getComponent<TransformComponent>().angle = toRadians(120.f * i);
+        Entity* e = addPad(Vector3f(sinf(toRadians(120.f * i)) * 25, 0.5f, cosf(toRadians(120.f * i)) * 25));
+        e->getComponent<TransformComponent>().angle = toRadians(180.f + 120.f * i);
     }
 }
 

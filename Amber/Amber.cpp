@@ -30,6 +30,7 @@ void Amber::run()
     float deltaMillis = 16.f;
     float deltaSeconds = deltaMillis / 1000.f;
 
+	clearLog();
     init();
     
     /*auto lastTime = std::chrono::system_clock::now();;
@@ -72,14 +73,13 @@ void Amber::init()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);	
 
-    log("_________________________________________________________________________________");
     log("Creating window...");
     gMainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWindowWidth, gWindowHeight, SDL_WINDOW_OPENGL);
 
     if (!gMainWindow)
         criticalError(SDL_GetError());
 
-    log("Creating context...");
+	log("Creating context...");
     gContext = SDL_GL_CreateContext(gMainWindow);
     if (!gContext)
         criticalError(SDL_GetError());
@@ -101,6 +101,9 @@ void Amber::init()
     {
         criticalError("Failed to initialize GLEW");
     }
+	
+	// trap the mouse in the window and hide the cursor
+	//SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
@@ -112,8 +115,14 @@ void Amber::init()
 
     checkGlError();
 
-    gKeystate = SDL_GetKeyboardState(NULL);
+	gKeystate = SDL_GetKeyboardState(NULL);
 
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	lastMouseX = mouseX;
+	lastMouseY = mouseY;
+
+    //
     // Gameplay stuff
     gWorld.init();
 
@@ -125,26 +134,71 @@ void Amber::init()
     gWorld.setupLevel();
 
     gCamera.init();
-    gCamera.setPosition(Vector3f(0.f, 170.f, -120.f));
-    gCamera.setTarget(Vector3f(0.f, -0.1f, 0.f));
+    gCamera.setPosition(Vector3f(0.f, 100.f, 120.f));
+	gCamera.offsetOrientation(0.f, -0.7f);
 }
 
 void Amber::update(float delta)
 {
-    mTotalSecondsElapsed += (float)delta;
+    mTotalSecondsElapsed += static_cast<float>(delta);
 
     gCamera.update(delta);
 
     SDL_PumpEvents();
+	int mouseX, mouseY;
+	Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
+	if (gKeystate[SDL_SCANCODE_W])
+	{
+		gCamera.moveForward();
+	}
+	if (gKeystate[SDL_SCANCODE_S])
+	{
+		gCamera.moveBackward();
+	}
+	if (gKeystate[SDL_SCANCODE_A])
+	{
+		gCamera.moveLeft();
+	}
+	if (gKeystate[SDL_SCANCODE_D])
+	{
+		gCamera.moveRight();
+	}
+	if (gKeystate[SDL_SCANCODE_F])
+	{
+		gCamera.rotateUp();
+	}
+	if (gKeystate[SDL_SCANCODE_V])
+	{
+		gCamera.rotateDown();
+	}
+	if (gKeystate[SDL_SCANCODE_X])
+	{
+		gCamera.rotateLeft();
+	}
+	if (gKeystate[SDL_SCANCODE_C])
+	{
+		gCamera.rotateRight();
+	}
     if (gKeystate[SDL_SCANCODE_I])
     {
-        gCamera.move(0.f, 0.3f, 0.f);
+        gCamera.moveUp();
     }
     if (gKeystate[SDL_SCANCODE_K])
     {
-        gCamera.move(0.f, -0.3f, 0.f);
+        gCamera.moveDown();
     }
+
+	if (mouseState & SDL_BUTTON_RMASK)
+	{
+		float xOffset = static_cast<float>(lastMouseX - mouseX);
+		float yOffset = static_cast<float>(lastMouseY - mouseY);
+		gCamera.offsetOrientation(xOffset / 500.f, yOffset / 500.f);
+
+		SDL_WarpMouseInWindow(gMainWindow, gWindowWidth / 2, gWindowHeight / 2);
+		mouseX = gWindowWidth / 2;
+		mouseY = gWindowHeight / 2;
+	}
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -174,4 +228,7 @@ void Amber::update(float delta)
     }
 
     gWorld.update(delta);
+
+	lastMouseX = mouseX;
+	lastMouseY = mouseY;
 }

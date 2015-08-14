@@ -1,11 +1,7 @@
 Critical:
 ------------------------------------
-GIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Quaternion
-Camera
-Texture loader
 Render to texture
-
+Transform component quaternion
 
 Major:
 ------------------------------------
@@ -14,6 +10,13 @@ Proper logging
 Fix freetype includes
 Fix component memory layout
 Proper font rendering
+Math (trigonometry)
+Better code structure - (add math file)
+Input manager
+Resource managment
 
 Minor:
 ------------------------------------
+More Camera
+Optimize matrix
+Fix stb_image warnings

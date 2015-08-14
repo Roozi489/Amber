@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseSystem.h"
+#include "RenderTexture.h"
 #include "Skybox.h"
 #include "Utility.h"
 
@@ -25,35 +26,39 @@ typedef struct FontType_
 class RenderSystem : public BaseSystem
 {
 public:
-    GameplaySystem* gameplaySystem;
-
     RenderSystem();
     ~RenderSystem();
 
-    virtual void configure();
-    virtual void update(float delta);
+    virtual void configure() override;
+    virtual void update(float delta) override;
 
     void textRendering();
 
     void renderText(const std::string& text, float x, float y, float sx, float sy);
 private:
+	// Font rendering
     FT_Library ftLib;
     FTC_Manager ftCacheManager;
     FTC_ImageCache ftImageCache;
     FTC_SBitCache ftSmallBitmapsCache;
     FTC_CMapCache ftCharmapCache;
 
+	GLuint fontVao;
+	GLuint fontVbo;
+	GLuint fontTexID;
+
     int maxFonts;
     int numFonts;
     FontHandle* fonts;
 
+	RenderTexture framebuffer;
+	GLuint renderTextureVao;
+	GLuint renderTextureVbo;
+
     Skybox skybox;
 
-    GLuint fontVao;
-    GLuint fontVbo;
-    GLuint fontTexID;
 
-    FT_Error RenderSystem::ftAddFont(const char* filepath, FT_Bool outline_only);
+    FT_Error ftAddFont(const char* filepath, FT_Bool outline_only);
     FT_UInt ftGetIndex(FTC_FaceID faceID, FT_UInt32 charcode);
     FT_Error ftIndexToBitmap(FT_ULong index, FTC_FaceID faceID, int* left, int* top, int* xAdvance, int* yAdvance, Bitmap* outBitmap, FT_Glyph* outGlyph);
     FT_Error ftGlyphToBitmap(FT_Glyph glyph, int* left, int* top, int* xAdvance, int* yAdvance, Bitmap* outBitmap, FT_Glyph* outGlyph);

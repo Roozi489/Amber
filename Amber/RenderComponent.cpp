@@ -1,6 +1,8 @@
 #include "RenderComponent.h"
 #include "Globals.h"
 
+#include <cassert>
+
 RenderComponent::RenderComponent(const std::string& shader, const std::string& meshName, MeshType meshType)
     : shaderName(shader)
     , color(Color::White)
@@ -12,6 +14,7 @@ RenderComponent::RenderComponent(const std::string& shader, const std::string& m
     else if (meshType == FromCode)
     {
         // Not implemented
+		assert(false && "Mesh from code not implemented");
     }
 }
 

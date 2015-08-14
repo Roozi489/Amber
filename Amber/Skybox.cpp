@@ -83,10 +83,10 @@ void Skybox::update()
     glUseProgram(shaderProgramID);
 
     // TODO: add support for proper camera rotation
-    Matrix4x4f vMat = Matrix4x4f::rotate(Matrix4x4f::identity(), (gCamera.getRotationY() + pi_2), Vector3f(0.f, 1.f, 0.f));
+    //Matrix4x4f vMat = Matrix4x4f::rotate(Matrix4x4f::identity(), (gCamera.getRotationY() + pi_2), Vector3f(0.f, 1.f, 0.f));
 
     GLuint vLoc = glGetUniformLocation(shaderProgramID, "V");
-    glUniformMatrix4fv(vLoc, 1, GL_FALSE, &vMat[0][0]);
+    //glUniformMatrix4fv(vLoc, 1, GL_FALSE, &vMat[0][0]);
 
     Matrix4x4f pMat = gCamera.getProjectionMatrix();
     GLuint pLoc = glGetUniformLocation(shaderProgramID, "P");

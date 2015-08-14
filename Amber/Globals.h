@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "ShaderManager.h"
 #include "MeshManager.h"
+#include "TextureManager.h"
 
 #include <SDL/SDL.h>
 
@@ -21,3 +22,4 @@ extern const Uint8* gKeystate;
 
 extern ShaderManager gShaderManager; 
 extern MeshManager gMeshManager;
+extern TextureManager gTextureManager;

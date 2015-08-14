@@ -1,7 +1,7 @@
 #pragma once
 #include "Utility.h"
 #include "Material.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "Vector.h"
 #include "Matrix.h"
 
@@ -20,7 +20,7 @@ public:
 
     // TODO: Texture manager
     bool hasTexture;
-    Texture2D texture;
+    Texture* texture;
 
     GLuint vao;
 
@@ -33,8 +33,7 @@ public:
     ~Mesh();
 
     bool loadGLData();
-    void loadTexture(std::string filename);
-    void changeTexture(Texture2D newTexture);
+	void setTexture(const std::string& name);
 
     float boundingSphereRadiusFast();
 

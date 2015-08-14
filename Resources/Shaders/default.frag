@@ -16,7 +16,7 @@ in vec3 light4Position_Worldspace;
 
 in vec4 matColor;
 
-out vec4 color;
+layout(location = 0) out vec4 color;
 
 uniform int useTexture;
 uniform sampler2D texSampler;

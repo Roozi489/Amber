@@ -4,16 +4,18 @@
 
 #include <string>
 
-class Texture2D
+class Texture
 {
 public:
     GLuint textureID;
 
-    Texture2D();
-    ~Texture2D();
+    Texture();
+    ~Texture();
 
     GLuint getTextureID() const;
 
-    bool load(std::string filename);
+    bool load(const std::string& filename);
+
+	void freeGLData();
 };
 

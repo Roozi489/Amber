@@ -73,6 +73,7 @@ struct Bitmap
 float toDegrees(float valueInRadians);
 float toRadians(float valueInDegrees);
 
+
 bool getLowestPosRoot(float a, float b, float c, float maxR, float* root);
 
 void testVectorsMatricesRays();
@@ -86,13 +87,15 @@ std::string toLower(const std::string& text);
 
 bool compareStringsCaseInsensitive(const std::string& a, const std::string& b);
 
-void _checkGlError(const char *file, int line);
-#define checkGlError() _checkGlError(__FILE__,__LINE__)
+void _checkGlError(const char* file, int line, const char* function);
+#define checkGlError() _checkGlError(__FILE__,__LINE__,__FUNCTION__)
 
 void log(std::string message);
+void clearLog();
 
-void criticalError(const char* message);
-void criticalError(std::string message);
+void _criticalError(const char* message, const char* file, int line, const char* function);
+void _criticalError(const std::string& message, const char* file, int line, const char* function);
+#define criticalError(msg) _criticalError(msg, __FILE__,__LINE__,__FUNCTION__)
 
 template <typename T>
 T clamp(T value, T min = 0, T max = 1)
@@ -106,25 +109,25 @@ T clamp(T value, T min = 0, T max = 1)
 }
 
 template <typename T, typename R>
-auto min(T first, R second) -> decltype(first > second ? first : second)
+auto min(T first, R second)
 {
     return first < second ? first : second;
 }
 
 template <typename T, typename R, typename S>
-auto min(T first, R second, S third) -> decltype(min(first, second) > third ? min(first, second) : third)
+auto min(T first, R second, S third)
 {
     return min(first, second) < third ? min(first, second) : third;
 }
 
 template <typename T, typename R>
-auto max(T first, R second) -> decltype(first > second ? first : second)
+auto max(T first, R second)
 {
     return first > second ? first : second;
 }
 
 template <typename T, typename R, typename S>
-auto max(T first, R second, S third) -> decltype(max(first, second) > third ? max(first, second) : third)
+auto max(T first, R second, S third)
 {
     return max(first, second) > third ? max(first, second) : third;
 }

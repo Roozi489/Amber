@@ -45,6 +45,10 @@ void main()
     light4Position_Worldspace = vec3(-30.0, 30.0, 0.0);
     
     reflection = reflect(-normalize(cameraPosition - vertexPosition), normalize(vertexNormal));
+
+	//vec4 pos = MVP * vec4(vertexPosition.x, vertexPosition.y, vertexPosition.z, 1.0);
     
+	//pos.y = 1 - pos.y;
+
     gl_Position = MVP * vec4(vertexPosition, 1.0);
 }

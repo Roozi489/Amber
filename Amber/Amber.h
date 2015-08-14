@@ -1,5 +1,4 @@
 #pragma once
-#include "Camera.h"
 
 #include <SDL/SDL.h>
 
@@ -11,6 +10,9 @@ public:
 
 	void run();
 private:
+	int lastMouseX;
+	int lastMouseY;
+
 
 	float mTotalSecondsElapsed;
 
