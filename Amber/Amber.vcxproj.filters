@@ -105,6 +105,9 @@
     <ClCompile Include="RenderTexture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -200,6 +203,12 @@
     </ClInclude>
     <ClInclude Include="RenderTexture.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ContextSettings.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

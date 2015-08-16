@@ -1,7 +1,7 @@
 Critical:
 ------------------------------------
-Render to texture
 Transform component quaternion
+Deferred shading
 
 Major:
 ------------------------------------
@@ -14,6 +14,7 @@ Math (trigonometry)
 Better code structure - (add math file)
 Input manager
 Resource managment
+Antialiasing
 
 Minor:
 ------------------------------------

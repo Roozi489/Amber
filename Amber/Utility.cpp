@@ -265,9 +265,18 @@ void _checkGlError(const char* file, int line, const char* function)
                 break;
         }
 
-        log("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "\n" + function);
+        criticalError("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "  -  " + function);
         err = glGetError();
     }
+}
+
+void ignoreGLError()
+{
+	GLenum err;
+	do 
+	{
+		err = glGetError();
+	} while (err != GL_NO_ERROR);
 }
 
 void log(std::string message)

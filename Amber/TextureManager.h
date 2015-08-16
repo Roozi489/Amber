@@ -8,7 +8,7 @@
 class TextureManager
 {
 public:
-	std::unordered_map<std::string, Texture> textures;
+	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	
 	TextureManager();
 	~TextureManager();

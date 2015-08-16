@@ -8,8 +8,6 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 
-#include <unordered_map>
-
 class GameplaySystem;
 
 typedef struct FontType_
@@ -22,6 +20,16 @@ typedef struct FontType_
     size_t       file_size;
 
 } FontType, *FontHandle;
+
+static const GLfloat fullscreenQuadData[] =
+{
+	-1.0f, -1.0f, 0.0f,
+	1.0f, -1.0f, 0.0f,
+	-1.0f,  1.0f, 0.0f,
+	-1.0f,  1.0f, 0.0f,
+	1.0f, -1.0f, 0.0f,
+	1.0f,  1.0f, 0.0f,
+};
 
 class RenderSystem : public BaseSystem
 {
@@ -51,12 +59,13 @@ private:
     int numFonts;
     FontHandle* fonts;
 
-	RenderTexture framebuffer;
+	RenderTexture renderTexture;
 	GLuint renderTextureVao;
 	GLuint renderTextureVbo;
 
     Skybox skybox;
 
+	
 
     FT_Error ftAddFont(const char* filepath, FT_Bool outline_only);
     FT_UInt ftGetIndex(FTC_FaceID faceID, FT_UInt32 charcode);

@@ -16,10 +16,11 @@ bool TextureManager::preloadTexture(const std::string& fileName)
 	if (textures.find(fileName) != textures.end())
 		return true;
 
-	Texture t;
-	if (t.load(fileName))
+	auto texture = std::make_unique<Texture>();
+
+	if (texture->load(fileName))
 	{
-		textures.insert(std::make_pair(fileName, t));
+		textures.insert(std::make_pair(fileName, std::move(texture)));
 		return true;
 	}
 
@@ -33,5 +34,5 @@ Texture* TextureManager::getTexture(const std::string& name)
 		preloadTexture(name);
 	}
 
-	return &textures[name];
+	return textures[name].get();
 }

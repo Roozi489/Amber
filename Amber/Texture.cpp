@@ -5,14 +5,16 @@
 #include <stb_image.h>
 
 Texture::Texture()
-: textureID(-1)
+: width(-1)
+, height(-1)
+, textureID(-1)
 {
 
 }
 
 Texture::~Texture()
 {
-	
+	destroy();
 }
 
 GLuint Texture::getTextureID() const
@@ -20,9 +22,9 @@ GLuint Texture::getTextureID() const
     return textureID;
 }
 
-bool Texture::load(const std::string& filename)
+bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWrapMode wrap)
 {
-    int width, height, componentsPerPixel;
+    int componentsPerPixel;
     int forceChannels = 4;
     std::string path = "Textures/" + filename;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &componentsPerPixel, forceChannels);
@@ -40,20 +42,47 @@ bool Texture::load(const std::string& filename)
     glTexStorage2D(GL_TEXTURE_2D, numMipmaps, GL_RGBA8, width, height);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);  // Generate num_mipmaps number of mipmaps here.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    checkGlError();
+    glGenerateMipmap(GL_TEXTURE_2D);  // Generate numMipmaps number of mipmaps here.
+    
+	setFilterAndWrap(minMag, wrap);
 
     stbi_image_free(data);
     return true;
 }
 
-void Texture::freeGLData()
+void Texture::genAndBind(int width_, int height_)
+{
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	width = width_;
+	height = height_;
+}
+
+void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
+{
+	minMagfilter = minMag;
+	wrapMode = wrap;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(minMag));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(minMag));
+}
+
+void Texture::bind(GLuint position)
+{
+	assert(position < MaxTexturePosition);
+
+	glActiveTexture(GL_TEXTURE0 + position);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void Texture::destroy()
 {
 	if (textureID != -1)
 		glDeleteTextures(1, &textureID);
+
+	textureID = -1;
+
+	// TODO: check for deleting of the same texture multiple times
 }

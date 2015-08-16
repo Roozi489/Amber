@@ -3,49 +3,66 @@
 
 
 RenderTexture::RenderTexture()
-: bufferID(-1)
+	: bufferID(-1)
 {
 }
 
-bool RenderTexture::create(int width, int height)
+bool RenderTexture::create(int width, int height, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
 {
+	glEnable(GL_DEPTH_TEST);
 	glGenFramebuffers(1, &bufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	if (type & RenderTextureType::Color)
+	{
+		colorTexture.genAndBind(width, height);
 
-	// Give an empty image to OpenGL ( the last "0" )
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		// empty texture
+		if (type & RenderTextureType::Lighting)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		else
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-	checkGlError();
+		colorTexture.setFilterAndWrap(minMag, wrap);
 
-	// Poor filtering. Needed !
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture.textureID, 0);
+	}
+	
+	if (type & RenderTextureType::Depth)
+	{
+		depthTexture.genAndBind(width, height);
+		// empty texture
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		depthTexture.setFilterAndWrap(minMag, wrap);
+		// not sure what this does
+		//glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 
-	// The depth buffer
-	GLuint depthrenderbuffer;
-	glGenRenderbuffers(1, &depthrenderbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureID, 0);
+	}
 
-	// Set "renderedTexture" as our colour attachement #0
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureID, 0);
+	if (type & RenderTextureType::Color || type & RenderTextureType::Lighting)
+		drawbufferAttachments.push_back(GL_COLOR_ATTACHMENT0);
 
-	// Set the list of draw buffers.
-	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	// 1 is the size of DrawBuffers
-	glDrawBuffers(1, DrawBuffers);
+	glDrawBuffers(static_cast<GLsizei>(drawbufferAttachments.size()), &drawbufferAttachments[0]);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		criticalError("FrameBuffer is not complete");
 
 	// unbind
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	checkGlError();
 
 	return true;
+}
+
+void RenderTexture::destroy()
+{
+	if (bufferID != -1)
+		glDeleteFramebuffers(1, &bufferID);
+	colorTexture.destroy();
+	depthTexture.destroy();
 }
 
 void RenderTexture::bind()

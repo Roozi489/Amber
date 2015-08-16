@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL/SDL.h>
-
 class Amber
 {
 public:

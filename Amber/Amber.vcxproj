@@ -198,6 +198,7 @@
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="TransformComponent.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Utility.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="BaseSystem.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="BaseComponent.h" />
+    <ClInclude Include="ContextSettings.h" />
     <ClInclude Include="CubeTexture.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
@@ -233,6 +235,7 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Utility.h" />

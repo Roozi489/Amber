@@ -49,6 +49,7 @@ void RenderSystem::configure()
 	gShaderManager.createProgram("default", "default.vert", "default.frag");
 	gShaderManager.createProgram("renderTexture", "renderTexture.vert", "renderTexture.frag");
 	GLuint fontShaderProgram = gShaderManager.createProgram("font", "font.vert", "font.frag");
+	// -----------------
 
 	// Font rendering
 	glUseProgram(fontShaderProgram);
@@ -67,33 +68,24 @@ void RenderSystem::configure()
 	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-	framebuffer.create(gWindowWidth, gWindowHeight);
+	// -----------------
 
 	// RenderTexture
+	renderTexture.create(gWindowWidth, gWindowHeight);
+
 	glGenVertexArrays(1, &renderTextureVao);
 	glBindVertexArray(renderTextureVao);
-
-	static const GLfloat quadVboData[] =
-	{
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		1.0f,  1.0f, 0.0f,
-	};
-		
+	
 	glGenBuffers(1, &renderTextureVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, renderTextureVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVboData), quadVboData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadData), fullscreenQuadData, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
 }
 
 void RenderSystem::update(float delta)
 {
-	framebuffer.bind();
+	renderTexture.bind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -132,8 +124,7 @@ void RenderSystem::update(float delta)
 
 		if (renderComp.mesh->hasTexture)
 		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, renderComp.mesh->texture->textureID);
+			renderComp.mesh->texture->bind(0);
 			glUniform1i(textureSamplerLoc, 0);
 		}
 
@@ -149,8 +140,12 @@ void RenderSystem::update(float delta)
 		checkGlError();
 	}
 
+	// Disable depth writting
+	glDepthMask(GL_FALSE);
 	textRendering();
+	glDepthMask(GL_TRUE);
 
+	// Second pass
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // framebuffer.unbind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -158,14 +153,16 @@ void RenderSystem::update(float delta)
 	glUseProgram(shaderId);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, framebuffer.textureID);
+	if (gKeystate[SDL_SCANCODE_F1])
+		glBindTexture(GL_TEXTURE_2D, renderTexture.depthTexture.textureID);
+	else
+		glBindTexture(GL_TEXTURE_2D, renderTexture.colorTexture.textureID);
 
 	GLuint texID = glGetUniformLocation(shaderId, "tex");
 	glUniform1i(texID, 0);
 	
 	glBindVertexArray(renderTextureVao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-
 
 	SDL_GL_SwapWindow(gMainWindow);
 }
@@ -186,27 +183,7 @@ void RenderSystem::textRendering()
 	float sx = 2.0f / gWindowWidth;
 	float sy = 2.0f / gWindowHeight;
 
-	switch (gWorld.getSystem<GameplaySystem>()->gameState)
-	{
-	case GameState::Start:
-		renderText("Use left and right arrows keys to move pads", -0.6f, -0.30f, sx, sy);
-		renderText("Press space to launch ball", -0.38f, -0.4f, sx, sy);
-		renderText("Press F1, F2 or F3 to change camera", -0.49f, -0.5f, sx, sy);
-	case GameState::Playing:
-		renderText("Score: " + std::to_string(gWorld.getSystem<GameplaySystem>()->score), -0.98f, 0.91f, sx, sy);
-		renderText("Lives remaining: " + std::to_string(gWorld.getSystem<GameplaySystem>()->lives), 0.47f, 0.91f, sx, sy);
-		break;
-	case GameState::Victory:
-		renderText("Victory", -0.38f, 0.05f, sx, sy);
-		renderText("Your Score: " + std::to_string(gWorld.getSystem<GameplaySystem>()->score), -0.26f, -0.15f, sx, sy);
-		break;
-	case GameState::Defeat:
-		renderText("Game Over", -0.65f, 0.05f, sx, sy);
-		renderText("Your Score: " + std::to_string(gWorld.getSystem<GameplaySystem>()->score), -0.26f, -0.15f, sx, sy);
-		break;
-	default:
-		break;
-	}
+	renderText(std::to_string(gFrameTime) + " ms", -0.99f, 0.95f, sx, sy);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float sx, float sy)
@@ -403,7 +380,7 @@ FT_Error RenderSystem::ftIndexToBitmap(FT_ULong index, FTC_FaceID faceID, int* l
 	FTC_ScalerRec scaler;
 	scaler.pixel = 1; // use pixel sizes
 	scaler.width = (FT_UInt)0;// TODO: is width needed???
-	scaler.height = (FT_UInt)32;
+	scaler.height = (FT_UInt)12;
 	scaler.x_res = 0;
 	scaler.y_res = 0;
 	scaler.face_id = faceID;

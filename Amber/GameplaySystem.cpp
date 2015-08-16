@@ -20,23 +20,6 @@ void GameplaySystem::configure()
 
 void GameplaySystem::update(float delta)
 {
-    if (gKeystate[SDL_SCANCODE_F1])
-    {
-        cameraFollowBall = false;
-        gCamera.setPosition(Vector3f(0.f, 170.f, -120.f));
-        gCamera.setViewTarget(Vector3f(0.f, -0.1f, 0.f));
-    }
-    if (gKeystate[SDL_SCANCODE_F2])
-    {
-        cameraFollowBall = false;
-        gCamera.setPosition(Vector3f(0.f, 250.f, -0.1f));
-        gCamera.setViewTarget(Vector3f(0.f, -0.1f, 0.f));
-    }
-    if (gKeystate[SDL_SCANCODE_F3])
-    {
-        cameraFollowBall = true;
-    }
-
     if (gameState == GameState::Defeat || gameState == GameState::Victory)
         return;
 
@@ -153,12 +136,6 @@ void GameplaySystem::update(float delta)
 
             if (entity.tag == Tag::Ball)
             {
-                if (cameraFollowBall)
-                {
-                    gCamera.setPosition(transformComp.position + Vector3f(0.f, 30.f, -0.1f) - physicsComp.velocity * 3.f);
-                    gCamera.setViewTarget(transformComp.position);
-                }
-
                 Sphere sphere(transformComp.position, 1.f);
                 std::vector<Vector3f> destroyedBricksPosition;
 

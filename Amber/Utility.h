@@ -89,6 +89,7 @@ bool compareStringsCaseInsensitive(const std::string& a, const std::string& b);
 
 void _checkGlError(const char* file, int line, const char* function);
 #define checkGlError() _checkGlError(__FILE__,__LINE__,__FUNCTION__)
+void ignoreGLError();
 
 void log(std::string message);
 void clearLog();

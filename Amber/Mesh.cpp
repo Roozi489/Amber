@@ -7,7 +7,7 @@
 #include <sstream>
 
 Mesh::Mesh()
-    : hasTexture(false)
+: hasTexture(false)
 {
 }
 
@@ -49,8 +49,6 @@ bool Mesh::loadGLData()
     glGenBuffers(1, &elementVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementVBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), indices.data(), GL_STATIC_DRAW);
-
-    checkGlError();
 
     return true;
 }

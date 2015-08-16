@@ -1,11 +1,11 @@
 ﻿#include "Amber.h"
 #include "Globals.h"
 #include "Vector.h"
-#include "Matrix.h"
-
 #include "RenderSystem.h"
 #include "GameplaySystem.h"
 #include "SoundSystem.h"
+#include "ContextSettings.h"
+#include "Time.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_keyboard.h>
@@ -27,51 +27,39 @@ Amber::~Amber()
 
 void Amber::run()
 {
-    float deltaMillis = 16.f;
-    float deltaSeconds = deltaMillis / 1000.f;
+	Time delta = milliseconds(16.f);
 
 	clearLog();
     init();
-    
-    /*auto lastTime = std::chrono::system_clock::now();;
-    while (true)
-    {
-    auto current = std::chrono::system_clock::now();;
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current - lastTime);
-    update((static_cast<float>(elapsed.count()) / 1000.f));
-    log(std::to_string(elapsed.count()));
-
-    lastTime = current;
-    }*/
 
     while (true)
     {
-        auto start = std::chrono::system_clock::now();
+		Time before = Time::now();
 
-        update(deltaSeconds);
+        update(delta.asSeconds());
 
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-        
-        auto sleepFor = max(0, (int)deltaMillis - duration.count());
+		Time duration = Time::now() - before;
 
-        gFrameTime = static_cast<float>(duration.count());
+        gFrameTime = duration.asMilliseconds();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleepFor));
+		float sleepFor = max(0.f, delta.asMilliseconds() - duration.asMilliseconds());
+		Time::sleep(milliseconds(sleepFor));
     }
 }
 
 void Amber::init()
 {
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
     SDL_GL_SetSwapInterval(0);
 
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);	
+	ContextSettings settings;
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, settings.majorVersion);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, settings.minorVersion);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, settings.depthBits);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, settings.stencilBits);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, settings.acceleratedVisual);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, static_cast<int>(settings.profileMask));
 
     log("Creating window...");
     gMainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWindowWidth, gWindowHeight, SDL_WINDOW_OPENGL);
@@ -98,12 +86,7 @@ void Amber::init()
     log("Initializing GLEW...");
     glewExperimental = true;
     if (glewInit() != GLEW_OK)
-    {
         criticalError("Failed to initialize GLEW");
-    }
-	
-	// trap the mouse in the window and hide the cursor
-	//SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
@@ -113,7 +96,7 @@ void Amber::init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
-    checkGlError();
+	ignoreGLError();
 
 	gKeystate = SDL_GetKeyboardState(NULL);
 
@@ -190,7 +173,9 @@ void Amber::update(float delta)
     }
 
 	if (mouseState & SDL_BUTTON_RMASK)
-	{
+	{	
+		SDL_ShowCursor(SDL_FALSE);
+
 		float xOffset = static_cast<float>(lastMouseX - mouseX);
 		float yOffset = static_cast<float>(lastMouseY - mouseY);
 		gCamera.offsetOrientation(xOffset / 500.f, yOffset / 500.f);
@@ -198,6 +183,10 @@ void Amber::update(float delta)
 		SDL_WarpMouseInWindow(gMainWindow, gWindowWidth / 2, gWindowHeight / 2);
 		mouseX = gWindowWidth / 2;
 		mouseY = gWindowHeight / 2;
+	}
+	else
+	{
+		SDL_ShowCursor(SDL_TRUE);
 	}
 
     SDL_Event event;

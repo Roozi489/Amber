@@ -11,8 +11,6 @@
 #include "SoundSystem.h"
 //
 
-#include <vector>
-
 class Mesh;
 
 enum class GameState
@@ -34,7 +32,6 @@ public:
 
     float startingSpeed = 10.f;
     float speedIncrease = 1.05f;
-    bool cameraFollowBall = false;
 
     GameplaySystem();
     ~GameplaySystem();
