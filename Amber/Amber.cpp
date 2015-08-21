@@ -5,15 +5,10 @@
 #include "GameplaySystem.h"
 #include "SoundSystem.h"
 #include "ContextSettings.h"
-#include "Time.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_keyboard.h>
 #include <GL/glew.h>
-
-#include <chrono>
-#include <thread>
-
 
 Amber::Amber()
 {
@@ -27,24 +22,21 @@ Amber::~Amber()
 
 void Amber::run()
 {
-	Time delta = milliseconds(16.f);
-
 	clearLog();
     init();
 
-    while (true)
-    {
-		Time before = Time::now();
+	Time previous = Time::now();
 
-        update(delta.asSeconds());
+	while (true)
+	{
+		Time current = Time::now();
+		Time elapsed = current - previous;
+		gFrameTime = elapsed;
 
-		Time duration = Time::now() - before;
+		update(elapsed);
 
-        gFrameTime = duration.asMilliseconds();
-
-		float sleepFor = max(0.f, delta.asMilliseconds() - duration.asMilliseconds());
-		Time::sleep(milliseconds(sleepFor));
-    }
+		previous = current;
+	}
 }
 
 void Amber::init()
@@ -63,9 +55,11 @@ void Amber::init()
 
     log("Creating window...");
     gMainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWindowWidth, gWindowHeight, SDL_WINDOW_OPENGL);
-
     if (!gMainWindow)
         criticalError(SDL_GetError());
+
+	SDL_Surface* iconSurface = loadSDL_SurfaceFromFile("Textures/amber_icon.png");
+	SDL_SetWindowIcon(gMainWindow, iconSurface);
 
 	log("Creating context...");
     gContext = SDL_GL_CreateContext(gMainWindow);
@@ -87,7 +81,7 @@ void Amber::init()
     glewExperimental = true;
     if (glewInit() != GLEW_OK)
         criticalError("Failed to initialize GLEW");
-
+	
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE);
@@ -102,8 +96,8 @@ void Amber::init()
 
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	lastMouseX = mouseX;
-	lastMouseY = mouseY;
+	mLastMouseX = mouseX;
+	mLastMouseY = mouseY;
 
     //
     // Gameplay stuff
@@ -121,11 +115,11 @@ void Amber::init()
 	gCamera.offsetOrientation(0.f, -0.7f);
 }
 
-void Amber::update(float delta)
+void Amber::update(Time delta)
 {
-    mTotalSecondsElapsed += static_cast<float>(delta);
+    mTotalTimeElapsed += delta;
 
-    gCamera.update(delta);
+    gCamera.update(delta.asSeconds());
 
     SDL_PumpEvents();
 	int mouseX, mouseY;
@@ -176,8 +170,8 @@ void Amber::update(float delta)
 	{	
 		SDL_ShowCursor(SDL_FALSE);
 
-		float xOffset = static_cast<float>(lastMouseX - mouseX);
-		float yOffset = static_cast<float>(lastMouseY - mouseY);
+		float xOffset = static_cast<float>(mLastMouseX - mouseX);
+		float yOffset = static_cast<float>(mLastMouseY - mouseY);
 		gCamera.offsetOrientation(xOffset / 500.f, yOffset / 500.f);
 
 		SDL_WarpMouseInWindow(gMainWindow, gWindowWidth / 2, gWindowHeight / 2);
@@ -218,6 +212,6 @@ void Amber::update(float delta)
 
     gWorld.update(delta);
 
-	lastMouseX = mouseX;
-	lastMouseY = mouseY;
+	mLastMouseX = mouseX;
+	mLastMouseY = mouseY;
 }

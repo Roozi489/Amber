@@ -24,7 +24,7 @@ public:
     ~SoundSystem();
 
     virtual void configure();
-    virtual void update(float delta);
+    virtual void update(Time delta);
 
     void createSound(const std::string& filename);
     void playSound(const std::string& name, bool loop = false, bool playEvenIfAlreadyPlaying = false);

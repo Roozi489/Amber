@@ -1,4 +1,5 @@
 #pragma once
+#include "Time.h"
 
 class Amber
 {
@@ -8,13 +9,12 @@ public:
 
 	void run();
 private:
-	int lastMouseX;
-	int lastMouseY;
+	int mLastMouseX;
+	int mLastMouseY;
 
-
-	float mTotalSecondsElapsed;
+	Time mTotalTimeElapsed;
 
 	void init();
-	void update(float delta);
+	void update(Time delta);
 };
 

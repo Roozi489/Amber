@@ -18,7 +18,7 @@ enum class Tag
 
 static const int MAX_COMPONENTS = 32;
 
-using EntityID = std::int32_t;
+using EntityID = std::uint32_t;
 using ComponentMask = std::bitset<MAX_COMPONENTS>;
 
 class Entity
@@ -27,7 +27,7 @@ public:
     EntityID id;
     Tag tag;
 
-    //
+    // TODO: change how components are stored
     std::vector<std::shared_ptr<BaseComponent>> components;
     //
 
@@ -44,7 +44,7 @@ public:
     {
         C* component = new C(std::forward<Args>(args)...);
         component->parent = this;
-        ComponentID id = C::getComponentTypeID<C>();
+        ComponentID id = C::template getComponentTypeID<C>();
         component->id = id;
 
         //
@@ -60,13 +60,13 @@ public:
     template <class C>
     bool hasComponent() const
     {
-        return componentMask[C::getComponentTypeID<C>()];
+        return componentMask[C::template getComponentTypeID<C>()];
     }
 
     template <class C>
     C& getComponent()
     {
-        auto ptr = componentArray[C::getComponentTypeID<C>()];
+        auto ptr = componentArray[C::template getComponentTypeID<C>()];
         return *reinterpret_cast<C*>(ptr);
     }
 

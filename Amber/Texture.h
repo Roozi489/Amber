@@ -34,12 +34,11 @@ public:
     Texture();
     ~Texture();
 
-    GLuint getTextureID() const;
-
     bool load(const std::string& filename, TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
+	void genAndBind();
 	void genAndBind(int width_, int height_);
 	void setFilterAndWrap(TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
-	void bind(GLuint position);
+	void bindAndSetActive(GLuint position);
 	void destroy();
 };
 

@@ -4,13 +4,11 @@
 #include <fmod/fmod_errors.h>
 #include <fmod/fmod_common.h>
 
-#include <string>
 #include <assert.h>
 
 SoundSystem::SoundSystem()
 {
 }
-
 
 SoundSystem::~SoundSystem()
 {
@@ -49,9 +47,11 @@ void SoundSystem::configure()
     createSound("defeat.wav");
 }
 
-void SoundSystem::update(float delta)
+void SoundSystem::update(Time delta)
 {
-    FMOD_RESULT result = fmodSystem->update();
+	BaseSystem::update(delta);
+
+	FMOD_RESULT result = fmodSystem->update();
     if (result != FMOD_OK)
     {
         std::string message = "FMOD::update error - ";

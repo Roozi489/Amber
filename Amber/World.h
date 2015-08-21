@@ -55,7 +55,7 @@ public:
     std::shared_ptr<S> addSystem(Args && ... args)
     {
         std::shared_ptr<S> s(new S(std::forward<Args>(args) ...));
-        s->systemID = S::getSystemID<S>();
+        s->systemID = S::template getSystemID<S>();
         systems.insert(std::make_pair(s->systemID, std::shared_ptr<BaseSystem>(s)));
         return s;
     }
@@ -63,9 +63,9 @@ public:
     template <typename S>
     S* getSystem()
     {
-        return static_cast<S*>(systems[S::getSystemID<S>()].get());
+        return static_cast<S*>(systems[S::template getSystemID<S>()].get());
     }
 
     void configureSystems();
-    void update(float delta);
+    void update(Time delta);
 };

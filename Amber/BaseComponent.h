@@ -1,11 +1,9 @@
 #pragma once
-#include "NonCopyable.h"
-
 #include <cstdint>
 
 class Entity;
 
-using ComponentID = std::int32_t;
+using ComponentID = std::uint32_t;
 
 class BaseComponent
 {

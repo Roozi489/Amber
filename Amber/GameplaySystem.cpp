@@ -7,6 +7,7 @@
 
 GameplaySystem::GameplaySystem()
 {
+	setUpdateFrequency(UpdateFrequency::FixedTimeStep, seconds(1) / 60.f);
 }
 
 GameplaySystem::~GameplaySystem()
@@ -18,8 +19,10 @@ void GameplaySystem::configure()
     soundSystem = gWorld.getSystem<SoundSystem>();
 }
 
-void GameplaySystem::update(float delta)
+void GameplaySystem::update(Time delta)
 {
+	BaseSystem::update(delta);
+
     if (gameState == GameState::Defeat || gameState == GameState::Victory)
         return;
 
@@ -80,13 +83,13 @@ void GameplaySystem::update(float delta)
                 float angle = angleFromCenter(transformComp.position);
                 if (leftDown)
                 {
-                    angle -= 1.5f * delta;
+                    angle -= 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
                     transformComp.angle = pi + angle;
                 }
                 if (rightDown)
                 {
-                    angle += 1.5f * delta;
+                    angle += 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
                     transformComp.angle = pi + angle;
                 }
@@ -156,7 +159,7 @@ void GameplaySystem::update(float delta)
                     }
 
                     soundSystem->playSound("Bonk");
-                    transformComp.position -= physicsComp.velocity * delta;
+                    transformComp.position -= physicsComp.velocity * delta.asSeconds();
                     Vector3f norm = normalize(Vector3f(transformComp.position.x, 0.f, transformComp.position.z));
                     physicsComp.velocity = normalize(reflect(physicsComp.velocity, norm)) * startingSpeed;
                     moveFreely = false;
@@ -175,10 +178,10 @@ void GameplaySystem::update(float delta)
                         if (distance(sphere.origin, otherTransformComp.position) <= 2 * otherPhysicsComp.collisionMesh->boundingSphereRadiusFast() + sphere.radius)
                         {
                             // TODO: check for collisions with all objects and respond to the first one, then repeat the collision check
-                            CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta, otherTransformComp, otherPhysicsComp.collisionMesh);
+                            CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
                             if (result.collisionOccured)
                             {
-                                transformComp.position += physicsComp.velocity * delta * result.collisionTime;
+                                transformComp.position += physicsComp.velocity * delta.asSeconds() * result.collisionTime;
 
                                 resultNormal = normalize(Vector3f(result.collisionNormal.x, 0.f, result.collisionNormal.z));
                                 physicsComp.velocity = reflect(physicsComp.velocity, resultNormal);
@@ -208,15 +211,15 @@ void GameplaySystem::update(float delta)
                         // Bounce from pad
                         if (distance(sphere.origin, otherTransformComp.position) <= otherPhysicsComp.collisionMesh->boundingSphereRadiusFast() + sphere.radius)
                         {
-                            CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta, otherTransformComp, otherPhysicsComp.collisionMesh);
+                            CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
                             if (result.collisionOccured)
                             {
-                                transformComp.position += physicsComp.velocity * delta * result.collisionTime;
+                                transformComp.position += physicsComp.velocity * delta.asSeconds() * result.collisionTime;
 
                                 Vector3f normalWithoutY = normalize(Vector3f(result.collisionNormal.x, 0.f, result.collisionNormal.z));
                                 physicsComp.velocity = reflect(physicsComp.velocity, normalWithoutY) * speedIncrease;
 
-                                transformComp.position += physicsComp.velocity * delta * (1.f - result.collisionTime);
+                                transformComp.position += physicsComp.velocity * delta.asSeconds() * (1.f - result.collisionTime);
 
                                 soundSystem->playSound("Bleep");
                                 moveFreely = false;
@@ -244,7 +247,7 @@ void GameplaySystem::update(float delta)
             }
             // Move with entities
             if (moveFreely)
-                transformComp.position += physicsComp.velocity * delta;
+                transformComp.position += physicsComp.velocity * delta.asSeconds();
         }
     }
 
@@ -323,7 +326,7 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 {
     // Taken from http://www.peroxide.dk/papers/collision/collision.pdf
 
-    // TODO: Convert to proper base so it supports spheres of any size
+    // TODO: Convert to proper base so it supports ellipsoids
 
     CollisionResult result;
     result.collisionOccured = false;

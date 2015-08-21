@@ -229,7 +229,7 @@ public:
     ComponentMask component_mask()
     {
         ComponentMask mask;
-        mask.set(C::getComponentTypeID<C>());
+        mask.set(C::template getComponentTypeID<C>());
         return mask;
     }
 

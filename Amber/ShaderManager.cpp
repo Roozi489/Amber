@@ -9,12 +9,12 @@ ShaderManager::ShaderManager()
 
 ShaderManager::~ShaderManager()
 {
-    for (auto& pair : shaderPrograms)
+    for (auto& pair : mShaderPrograms)
     {
         GLuint pr = pair.second;
         glDeleteProgram(pr);
     }
-    shaderPrograms.clear();
+    mShaderPrograms.clear();
 }
 
 GLuint ShaderManager::createShader(GLenum shaderType, const std::string& shaderFileName)
@@ -58,12 +58,13 @@ GLuint ShaderManager::createProgram(const std::string& shaderName, const std::st
         std::string message = "Failed to link shader:\n";
         criticalError(message.append(log.get()));
     }
-    shaderPrograms[shaderName] = programID;
+    mShaderPrograms[shaderName] = programID;
 
     return programID;
 }
 
 GLuint ShaderManager::getShaderProgram(const std::string& shaderName)
 {
-    return shaderPrograms[shaderName];
+	assert_amber(mShaderPrograms.find(shaderName) != mShaderPrograms.end(), "ShaderProgram \"" + shaderName + "\" not found.");
+    return mShaderPrograms[shaderName];
 }

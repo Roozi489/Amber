@@ -229,6 +229,7 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SoundSystem.h" />
@@ -245,8 +246,9 @@
   <ItemGroup>
     <None Include="..\Resources\Shaders\font.frag" />
     <None Include="..\Resources\Shaders\font.vert" />
-    <None Include="..\Resources\Shaders\renderTexture.frag" />
+    <None Include="..\Resources\Shaders\renderTextureColor.frag" />
     <None Include="..\Resources\Shaders\renderTexture.vert" />
+    <None Include="..\Resources\Shaders\renderTextureDepth.frag" />
     <None Include="..\Resources\Shaders\skybox.frag" />
     <None Include="..\Resources\Shaders\skybox.vert" />
     <None Include="..\Resources\Shaders\pbr.frag" />
@@ -257,6 +259,12 @@
     <None Include="Matrix.inl" />
     <None Include="Ray.inl" />
     <None Include="Vector.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Amber.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\amber_icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

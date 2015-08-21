@@ -47,18 +47,15 @@ void RenderSystem::configure()
 
 	// TODO: automate this
 	gShaderManager.createProgram("default", "default.vert", "default.frag");
-	gShaderManager.createProgram("renderTexture", "renderTexture.vert", "renderTexture.frag");
+	gShaderManager.createProgram("renderTextureColor", "renderTexture.vert", "renderTextureColor.frag");
+	gShaderManager.createProgram("renderTextureDepth", "renderTexture.vert", "renderTextureDepth.frag");
 	GLuint fontShaderProgram = gShaderManager.createProgram("font", "font.vert", "font.frag");
 	// -----------------
 
 	// Font rendering
 	glUseProgram(fontShaderProgram);
-	glGenTextures(1, &fontTexID);
-	glBindTexture(GL_TEXTURE_2D, fontTexID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	fontTexture.genAndBind();
+	fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	glGenVertexArrays(1, &fontVao);
@@ -83,8 +80,10 @@ void RenderSystem::configure()
 	glEnableVertexAttribArray(0);
 }
 
-void RenderSystem::update(float delta)
+void RenderSystem::update(Time delta)
 {
+	BaseSystem::update(delta);
+
 	renderTexture.bind();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,8 +91,13 @@ void RenderSystem::update(float delta)
 	//skybox.update();
 	//skybox.render();
 
-	// TODO: add scale - but why?
-	//view = scale * rotate * translate;
+	/* TODO: 
+	1) Run through your game objects and do the update tick on each one. No rendering happens yet.
+	2) Run through the list of game objects, frustum/visibility cull each one, and if visible add its meshes (one mesh per material) to a render list. Generally you want two render lists, one for opaque and one for transparent objects.
+	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
+	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
+	*/
+
 	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
 	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
 
@@ -124,7 +128,7 @@ void RenderSystem::update(float delta)
 
 		if (renderComp.mesh->hasTexture)
 		{
-			renderComp.mesh->texture->bind(0);
+			renderComp.mesh->texture->bindAndSetActive(0);
 			glUniform1i(textureSamplerLoc, 0);
 		}
 
@@ -146,23 +150,29 @@ void RenderSystem::update(float delta)
 	glDepthMask(GL_TRUE);
 
 	// Second pass
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // framebuffer.unbind();
+	renderTexture.unbind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	GLuint shaderId = gShaderManager.getShaderProgram("renderTexture");
-	glUseProgram(shaderId);
-
-	glActiveTexture(GL_TEXTURE0);
+	// Show depth texture if F1 is pressed
+	GLuint shaderId;
 	if (gKeystate[SDL_SCANCODE_F1])
-		glBindTexture(GL_TEXTURE_2D, renderTexture.depthTexture.textureID);
+		shaderId = gShaderManager.getShaderProgram("renderTextureDepth");
 	else
-		glBindTexture(GL_TEXTURE_2D, renderTexture.colorTexture.textureID);
+		shaderId = gShaderManager.getShaderProgram("renderTextureColor");
+	 
+	glUseProgram(shaderId);
+	if (gKeystate[SDL_SCANCODE_F1])
+		renderTexture.depthTexture.bindAndSetActive(0);
+	else
+		renderTexture.colorTexture.bindAndSetActive(0);
 
 	GLuint texID = glGetUniformLocation(shaderId, "tex");
 	glUniform1i(texID, 0);
 	
 	glBindVertexArray(renderTextureVao);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	checkGlError();
 
 	SDL_GL_SwapWindow(gMainWindow);
 }
@@ -175,15 +185,14 @@ void RenderSystem::textRendering()
 	glBindVertexArray(fontVao);
 	glEnableVertexAttribArray(0);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fontTexID);
+	fontTexture.bindAndSetActive(0);
 	GLint texSamplerLoc = glGetUniformLocation(fontShaderProgram, "tex");
 	glUniform1i(texSamplerLoc, 0);
 
 	float sx = 2.0f / gWindowWidth;
 	float sy = 2.0f / gWindowHeight;
 
-	renderText(std::to_string(gFrameTime) + " ms", -0.99f, 0.95f, sx, sy);
+	renderText(std::to_string(gFrameTime.asMilliseconds()) + " ms", -0.99f, 0.95f, sx, sy);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float sx, float sy)

@@ -38,7 +38,7 @@ public:
     ~RenderSystem();
 
     virtual void configure() override;
-    virtual void update(float delta) override;
+    virtual void update(Time delta) override;
 
     void textRendering();
 
@@ -53,7 +53,7 @@ private:
 
 	GLuint fontVao;
 	GLuint fontVbo;
-	GLuint fontTexID;
+	Texture fontTexture;
 
     int maxFonts;
     int numFonts;

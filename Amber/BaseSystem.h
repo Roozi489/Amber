@@ -1,20 +1,33 @@
 #pragma once
 #include "NonCopyable.h"
+#include "Time.h"
 
 #include <cstdint>
 
-using SystemID = std::int32_t;
+using SystemID = std::uint32_t;
+
+enum class UpdateFrequency
+{
+	Always,
+	FixedTimeStep
+};
 
 class BaseSystem : public NonCopyable
 {
 public:
     SystemID systemID;
-    
-    BaseSystem();
+
+	UpdateFrequency updateFrequency = UpdateFrequency::Always;
+	Time updateFrequencyTime = Time::Zero;
+	Time lastUpdateTime = Time::Zero;
+
+	BaseSystem() = default;
     virtual ~BaseSystem();    
 
     virtual void configure() = 0;
-    virtual void update(float delta) = 0;
+    virtual void update(Time delta);
+
+	void setUpdateFrequency(UpdateFrequency frequency, Time frequencyTime = Time::Zero);
 
     template <class S>
     inline static SystemID getSystemID()

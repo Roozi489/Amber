@@ -210,6 +210,9 @@
     <ClInclude Include="Time.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">
@@ -248,11 +251,24 @@
     <None Include="..\Resources\Shaders\font.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\Shaders\renderTexture.frag">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\Resources\Shaders\renderTexture.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\Resources\Shaders\renderTextureColor.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\renderTextureDepth.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Amber.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\amber_icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

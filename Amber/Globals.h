@@ -4,17 +4,15 @@
 #include "ShaderManager.h"
 #include "MeshManager.h"
 #include "TextureManager.h"
+#include "Time.h"
 
 #include <SDL/SDL.h>
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
 extern SDL_Window *gMainWindow;
 extern SDL_GLContext gContext;
 extern int gWindowWidth;
 extern int gWindowHeight;
-extern float gFrameTime;
+extern Time gFrameTime;
 
 extern World gWorld;
 extern Camera gCamera;

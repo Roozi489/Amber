@@ -2,6 +2,8 @@
 
 #include <thread>
 
+const Time Time::Zero = Time(0);
+
 Time::Time()
 : mMicroseconds(0)
 {
@@ -17,7 +19,7 @@ float Time::asMilliseconds() const
 	return mMicroseconds.count() / 1000.0f;
 }
 
-long long Time::asMicroseconds() const
+int64_t Time::asMicroseconds() const
 {
 	return mMicroseconds.count();
 }
@@ -37,21 +39,6 @@ void Time::sleep(Time time)
 Time::Time(long long microseconds)
 : mMicroseconds(std::chrono::microseconds(microseconds))
 {
-}
-
-Time seconds(float amount)
-{
-	return Time(static_cast<long>(amount * 1000000));
-}
-
-Time milliseconds(float amount)
-{
-	return Time(static_cast<long>(amount * 1000));
-}
-
-Time microseconds(long long amount)
-{
-	return Time(amount);
 }
 
 bool operator==(Time lhs, Time rhs)

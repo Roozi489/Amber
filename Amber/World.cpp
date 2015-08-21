@@ -75,9 +75,9 @@ Entity* World::addBrick(Vector3f position, Color color)
 void World::setupLevel()
 {
     addFloor();
-    addBall(Vector3f(0.f, 1.f, -23.1f));
+    addBall(Vector3f(0.f, 1.f, 23.1f));
 
-    for (int row = 0; row < 5; ++row)
+    for (int row = 0; row < 3; ++row)
     {
         for (int i = 0; i < 12; ++i)
         {
@@ -107,10 +107,26 @@ void World::configureSystems()
     }
 }
 
-void World::update(float delta)
+void World::update(Time delta)
 {
-    for (auto s : systems)
+    for (auto& s : systems)
     {
-        s.second->update(delta);
+		BaseSystem* system = s.second.get();
+
+		// Update if updateFrequency is set to always or when it's the first update
+		if (system->updateFrequency == UpdateFrequency::Always || system->lastUpdateTime == Time::Zero)
+		{
+			system->update(delta);
+		}
+		// or when enough time passed
+		else
+		{
+			Time lag = Time::now() - system->lastUpdateTime;
+			while (lag >= system->updateFrequencyTime)
+			{
+				lag -= system->updateFrequencyTime;
+				system->update(system->updateFrequencyTime);
+			}
+		}
     }
 }

@@ -5,19 +5,32 @@ Deferred shading
 
 Major:
 ------------------------------------
+Change System::update to take Time
 Uniform buffer object
 Proper logging
+Shadow mapping
+Window class
+Instanced rendering
 Fix freetype includes
 Fix component memory layout
+Cleanup EntityManger
 Proper font rendering
 Math (trigonometry)
-Better code structure - (add math file)
+Better code structure
 Input manager
-Resource managment
+Better resource managment
 Antialiasing
+More Camera
+Replace stdlib
 
 Minor:
 ------------------------------------
-More Camera
 Optimize matrix
 Fix stb_image warnings
+Extrapolate rendering
+
+
+
+Check out:
+------------------------------------
+ARB_multi_draw_indirect

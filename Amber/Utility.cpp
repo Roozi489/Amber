@@ -5,6 +5,7 @@
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
+#include <stb_image.h>
 
 #include <iostream>
 #include <fstream>
@@ -237,7 +238,6 @@ bool compareStringsCaseInsensitive(const std::string& a, const std::string& b)
     return true;
 }
 
-
 void _checkGlError(const char* file, int line, const char* function)
 {
     GLenum err(glGetError());
@@ -265,7 +265,7 @@ void _checkGlError(const char* file, int line, const char* function)
                 break;
         }
 
-        criticalError("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "  -  " + function);
+        log("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "  -  " + function);
         err = glGetError();
     }
 }
@@ -279,28 +279,119 @@ void ignoreGLError()
 	} while (err != GL_NO_ERROR);
 }
 
+SDL_Surface* loadSDL_SurfaceFromFile(const char* filename)
+{
+	int w, h, bytesperpixel;
+	unsigned char *data = stbi_load(filename, &w, &h, &bytesperpixel, 0);
+	if (data == nullptr)
+	{
+		std::stringstream sstream;
+		sstream << "Failed to load image: " << filename << "  -  " << "stbi_load returned NULL.";
+		criticalError(sstream.str());
+	}
+
+	Uint32 Rmask, Gmask, Bmask, Amask = 0;
+	switch (bytesperpixel)
+	{
+	case 1:
+		Rmask = 0xff;
+		Gmask = 0xff;
+		Bmask = 0xff;
+		break;
+	case 2:
+		Rmask = 0x00ff;
+		Gmask = 0x00ff;
+		Bmask = 0x00ff;
+		Amask = 0xff00;
+		break;
+	case 3:
+		Rmask = 0x0000FF;
+		Gmask = 0x00FF00;
+		Bmask = 0xFF0000;
+		break;
+	case 4:
+		Rmask = 0x000000FF;
+		Gmask = 0x0000FF00;
+		Bmask = 0x00FF0000;
+		Amask = 0xFF000000;
+		break;
+	default:
+		stbi_image_free(data);
+		std::stringstream sstream;
+		sstream << "Failed to load image: " << filename << "  -  Unsupported bit depth of " << bytesperpixel * 8;
+		criticalError(sstream.str());
+	}
+
+	// ... w = width, h = height, n = # 8-bit components per pixel ...
+	// No padding for pitch, so it's w*bytesperpixel
+	SDL_Surface* result = SDL_CreateRGBSurfaceFrom(data, w, h, bytesperpixel * 8, w*bytesperpixel, Rmask, Gmask, Bmask, Amask);
+
+	if (result == nullptr)
+	{
+		std::stringstream sstream;
+		sstream << "Failed to load image: " << filename << "  -  SDL_CreateRGBSurfaceFrom() failed.";
+		criticalError(sstream.str());
+	}
+
+	return result;
+}
+
 void log(std::string message)
 {
-    std::ofstream log_file("log.txt", std::ios_base::out | std::ios_base::app);
+    std::ofstream log_file("log.txt", std::ios::out | std::ios::app);
     log_file << message << std::endl;
 }
 
 void clearLog()
 {
-	std::ofstream log_file("log.txt", std::ios_base::out | std::ios_base::trunc);
+	std::ofstream log_file("log.txt", std::ios::out| std::ios::trunc);
 }
 
 void _criticalError(const char* message, const char* file, int line, const char* function)
 {
 	std::stringstream sstream;
 	sstream << message << std::endl << file << ":" << line << "  -  " << function;
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sstream.str().c_str(), gMainWindow);
+	messageBox("Critical error", sstream.str());
 	std::exit(1);
 }
 
 void _criticalError(const std::string& message, const char* file, int line, const char* function)
 {
 	_criticalError(message.c_str(), file, line, function);
+}
+void messageBox(const char* message)
+{
+	messageBox("Amber", message);
+}
+
+void messageBox(const std::string& message)
+{
+	messageBox("Amber", message.c_str());
+}
+
+void messageBox(const std::string& title, const std::string& message)
+{
+	messageBox(title.c_str(), message.c_str());
+}
+
+void messageBox(const char* title, const char* message)
+{
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, gMainWindow);
+}
+
+void _assert(bool expression, const char* message, const char* file, int line, const char* function)
+{
+	if (!expression)
+	{
+		std::stringstream sstream;
+		sstream << "Assert failed: \"" << message << "\"\n" << file << ":" << line << "   -  " << function;
+		messageBox("Assert failed", sstream.str());
+	}
+}
+
+void _assert(bool expression, const std::string& message, const char* file, int line, const char* function)
+{
+	_assert(expression, message.c_str(), file, line, function);
 }
 
 void quit()

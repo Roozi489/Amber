@@ -34,8 +34,6 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 		// empty texture
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 		depthTexture.setFilterAndWrap(minMag, wrap);
-		// not sure what this does
-		//glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureID, 0);
 	}

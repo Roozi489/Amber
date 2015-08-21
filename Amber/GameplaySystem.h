@@ -37,7 +37,7 @@ public:
     ~GameplaySystem();
 
     virtual void configure();
-    virtual void update(float delta);
+    virtual void update(Time delta);
 
     float distFromCenter(Vector3f position);
     float angleFromCenter(Vector3f position);

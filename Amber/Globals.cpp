@@ -4,7 +4,7 @@ SDL_Window *gMainWindow;
 SDL_GLContext gContext;
 int gWindowWidth = 1024;
 int gWindowHeight = 768;
-float gFrameTime;
+Time gFrameTime;
 
 World gWorld;
 Camera gCamera;

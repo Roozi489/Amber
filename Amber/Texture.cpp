@@ -9,17 +9,11 @@ Texture::Texture()
 , height(-1)
 , textureID(-1)
 {
-
 }
 
 Texture::~Texture()
 {
 	destroy();
-}
-
-GLuint Texture::getTextureID() const
-{
-    return textureID;
 }
 
 bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWrapMode wrap)
@@ -50,6 +44,12 @@ bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWra
     return true;
 }
 
+void Texture::genAndBind()
+{
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
 void Texture::genAndBind(int width_, int height_)
 {
 	glGenTextures(1, &textureID);
@@ -69,12 +69,12 @@ void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(minMag));
 }
 
-void Texture::bind(GLuint position)
+void Texture::bindAndSetActive(GLuint position)
 {
 	assert(position < MaxTexturePosition);
 
-	glActiveTexture(GL_TEXTURE0 + position);
 	glBindTexture(GL_TEXTURE_2D, textureID);
+	glActiveTexture(GL_TEXTURE0 + position);
 }
 
 void Texture::destroy()
@@ -83,6 +83,4 @@ void Texture::destroy()
 		glDeleteTextures(1, &textureID);
 
 	textureID = -1;
-
-	// TODO: check for deleting of the same texture multiple times
 }
