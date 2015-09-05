@@ -13,7 +13,7 @@ public:
     MeshManager();
     ~MeshManager();
 
-    bool preloadMesh(const std::string& fileName, bool loadGLData = true);
-    Mesh* getMesh(const std::string& name, bool loadGLData = true);
+    bool preloadMesh(const std::string& fileName);
+    Mesh* getMesh(const std::string& name);
 };
 

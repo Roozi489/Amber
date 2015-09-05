@@ -10,12 +10,9 @@ public:
     Vector3f scale;
 	Quaternion orientation;
 
-	// TODO: remove axis and angle
-    float angle;
-    Vector3f axis;
-
     TransformComponent();
-    TransformComponent(Vector3f pos, Vector3f scale);
+	TransformComponent(Vector3f pos, Vector3f scale);
+	TransformComponent(Vector3f pos, Vector3f scale, Quaternion orient);
     TransformComponent(Vector3f pos, Vector3f scale, float angle, Vector3f axis);
     ~TransformComponent();
 };

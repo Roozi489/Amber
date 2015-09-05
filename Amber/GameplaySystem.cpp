@@ -85,13 +85,13 @@ void GameplaySystem::update(Time delta)
                 {
                     angle -= 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
-                    transformComp.angle = pi + angle;
+                    transformComp.orientation = angleAxis(pi + angle, Vector3f::Up);
                 }
                 if (rightDown)
                 {
                     angle += 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
-                    transformComp.angle = pi + angle;
+					transformComp.orientation = angleAxis(pi + angle, Vector3f::Up);
                 }
 
                 // If pad moved check for collision with ball
@@ -246,15 +246,15 @@ void GameplaySystem::update(Time delta)
                 }
             }
             // Move with entities
-            if (moveFreely)
-                transformComp.position += physicsComp.velocity * delta.asSeconds();
+			if (moveFreely)
+				transformComp.position += physicsComp.velocity * delta.asSeconds();
         }
     }
 
     if (brickCount == 0)
     {
         gameState = GameState::Victory;
-        soundSystem->playSound("victory");
+        //soundSystem->playSound("victory");
     }
 }
 
@@ -273,7 +273,7 @@ CollisionResult GameplaySystem::sphereMeshCollisionFast(const Sphere& sphere, Tr
 {
     CollisionResult result;
     result.collisionOccured = false;
-    Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * Matrix4x4f::rotate(transformComp.angle, transformComp.axis);
+	Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);;
     Matrix4x4f normalMatrix = transpose(inverse(modelMatrix));
 
     for (size_t i = 0; i < mesh->indices.size(); ++i)
@@ -299,7 +299,7 @@ CollisionResult GameplaySystem::movingSphereMeshCollision(const Sphere& sphere, 
 {
     CollisionResult result;
     result.collisionOccured = false;
-    Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * Matrix4x4f::rotate(transformComp.angle, transformComp.axis);
+	Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
     Matrix4x4f normalMatrix = transpose(inverse(modelMatrix));
 
     for (size_t i = 0; i < mesh->indices.size(); i += 3)

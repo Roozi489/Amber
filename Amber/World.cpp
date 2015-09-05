@@ -88,15 +88,15 @@ void World::setupLevel()
                 color = Color::Red;
             color.a = 0.88f;
             Entity* e = addBrick(Vector3f(sinf(toRadians(30.f * i)) * 5, (float)row * 2.2f, cosf(toRadians(30.f * i)) * 5), color);
-            e->getComponent<TransformComponent>().angle = toRadians(30.f * i - 90.f);
+			e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(30.f * i - 90.f), Vector3f::Up);
         }
     }
 
     for (int i = 0; i < 3; ++i)
     {
         Entity* e = addPad(Vector3f(sinf(toRadians(120.f * i)) * 25, 0.5f, cosf(toRadians(120.f * i)) * 25));
-        e->getComponent<TransformComponent>().angle = toRadians(180.f + 120.f * i);
-    }
+		e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(180.f + 120.f * i), Vector3f::Up);
+	}
 }
 
 void World::configureSystems()

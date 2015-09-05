@@ -52,6 +52,7 @@ void Amber::init()
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, settings.stencilBits);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, settings.acceleratedVisual);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, static_cast<int>(settings.profileMask));
+	// TODO: add double buffering setting (its on by default)
 
     log("Creating window...");
     gMainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWindowWidth, gWindowHeight, SDL_WINDOW_OPENGL);
@@ -69,28 +70,20 @@ void Amber::init()
     SDL_GL_MakeCurrent(gMainWindow, gContext);
 
     int glVersionMajor;
-    int glVersioMinor;
+    int glVersionMinor;
     int result = SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &glVersionMajor);
-    result = SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &glVersioMinor);
+    result = SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &glVersionMinor);
 
     checkGlError();
 
-    log("GL Context version: " + std::to_string(glVersionMajor) + "." + std::to_string(glVersioMinor));
+    log("GL Context version: " + std::to_string(glVersionMajor) + "." + std::to_string(glVersionMinor));
 
     log("Initializing GLEW...");
     glewExperimental = true;
     if (glewInit() != GLEW_OK)
         criticalError("Failed to initialize GLEW");
 	
-    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(0.f, 0.f, 0.f, 1.f);
-
-	ignoreGLError();
+    ignoreGLError();
 
 	gKeystate = SDL_GetKeyboardState(NULL);
 

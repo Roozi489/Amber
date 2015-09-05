@@ -9,7 +9,6 @@ RenderTexture::RenderTexture()
 
 bool RenderTexture::create(int width, int height, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
 {
-	glEnable(GL_DEPTH_TEST);
 	glGenFramebuffers(1, &bufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
@@ -18,7 +17,7 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 		colorTexture.genAndBind(width, height);
 
 		// empty texture
-		if (type & RenderTextureType::Lighting)
+		if (type == RenderTextureType::Lighting)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		else
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -57,10 +56,11 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 
 void RenderTexture::destroy()
 {
-	if (bufferID != -1)
-		glDeleteFramebuffers(1, &bufferID);
 	colorTexture.destroy();
 	depthTexture.destroy();
+
+	if (bufferID != -1)
+		glDeleteFramebuffers(1, &bufferID);
 }
 
 void RenderTexture::bind()

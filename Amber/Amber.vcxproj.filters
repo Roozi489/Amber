@@ -210,9 +210,7 @@
     <ClInclude Include="Time.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">
@@ -267,7 +265,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\amber_icon.ico">
+    <Image Include="..\Resources\Textures\amber_icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

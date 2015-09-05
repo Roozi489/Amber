@@ -12,6 +12,14 @@ RenderSystem::RenderSystem()
 	: maxFonts(0)
 	, numFonts(0)
 {
+	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glDrawBuffer(GL_BACK_LEFT);
+
 	log("Initializing FreeType library...");
 
 	FT_Error error = FT_Init_FreeType(&ftLib);
@@ -45,14 +53,22 @@ void RenderSystem::configure()
 {
 	//skybox.init();
 
-	// TODO: automate this
+	// Shaders
 	gShaderManager.createProgram("default", "default.vert", "default.frag");
 	gShaderManager.createProgram("renderTextureColor", "renderTexture.vert", "renderTextureColor.frag");
 	gShaderManager.createProgram("renderTextureDepth", "renderTexture.vert", "renderTextureDepth.frag");
-	GLuint fontShaderProgram = gShaderManager.createProgram("font", "font.vert", "font.frag");
+	gShaderManager.createProgram("font", "font.vert", "font.frag");
+	// Meshes
+	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
+	fullscreenQuadMesh->meshBuffers = MeshBuffers::VertexIndex;
+	fullscreenQuadMesh->vertices = { { -1.0f, -1.0f, 0.0f }, { 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { -1.0f, 1.0f, 0.0f } };
+	fullscreenQuadMesh->indices = { 0, 1, 2, 2, 3, 0 };
+	fullscreenQuadMesh->setVaoAndVbo();
+	gMeshManager.meshes.insert(std::make_pair("fullscreenQuad", std::move(fullscreenQuadMesh)));
 	// -----------------
 
 	// Font rendering
+	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font");
 	glUseProgram(fontShaderProgram);
 	fontTexture.genAndBind();
 	fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
@@ -63,21 +79,12 @@ void RenderSystem::configure()
 
 	glGenBuffers(1, &fontVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
 	// -----------------
 
 	// RenderTexture
 	renderTexture.create(gWindowWidth, gWindowHeight);
-
-	glGenVertexArrays(1, &renderTextureVao);
-	glBindVertexArray(renderTextureVao);
-	
-	glGenBuffers(1, &renderTextureVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, renderTextureVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fullscreenQuadData), fullscreenQuadData, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
 }
 
 void RenderSystem::update(Time delta)
@@ -86,6 +93,7 @@ void RenderSystem::update(Time delta)
 
 	renderTexture.bind();
 
+	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//skybox.update();
@@ -97,16 +105,16 @@ void RenderSystem::update(Time delta)
 	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
 	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
 	*/
-
+	
 	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
 	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
 
 	TransformComponent transformComp;
 	RenderComponent renderComp;
-
+	
 	for (Entity& entity : gWorld.entityManager.entities_with_components(transformComp, renderComp))
 	{
-		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * Matrix4x4f::rotate(transformComp.angle, transformComp.axis);
+		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 		Matrix4x4f MVP = projectionMatrix * viewMatrix * modelMatrix;
 
 		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName);
@@ -139,38 +147,44 @@ void RenderSystem::update(Time delta)
 		glUniform3f(cameraDirLoc, cameraDirection.x, cameraDirection.y, cameraDirection.z);
 
 		glBindVertexArray(renderComp.mesh->vao);
-		glDrawElements(GL_TRIANGLES, (GLsizei)renderComp.mesh->indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+		glDrawElements(GL_TRIANGLES, (GLsizei)renderComp.mesh->indices.size(), GL_UNSIGNED_SHORT, nullptr);
 
 		checkGlError();
 	}
 
-	// Disable depth writting
+	// Disable depth write for text rendering
 	glDepthMask(GL_FALSE);
 	textRendering();
 	glDepthMask(GL_TRUE);
 
-	// Second pass
 	renderTexture.unbind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	// --------------
+	// Second pass
+	// --------------
+	glViewport(0, 0, renderTexture.colorTexture.width, renderTexture.colorTexture.height);
+	glDisable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	// Show depth texture if F1 is pressed
 	GLuint shaderId;
 	if (gKeystate[SDL_SCANCODE_F1])
 		shaderId = gShaderManager.getShaderProgram("renderTextureDepth");
 	else
 		shaderId = gShaderManager.getShaderProgram("renderTextureColor");
-	 
+	
 	glUseProgram(shaderId);
 	if (gKeystate[SDL_SCANCODE_F1])
 		renderTexture.depthTexture.bindAndSetActive(0);
 	else
 		renderTexture.colorTexture.bindAndSetActive(0);
 
-	GLuint texID = glGetUniformLocation(shaderId, "tex");
-	glUniform1i(texID, 0);
+	GLint texLoc = glGetUniformLocation(shaderId, "tex");
+	glUniform1i(texLoc, 0);
 	
-	glBindVertexArray(renderTextureVao);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+	glBindVertexArray(quad->vao);
+	glDrawElements(GL_TRIANGLES, (GLsizei)quad->indices.size(), GL_UNSIGNED_SHORT, nullptr);
 
 	checkGlError();
 
@@ -183,7 +197,6 @@ void RenderSystem::textRendering()
 	glUseProgram(fontShaderProgram);
 
 	glBindVertexArray(fontVao);
-	glEnableVertexAttribArray(0);
 
 	fontTexture.bindAndSetActive(0);
 	GLint texSamplerLoc = glGetUniformLocation(fontShaderProgram, "tex");

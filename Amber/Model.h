@@ -1,6 +1,7 @@
 #pragma once
 #include "Utility.h"
 #include "Mesh.h"
+#include "Matrix.h"
 
 #include <vector>
 #include <memory>

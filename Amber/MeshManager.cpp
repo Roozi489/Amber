@@ -12,7 +12,7 @@ MeshManager::~MeshManager()
 {
 }
 
-bool MeshManager::preloadMesh(const std::string& fileName, bool loadGLData)
+bool MeshManager::preloadMesh(const std::string& fileName)
 {
     std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
     std::vector<Vector3f> temp_vertices;
@@ -78,6 +78,7 @@ bool MeshManager::preloadMesh(const std::string& fileName, bool loadGLData)
     file.close();
 
     auto mesh = std::make_unique<Mesh>();
+	mesh->meshBuffers = MeshBuffers::VertexUVNormalIndex;
 
     for (unsigned int i = 0; i < vertexIndices.size(); i++)
     {
@@ -97,17 +98,17 @@ bool MeshManager::preloadMesh(const std::string& fileName, bool loadGLData)
         mesh->indices.push_back(i);
     }
 
-    mesh->loadGLData();
+    mesh->setVaoAndVbo();
 
     meshes.insert(std::make_pair(fileName, std::move(mesh)));
     return true;
 }
 
-Mesh* MeshManager::getMesh(const std::string& name, bool loadGLData)
+Mesh* MeshManager::getMesh(const std::string& name)
 {
     if (meshes.find(name) == meshes.end())
     {
-        preloadMesh(name, loadGLData);
+        preloadMesh(name);
     }
 
     return meshes[name].get();

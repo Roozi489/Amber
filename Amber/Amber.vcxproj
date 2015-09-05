@@ -264,7 +264,7 @@
     <ResourceCompile Include="Amber.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\amber_icon.ico" />
+    <Image Include="..\Resources\Textures\amber_icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

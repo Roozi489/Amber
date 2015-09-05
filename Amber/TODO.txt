@@ -1,11 +1,9 @@
 Critical:
 ------------------------------------
-Transform component quaternion
 Deferred shading
 
 Major:
 ------------------------------------
-Change System::update to take Time
 Uniform buffer object
 Proper logging
 Shadow mapping
@@ -17,17 +15,20 @@ Cleanup EntityManger
 Proper font rendering
 Math (trigonometry)
 Better code structure
+Proper file system stuff
 Input manager
+Mesh loading
 Better resource managment
 Antialiasing
 More Camera
+Fix loading of models with different texture coords
 Replace stdlib
 
 Minor:
 ------------------------------------
 Optimize matrix
 Fix stb_image warnings
-Extrapolate rendering
+Extrapolate entitties when rendering
 
 
 
