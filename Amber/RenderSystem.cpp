@@ -2,15 +2,21 @@
 #include "Globals.h"
 #include "TransformComponent.h"
 #include "RenderComponent.h"
-#include "GameplaySystem.h"
 
 #include FT_GLYPH_H
 
 static FT_Error faceRequester(FTC_FaceID faceId, FT_Library lib, FT_Pointer tag, FT_Face* newFace);
 
 RenderSystem::RenderSystem()
-	: maxFonts(0)
-	, numFonts(0)
+{
+	
+}
+
+RenderSystem::~RenderSystem()
+{
+}
+
+void RenderSystem::configure()
 {
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
@@ -26,7 +32,7 @@ RenderSystem::RenderSystem()
 	if (error)
 		criticalError("Failed to initialize FreeType library");
 
-	error = FTC_Manager_New(ftLib, 0, 0, 0, faceRequester, 0, &ftCacheManager);
+	error = FTC_Manager_New(ftLib, 0, 0, 0, faceRequester, nullptr, &ftCacheManager);
 	if (error)
 		criticalError("FreeType - Could not initialize FreeType cache manager");
 
@@ -42,15 +48,12 @@ RenderSystem::RenderSystem()
 	if (error)
 		criticalError("FreeType - Could not initialize charmap cache");
 
+	fonts = (FontHandle*)calloc(maxFonts, sizeof(FontHandle));
+
 	error = ftAddFont("Fonts/FreeSans.ttf", false);
-}
+	if (error)
+		criticalError("FreeType - Could not load font:  Fonts/FreeSans.ttf");
 
-RenderSystem::~RenderSystem()
-{
-}
-
-void RenderSystem::configure()
-{
 	//skybox.init();
 
 	// Shaders
@@ -58,9 +61,10 @@ void RenderSystem::configure()
 	gShaderManager.createProgram("renderTextureColor", "renderTexture.vert", "renderTextureColor.frag");
 	gShaderManager.createProgram("renderTextureDepth", "renderTexture.vert", "renderTextureDepth.frag");
 	gShaderManager.createProgram("font", "font.vert", "font.frag");
+
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
-	fullscreenQuadMesh->meshBuffers = MeshBuffers::VertexIndex;
+	fullscreenQuadMesh->meshComponents = MeshComponents::VertexIndex;
 	fullscreenQuadMesh->vertices = { { -1.0f, -1.0f, 0.0f }, { 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { -1.0f, 1.0f, 0.0f } };
 	fullscreenQuadMesh->indices = { 0, 1, 2, 2, 3, 0 };
 	fullscreenQuadMesh->setVaoAndVbo();
@@ -68,7 +72,7 @@ void RenderSystem::configure()
 	// -----------------
 
 	// Font rendering
-	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font");
+	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font").handle;
 	glUseProgram(fontShaderProgram);
 	fontTexture.genAndBind();
 	fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
@@ -84,6 +88,7 @@ void RenderSystem::configure()
 	// -----------------
 
 	// RenderTexture
+	gBuffer.create(gWindowWidth, gWindowHeight);
 	renderTexture.create(gWindowWidth, gWindowHeight);
 }
 
@@ -91,20 +96,15 @@ void RenderSystem::update(Time delta)
 {
 	BaseSystem::update(delta);
 
+	//geometryPass();
+	//lightPass();
+	//outPass();
+
 	renderTexture.bind();
 
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//skybox.update();
-	//skybox.render();
-
-	/* TODO: 
-	1) Run through your game objects and do the update tick on each one. No rendering happens yet.
-	2) Run through the list of game objects, frustum/visibility cull each one, and if visible add its meshes (one mesh per material) to a render list. Generally you want two render lists, one for opaque and one for transparent objects.
-	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
-	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
-	*/
 	
 	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
 	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
@@ -117,7 +117,7 @@ void RenderSystem::update(Time delta)
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 		Matrix4x4f MVP = projectionMatrix * viewMatrix * modelMatrix;
 
-		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName);
+		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName).handle;
 		glUseProgram(programID);
 
 		GLint matrixMVPLoc = glGetUniformLocation(programID, "MVP");
@@ -169,9 +169,9 @@ void RenderSystem::update(Time delta)
 	// Show depth texture if F1 is pressed
 	GLuint shaderId;
 	if (gKeystate[SDL_SCANCODE_F1])
-		shaderId = gShaderManager.getShaderProgram("renderTextureDepth");
+		shaderId = gShaderManager.getShaderProgram("renderTextureDepth").handle;
 	else
-		shaderId = gShaderManager.getShaderProgram("renderTextureColor");
+		shaderId = gShaderManager.getShaderProgram("renderTextureColor").handle;
 	
 	glUseProgram(shaderId);
 	if (gKeystate[SDL_SCANCODE_F1])
@@ -191,9 +191,89 @@ void RenderSystem::update(Time delta)
 	SDL_GL_SwapWindow(gMainWindow);
 }
 
+void RenderSystem::geometryPass()
+{
+	/* TODO:
+	1) Run through your game objects and do the update tick on each one. No rendering happens yet.
+	2) Run through the list of game objects, frustum/visibility cull each one, and if visible add its meshes (one mesh per material) to a render list. Generally you want two render lists, one for opaque and one for transparent objects.
+	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
+	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
+	*/
+
+	//skybox.update();
+	//skybox.render();
+
+	renderTexture.bind();
+
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
+	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
+
+	TransformComponent transformComp;
+	RenderComponent renderComp;
+
+	for (Entity& entity : gWorld.entityManager.entities_with_components(transformComp, renderComp))
+	{
+		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+		Matrix4x4f MVP = projectionMatrix * viewMatrix * modelMatrix;
+
+		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName).handle;
+		glUseProgram(programID);
+
+		GLint matrixMVPLoc = glGetUniformLocation(programID, "MVP");
+		GLint viewMatrixLoc = glGetUniformLocation(programID, "V");
+		GLint modelMatrixLoc = glGetUniformLocation(programID, "M");
+		GLint useTextureLoc = glGetUniformLocation(programID, "useTexture");
+		GLint textureSamplerLoc = glGetUniformLocation(programID, "texSampler");
+		GLint colorLoc = glGetUniformLocation(programID, "color");
+
+		glUniformMatrix4fv(matrixMVPLoc, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
+		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &viewMatrix[0][0]);
+
+		glUniform1i(useTextureLoc, (int)renderComp.mesh->hasTexture);
+		glUniform4f(colorLoc, renderComp.color.r, renderComp.color.g, renderComp.color.b, renderComp.color.a);
+
+		if (renderComp.mesh->hasTexture)
+		{
+			renderComp.mesh->texture->bindAndSetActive(0);
+			glUniform1i(textureSamplerLoc, 0);
+		}
+
+		GLint cameraPosLoc = glGetUniformLocation(programID, "cameraPosition");
+		glUniform3f(cameraPosLoc, gCamera.getPosition().x, gCamera.getPosition().y, gCamera.getPosition().z);
+		GLint cameraDirLoc = glGetUniformLocation(programID, "cameraDirection");
+		Vector3f cameraDirection = normalize(gCamera.getViewTarget() - gCamera.getPosition());
+		glUniform3f(cameraDirLoc, cameraDirection.x, cameraDirection.y, cameraDirection.z);
+
+		glBindVertexArray(renderComp.mesh->vao);
+		glDrawElements(GL_TRIANGLES, (GLsizei)renderComp.mesh->indices.size(), GL_UNSIGNED_SHORT, nullptr);
+
+		checkGlError();
+	}
+}
+
+void RenderSystem::lightPass()
+{
+}
+
+void RenderSystem::outPass()
+{
+}
+
+void RenderSystem::destroy()
+{
+	
+}
+
 void RenderSystem::textRendering()
 {
-	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font");
+	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font").handle;
 	glUseProgram(fontShaderProgram);
 
 	glBindVertexArray(fontVao);
@@ -210,7 +290,7 @@ void RenderSystem::textRendering()
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float sx, float sy)
 {
-	GLint fontColorLoc = glGetUniformLocation(gShaderManager.getShaderProgram("font"), "fontColor");
+	GLint fontColorLoc = glGetUniformLocation(gShaderManager.getShaderProgram("font").handle, "fontColor");
 	Color c = Color::White;
 
 	glUniform4f(fontColorLoc, c.r, c.g, c.b, c.a);
@@ -219,7 +299,7 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	// TODO: fix this
 	//		 only works with one font
 	FTC_FaceID faceID = (FTC_FaceID)fonts[0];
-	//
+	// #############################################
 
 	FT_Face face;
 	FT_Error error = FTC_Manager_LookupFace(ftCacheManager, faceID, &face);
@@ -267,7 +347,6 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		x += xAdvance * sx;
-		//x += (face->glyph->metrics.horiAdvance >> 6) * sx;
 		// only needed for multi-line
 		//y -= (face->glyph->metrics.vertAdvance >> 6) * sy;
 
@@ -369,15 +448,10 @@ FT_Error RenderSystem::ftAddFont(const char* filepath, FT_Bool outline_only)
 		FT_Done_Face(face);
 		face = NULL;
 
-		if (maxFonts == 0)
-		{
-			maxFonts = 16;
-			fonts = (FontHandle*)calloc((size_t)maxFonts, sizeof(FontHandle));
-		}
-		else if (numFonts >= maxFonts)
+		if (numFonts >= maxFonts)
 		{
 			maxFonts *= 2;
-			fonts = (FontHandle*)realloc(fonts, (size_t)maxFonts * sizeof(FontHandle));
+			fonts = (FontHandle*)realloc(fonts, maxFonts * sizeof(FontHandle));
 
 			memset(&fonts[numFonts], 0, (size_t)(maxFonts - numFonts) * sizeof(FontHandle));
 		}

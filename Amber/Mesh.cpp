@@ -24,7 +24,7 @@ bool Mesh::setVaoAndVbo()
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-	if (meshBuffers & MeshBuffers::Vertex)
+	if (meshComponents & MeshComponents::Vertex)
 	{
 		glGenBuffers(1, &vertexVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
@@ -33,7 +33,7 @@ bool Mesh::setVaoAndVbo()
 		glEnableVertexAttribArray(0);
 	}
 
-	if (meshBuffers & MeshBuffers::UV)
+	if (meshComponents & MeshComponents::UV)
 	{
 		glGenBuffers(1, &uvVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, uvVBO);
@@ -42,7 +42,7 @@ bool Mesh::setVaoAndVbo()
 		glEnableVertexAttribArray(1);
 	}
 
-	if (meshBuffers & MeshBuffers::Normal)
+	if (meshComponents & MeshComponents::Normal)
 	{
 		glGenBuffers(1, &normalVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
@@ -51,7 +51,7 @@ bool Mesh::setVaoAndVbo()
 		glEnableVertexAttribArray(2);
 	}
 
-	if (meshBuffers & MeshBuffers::Index)
+	if (meshComponents & MeshComponents::Index)
 	{
 		glGenBuffers(1, &elementVBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementVBO);

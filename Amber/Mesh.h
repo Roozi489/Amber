@@ -1,10 +1,7 @@
 #pragma once
-#include "Utility.h"
-#include "Material.h"
 #include "Texture.h"
 #include "Vector.h"
-
-#include "GL/glew.h"
+#include "OpenGL.h"
 
 #include <string>
 #include <vector>

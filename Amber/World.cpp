@@ -17,6 +17,12 @@ void World::init()
     entityManager.init();
 }
 
+void World::destroy()
+{
+	for (auto& pair : systems)
+		pair.second->destroy();
+}
+
 Entity* World::addEntity()
 {
     return entityManager.addEntity();
@@ -101,17 +107,15 @@ void World::setupLevel()
 
 void World::configureSystems()
 {
-    for (auto s : systems)
-    {
-        s.second->configure();
-    }
+    for (auto& pair : systems)
+        pair.second->configure();
 }
 
 void World::update(Time delta)
 {
-    for (auto& s : systems)
+    for (auto& pair : systems)
     {
-		BaseSystem* system = s.second.get();
+		BaseSystem* system = pair.second.get();
 
 		// Update if updateFrequency is set to always or when it's the first update
 		if (system->updateFrequency == UpdateFrequency::Always || system->lastUpdateTime == Time::Zero)

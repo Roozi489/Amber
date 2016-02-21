@@ -10,21 +10,22 @@ TextureManager::~TextureManager()
 {
 }
 
-bool TextureManager::preloadTexture(const std::string& fileName)
+void TextureManager::destroy()
+{
+	for (auto& pair : textures)
+		pair.second->destroy();
+}
+
+void TextureManager::preloadTexture(const std::string& fileName)
 {
 	// Check if it's already loaded
 	if (textures.find(fileName) != textures.end())
-		return true;
+		return;
 
 	auto texture = std::make_unique<Texture>();
 
-	if (texture->load(fileName))
-	{
-		textures.insert(std::make_pair(fileName, std::move(texture)));
-		return true;
-	}
-
-	return false;
+	texture->load(fileName);
+	textures.insert(std::make_pair(fileName, std::move(texture)));
 }
 
 Texture* TextureManager::getTexture(const std::string& name)

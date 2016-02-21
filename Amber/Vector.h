@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <cmath>
 
+// TODO: use concepts
 template <typename T>
 struct Vector2
 {

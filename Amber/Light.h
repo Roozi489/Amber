@@ -1,39 +1,35 @@
 #pragma once
 #include "Vector.h"
+#include "Color.h"
+#include "OpenGL.h"
 
-#include <GL/glew.h>
-
-class Light
+class BaseLight
 {
 public:
-    Light(float power);
-    ~Light();
+	Color color = Color::White;
+	float brightness = 1.f;
+	bool isOn = true;
 
-    GLuint getPositionID() const;
-    void setPositionID(GLuint lightLocationID);
-    GLuint getDirectionID() const;
-    void setDirectionID(GLuint lightDirectionID);
-    GLuint getPowerID() const;
-    void setPowerID(GLuint powerID);
+	GLuint positionID;
+	GLuint directionID;
+	GLuint powerID;
 
-    Vector3f getPosition() const;
-	void setPosition(Vector3f value);
-	Vector3f getDirection() const;
-	void setDirection(Vector3f value);
-    float getPower() const;
-    void setPower(float value);
-
-    void toggle();
-    bool isOn() const;
-private:
-    bool mOn;
-
-    GLuint mPositionID;
-    GLuint mDirectionID;
-    GLuint mPowerID;
-
-	Vector3f mPosition;
-	Vector3f mDirection;
-    float mPower;
+	BaseLight() = default;
+    virtual ~BaseLight();
 };
 
+class PointLight : public BaseLight
+{
+	Vector3f position;
+};
+
+class DirectionalLight : public BaseLight
+{
+	Vector3f direction;
+};
+
+class SpotLight : public BaseLight
+{
+	Vector3f position;
+	Vector3f direction;
+};

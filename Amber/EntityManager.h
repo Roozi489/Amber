@@ -7,7 +7,7 @@ static const uint32_t MAX_ENTITIES = 1024;
 
 class EntityManager;
 
-template <class Delegate, bool All = false>
+template <typename Delegate, bool All = false>
 class ViewIterator : public std::iterator<std::input_iterator_tag, EntityID>
 {
 public:
@@ -23,28 +23,34 @@ public:
     const Entity& operator*() const { return *entityManager->getEntity(i); }
 
 protected:
-    ViewIterator(EntityManager* manager, uint32_t index)
+	EntityManager* entityManager;
+	ComponentMask compMask;
+	EntityID i;
+	size_t capacity;
+	std::list<EntityID>::iterator freeCursor;
+
+    ViewIterator(EntityManager* manager, EntityID index)
         : entityManager(manager)
         , i(index)
         , capacity(entityManager->capacity())
     {
-        /*if (All)
+        if (All)
         {
-        manager_->free_list_.sort();
-        free_cursor_ = manager_->free_list_.begin();
-        }*/
+			entityManager->freeList.sort();
+			freeCursor = entityManager->freeList.begin();
+        }
     }
-    ViewIterator(EntityManager* manager, const ComponentMask mask, uint32_t index)
+    ViewIterator(EntityManager* manager, const ComponentMask mask, EntityID index)
     : entityManager(manager)
     , compMask(mask)
     , i(index)
     , capacity(entityManager->capacity())
     {
-        /*if (All)
-        {
-        manager_->free_list_.sort();
-        free_cursor_ = manager_->free_list_.begin();
-        }*/
+		if (All)
+		{
+			entityManager->freeList.sort();
+			freeCursor = entityManager->freeList.begin();
+		}
     }
 
     void next()
@@ -68,24 +74,13 @@ protected:
 
     inline bool validEntity()
     {
-        if (i < entityManager->entityCount && entityManager->freeList.find(i) == entityManager->freeList.end())
-            return true;
-
-        return false;
-        /*
-        if (free_cursor_ != entityManager->free_list_.end() && *free_cursor_ == i)
+        if (freeCursor != entityManager->freeList.end() && *freeCursor == i)
         {
             ++free_cursor_;
             return false;
         }
-        return true;*/
+        return true;
     }    
-
-    EntityManager *entityManager;
-    ComponentMask compMask;
-    uint32_t i;
-    size_t capacity;
-    //std::list<uint32_t>::iterator free_cursor_;
 };
 
 template <bool All>
@@ -111,21 +106,24 @@ public:
     const Iterator end() const { return Iterator(entityManager, compMask, entityManager->capacity()); }
 
 private:
+	EntityManager* entityManager;
+	ComponentMask compMask;
     friend class EntityManager;
 
-    BaseView(EntityManager* manager) : entityManager(manager) { compMask.set(); }
+    BaseView(EntityManager* manager)
+		: entityManager(manager)
+    {
+	    compMask.set();
+    }
     BaseView(EntityManager* manager, ComponentMask mask)
         : entityManager(manager)
         , compMask(mask)
     {
     }
-
-    EntityManager* entityManager;
-    ComponentMask compMask;
 };
 
 typedef BaseView<false> View;
-//typedef BaseView<true> DebugView;
+typedef BaseView<true> DebugView;
 
 template <typename ... Components>
 class UnpackingView
@@ -188,7 +186,9 @@ public:
 
 
 private:
-    friend class EntityManager;
+	EntityManager* entityManager;
+	ComponentMask compMask;
+	Unpacker unpacker;
 
     UnpackingView(EntityManager* manager, ComponentMask mask, Components& ... components)
         : entityManager(manager)
@@ -197,9 +197,7 @@ private:
     {
     }
 
-    EntityManager* entityManager;
-    ComponentMask compMask;
-    Unpacker unpacker;
+	friend class EntityManager;
 };
 
 class EntityManager
@@ -212,6 +210,8 @@ public:
     ~EntityManager();
 
     void init();
+	void destroy();
+
     uint32_t capacity();
 
     Entity* addEntity();
@@ -269,4 +269,7 @@ private:
     std::list<EntityID> freeList;
 
     EntityID newEntityID();
+
+	template <typename Delegate, bool All>
+	friend class ViewIterator;
 };

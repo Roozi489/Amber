@@ -10,13 +10,17 @@ EntityManager::EntityManager()
 
 EntityManager::~EntityManager()
 {
-    delete[] entities;
 }
 
 void EntityManager::init()
 {
     entityCount = 0;
     entities = new Entity[MAX_ENTITIES];
+}
+
+void EntityManager::destroy()
+{
+	delete[] entities;
 }
 
 uint32_t EntityManager::capacity()

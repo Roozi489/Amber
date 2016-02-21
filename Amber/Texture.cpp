@@ -13,7 +13,6 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	destroy();
 }
 
 bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWrapMode wrap)
@@ -50,13 +49,13 @@ void Texture::genAndBind()
 	glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-void Texture::genAndBind(int width_, int height_)
+void Texture::genAndBind(int w, int h)
 {
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	width = width_;
-	height = height_;
+	width = w;
+	height = h;
 }
 
 void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
@@ -71,7 +70,7 @@ void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
 
 void Texture::bindAndSetActive(GLuint position)
 {
-	assert(position < MaxTexturePosition);
+	assert_amber(position < MaxTexturePosition, "Invalid texture position : " + position);
 
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glActiveTexture(GL_TEXTURE0 + position);

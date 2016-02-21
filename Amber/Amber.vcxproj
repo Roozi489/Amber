@@ -175,9 +175,11 @@
     <ClCompile Include="BaseSystem.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="BaseComponent.cpp" />
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="GameplaySystem.cpp" />
     <ClCompile Include="Globals.cpp" />
@@ -193,6 +195,7 @@
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="Sphere.cpp" />
@@ -209,10 +212,13 @@
     <ClInclude Include="BaseSystem.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="BaseComponent.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="ContextSettings.h" />
     <ClInclude Include="CubeTexture.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="GBuffer.h" />
+    <ClInclude Include="OpenGL.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="GameplaySystem.h" />
     <ClInclude Include="Globals.h" />
@@ -231,6 +237,7 @@
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="Sphere.h" />

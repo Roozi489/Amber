@@ -13,7 +13,9 @@ public:
 	TextureManager();
 	~TextureManager();
 
-	bool preloadTexture(const std::string& fileName);
+	void destroy();
+
+	void preloadTexture(const std::string& fileName);
 	Texture* getTexture(const std::string& name);
 };
 

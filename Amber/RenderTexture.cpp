@@ -3,14 +3,14 @@
 
 
 RenderTexture::RenderTexture()
-	: bufferID(-1)
 {
 }
 
 bool RenderTexture::create(int width, int height, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
 {
-	glGenFramebuffers(1, &bufferID);
-	glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
+	glGenFramebuffers(1, &framebufferHandle);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+	glEnable(GL_TEXTURE_2D);
 
 	if (type & RenderTextureType::Color)
 	{
@@ -25,6 +25,7 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 		colorTexture.setFilterAndWrap(minMag, wrap);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture.textureID, 0);
+		drawbufferAttachments.push_back(GL_COLOR_ATTACHMENT0);
 	}
 	
 	if (type & RenderTextureType::Depth)
@@ -36,9 +37,6 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureID, 0);
 	}
-
-	if (type & RenderTextureType::Color || type & RenderTextureType::Lighting)
-		drawbufferAttachments.push_back(GL_COLOR_ATTACHMENT0);
 
 	glDrawBuffers(static_cast<GLsizei>(drawbufferAttachments.size()), &drawbufferAttachments[0]);
 
@@ -59,13 +57,13 @@ void RenderTexture::destroy()
 	colorTexture.destroy();
 	depthTexture.destroy();
 
-	if (bufferID != -1)
-		glDeleteFramebuffers(1, &bufferID);
+	if (framebufferHandle != -1)
+		glDeleteFramebuffers(1, &framebufferHandle);
 }
 
 void RenderTexture::bind()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
 }
 
 void RenderTexture::unbind()

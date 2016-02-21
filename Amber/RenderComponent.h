@@ -3,6 +3,7 @@
 #include "Mesh.h"
 
 #include <string>
+#include "Color.h"
 
 class RenderComponent : public BaseComponent
 {

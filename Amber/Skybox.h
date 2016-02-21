@@ -16,6 +16,7 @@ public:
     ~Skybox();
 
     void init();
+	void destroy();
     void update();
     void render();
 };

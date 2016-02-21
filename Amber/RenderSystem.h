@@ -7,6 +7,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_CACHE_H
+#include "GBuffer.h"
 
 typedef struct FontType_
 {
@@ -26,9 +27,14 @@ public:
     ~RenderSystem();
 
     virtual void configure() override;
-    virtual void update(Time delta) override;
+	virtual void update(Time delta) override;
+	virtual void destroy() override;
+	
+	void geometryPass();
+	void lightPass();
+	void outPass();
 
-    void textRendering();
+	void textRendering();
 
     void renderText(const std::string& text, float x, float y, float sx, float sy);
 private:
@@ -43,13 +49,12 @@ private:
 	GLuint fontVbo;
 	Texture fontTexture;
 
-    int maxFonts;
-    int numFonts;
+    size_t maxFonts = 16;
+    int numFonts = 0;
     FontHandle* fonts;
 
+	GBuffer gBuffer;
 	RenderTexture renderTexture;
-	GLuint renderTextureVao;
-	GLuint renderTextureVbo;
 
     Skybox skybox;
 

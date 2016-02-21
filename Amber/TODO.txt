@@ -1,20 +1,28 @@
 Critical:
 ------------------------------------
+ ---- RenderTextureType::Lighting = Color (not 4 | Color)
 Deferred shading
+add defer function
+Gamma correction
 
 Major:
 ------------------------------------
+Text rendering as a seperate pass
+Render
+Make amber class hold systems (not World)
+Shading methods
 Uniform buffer object
 Proper logging
 Shadow mapping
 Window class
+Memory allocators
 Instanced rendering
 Fix freetype includes
 Fix component memory layout
-Cleanup EntityManger
+Cleanup EntityManager
 Proper font rendering
 Math (trigonometry)
-Better code structure
+Better code structure (Directories and namespaces)
 Proper file system stuff
 Input manager
 Mesh loading
@@ -22,16 +30,16 @@ Better resource managment
 Antialiasing
 More Camera
 Fix loading of models with different texture coords
-Replace stdlib
 
 Minor:
 ------------------------------------
-Optimize matrix
+Optimize matrix (SSE)
 Fix stb_image warnings
-Extrapolate entitties when rendering
 
 
 
-Check out:
+Other:
 ------------------------------------
 ARB_multi_draw_indirect
+Replace stdlib
+Extrapolate entitties when rendering

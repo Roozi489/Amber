@@ -5,11 +5,8 @@
 class Material
 {
 public:
-	Material();
-
-	void setRoughness(float value);
-	float getRoughness() const;
-private:
-	float mRoughness = 0.f;
-	float mMetalness = 0.f;
+	float roughness = 0.f;
+	float metalness = 0.f;
+	
+	Material() = default;
 };

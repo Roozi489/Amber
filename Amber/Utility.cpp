@@ -12,37 +12,6 @@
 #include <sstream>
 #include <algorithm>
 
-const Color Color::Black(0.f, 0.f, 0.f);
-const Color Color::White(1.f, 1.f, 1.f);
-const Color Color::Red(1.f, 0.f, 0.f);
-const Color Color::Green(0, 1.f, 0.f);
-const Color Color::Blue(0.f, 0.f, 1.f);
-const Color Color::Yellow(1.f, 1.f, 0.f);
-const Color Color::Magenta(1.f, 0.f, 1.f);
-const Color Color::Cyan(0.f, 1.f, 1.f);
-const Color Color::Transparent(0.f, 0.f, 0.f, 0.f);
-
-Color::Color()
-    : Color(1.f, 1.f, 1.f, 1.f)
-{
-
-}
-
-Color::Color(float r, float g, float b)
-    : Color(r, g, b, 1.f)
-{
-
-}
-
-Color::Color(float r, float g, float b, float a)
-    : r(r)
-    , g(g)
-    , b(b)
-    , a(a)
-{
-
-}
-
 float toDegrees(float valueInRadians)
 {
     return 180.f / pi * valueInRadians;
@@ -359,6 +328,7 @@ void _criticalError(const std::string& message, const char* file, int line, cons
 {
 	_criticalError(message.c_str(), file, line, function);
 }
+
 void messageBox(const char* message)
 {
 	messageBox("Amber", message);
@@ -399,5 +369,5 @@ void quit()
     SDL_GL_DeleteContext(gContext);
     SDL_DestroyWindow(gMainWindow);
     SDL_Quit();
-    std::exit(0);
+    exit(0);
 }

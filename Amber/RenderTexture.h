@@ -1,7 +1,6 @@
 #pragma once
 #include "Texture.h"
-
-#include <gl/glew.h>
+#include "OpenGL.h"
 
 #include <vector>
 
@@ -16,13 +15,16 @@ public:
 		Lighting = 4 | Color,
 	};
 
+	GLuint framebufferHandle;
+	GLuint vaoHandle;
+	GLuint vboHandle;
+
 	RenderTextureType type;
 	Texture colorTexture;
 	Texture depthTexture;
 
 	std::vector<GLenum> drawbufferAttachments;
 	
-	GLuint bufferID;
 
 	RenderTexture();
 	bool create(int width, int height, RenderTextureType type = RenderTextureType::ColorAndDepth, TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::ClampToEdge);

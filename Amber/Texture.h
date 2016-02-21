@@ -1,6 +1,5 @@
 #pragma once
-
-#include "GL\glew.h"
+#include "OpenGL.h"
 
 #include <string>
 
@@ -36,7 +35,7 @@ public:
 
     bool load(const std::string& filename, TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
 	void genAndBind();
-	void genAndBind(int width_, int height_);
+	void genAndBind(int w, int h);
 	void setFilterAndWrap(TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
 	void bindAndSetActive(GLuint position);
 	void destroy();

@@ -2,9 +2,7 @@
 #include "NonCopyable.h"
 #include "Time.h"
 
-#include <cstdint>
-
-using SystemID = std::uint32_t;
+using SystemID = uint32_t;
 
 enum class UpdateFrequency
 {
@@ -26,6 +24,7 @@ public:
 
     virtual void configure() = 0;
     virtual void update(Time delta);
+	virtual void destroy();
 
 	void setUpdateFrequency(UpdateFrequency frequency, Time frequencyTime = Time::Zero);
 

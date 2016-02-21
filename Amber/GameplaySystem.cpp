@@ -352,7 +352,8 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
             // It intersects in the whole range [0..1]
             embeddedInPlane = true;
             t0 = 0.0;
-            t1 = 1.0;        }
+            t1 = 1.0;
+        }
     }
     else
     {
@@ -373,7 +374,10 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
         }
 
         t0 = clamp(t0);
-        t1 = clamp(t1);        result.collisionTime = 1.f;
+        t1 = clamp(t1);
+
+        result.collisionTime = 1.f;
+
         if (!embeddedInPlane)
         {
             Vector3f planeIntersectionPoint = sphere.origin - trianglePlane.normal + t0 * sphereVelocity;

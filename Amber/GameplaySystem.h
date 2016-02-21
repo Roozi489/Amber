@@ -36,8 +36,8 @@ public:
     GameplaySystem();
     ~GameplaySystem();
 
-    virtual void configure();
-    virtual void update(Time delta);
+	virtual void configure() override;
+    virtual void update(Time delta) override;
 
     float distFromCenter(Vector3f position);
     float angleFromCenter(Vector3f position);

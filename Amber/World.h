@@ -1,16 +1,12 @@
 #pragma once
 #include "NonCopyable.h"
 #include "EntityManager.h"
-#include "BaseComponent.h"
 #include "BaseSystem.h"
-#include "Utility.h"
-
+#include "Color.h"
 #include "Vector.h"
 
 #include <unordered_map>
 #include <memory>
-#include <iterator>
-#include <list>
 
 class World : public NonCopyable
 {
@@ -23,6 +19,7 @@ public:
     ~World();
 
     void init();
+	void destroy();
 
     Entity* addEntity();
 

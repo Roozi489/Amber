@@ -3,9 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
-
-struct SDL_Surface;
 
 const float pi = 3.141592653589793238462643383f;
 const float pi_2 = 1.570796326794896619231321691f;
@@ -17,27 +14,7 @@ struct FaceIndexVertTexNorm
     unsigned int v2, t2, n2;
 };
 
-struct Color
-{
-    float r;
-    float g;
-    float b;
-    float a;
 
-    static const Color Black;
-    static const Color White;
-    static const Color Red;
-    static const Color Green;
-    static const Color Blue;
-    static const Color Yellow;
-    static const Color Magenta;
-    static const Color Cyan;
-    static const Color Transparent;
-
-    Color();
-    Color(float r, float g, float b);
-    Color(float r, float g, float b, float a);
-};
 
 enum class CollisionHit
 {
@@ -78,6 +55,7 @@ float toRadians(float valueInDegrees);
 
 bool getLowestPosRoot(float a, float b, float c, float maxR, float* root);
 
+// TODO: actual test
 void testVectorsMatricesRays();
 
 std::string loadFileToString(const std::string& fileName);
@@ -96,6 +74,7 @@ void ignoreGLError();
 void log(std::string message);
 void clearLog();
 
+struct SDL_Surface; // Forward declare
 SDL_Surface* loadSDL_SurfaceFromFile(const char* filename);
 
 void _criticalError(const char* message, const char* file, int line, const char* function);
@@ -128,6 +107,7 @@ T clamp(T value, T min = 0, T max = 1)
     return value;
 }
 
+// TODO: rewrite to use variadic templates
 template <typename T, typename R>
 auto min(T first, R second)
 {
@@ -151,3 +131,26 @@ auto max(T first, R second, S third)
 {
     return max(first, second) > third ? max(first, second) : third;
 }
+
+// ScopeGuard
+namespace Impl
+{
+	template <typename Fn>
+	struct Defer
+	{
+		Defer(Fn&& fn)
+			: fn{ std::forward<Fn>(fn) }
+		{
+		}
+		~Defer() { fn(); };
+		Fn fn;
+	};
+
+	template <typename Fn>
+	Defer<Fn> deferFn(Fn&& fn) { return Defer<Fn>(std::forward<Fn>(fn)); }
+}
+
+#define DEFER_1(x, y) x##y
+#define DEFER_2(x, y) DEFER_1(x, y)
+#define DEFER_3(x) DEFER_2(x, __COUNTER__)
+#define defer(code) auto DEFER_3(_defer_) = Impl::deferFn([&](){code;});

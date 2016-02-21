@@ -108,6 +108,15 @@
     <ClCompile Include="Time.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="GBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -198,9 +207,6 @@
     <ClInclude Include="TextureManager.h">
       <Filter>Managers</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="RenderTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -211,6 +217,21 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="GBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">

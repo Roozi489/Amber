@@ -78,7 +78,7 @@ bool MeshManager::preloadMesh(const std::string& fileName)
     file.close();
 
     auto mesh = std::make_unique<Mesh>();
-	mesh->meshBuffers = MeshBuffers::VertexUVNormalIndex;
+	mesh->meshComponents = MeshComponents::VertexUVNormalIndex;
 
     for (unsigned int i = 0; i < vertexIndices.size(); i++)
     {
