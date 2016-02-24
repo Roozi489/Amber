@@ -246,12 +246,6 @@
     <None Include="..\Resources\Shaders\pbr.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\Shaders\default.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\Shaders\default.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="Matrix.inl">
       <Filter>Core</Filter>
     </None>

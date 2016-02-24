@@ -264,8 +264,6 @@
     <None Include="..\Resources\Shaders\pbr.frag" />
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl" />
     <None Include="..\Resources\Shaders\pbr.vert" />
-    <None Include="..\Resources\Shaders\default.frag" />
-    <None Include="..\Resources\Shaders\default.vert" />
     <None Include="..\Resources\Shaders\spotLight.frag" />
     <None Include="Matrix.inl" />
     <None Include="Ray.inl" />

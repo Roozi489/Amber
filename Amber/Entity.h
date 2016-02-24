@@ -47,7 +47,7 @@ public:
         ComponentID id = C::template getComponentTypeID<C>();
         component->id = id;
 
-        //
+        // TODO: change this
         components.push_back(std::shared_ptr<BaseComponent>(component));
         //
 

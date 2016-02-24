@@ -67,14 +67,11 @@ vec4 calculateSpotLight(in float lightToSurfaceAngle, in vec3 surfaceToLight, in
 {
     float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
 
-    float falloff = saturate(square(1.0 - square(square(distanceToLight / light.base.attenuation.range)))) / 
+    float falloff = square(saturate(1.0 - square(square(distanceToLight / light.base.attenuation.range)))) / 
                     (light.base.attenuation.constant + light.base.attenuation.linear * distanceToLight +
                      light.base.attenuation.quadratic * square(distanceToLight));
 
-    falloff *= saturate(square(1.0 - pow((lightToSurfaceAngle / light.coneAngle), 10.0)));
-
-    if (distanceToLight > light.base.attenuation.range || lightToSurfaceAngle > light.coneAngle)
-        return vec4(0.0, 0.0, 0.0, 1.0);
+    falloff *= square(saturate(1.0 - pow((lightToSurfaceAngle / light.coneAngle), 10.0)));
     
     vec4 diffuse;
     diffuse.rgb = diffuseCoefficient * light.base.base.coloredIntensity * falloff;

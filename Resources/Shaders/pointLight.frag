@@ -59,11 +59,8 @@ vec4 calculatePointLight(in vec3 surfaceToLight, in float distanceToLight, in ve
 {
     float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
 
-    float falloff = saturate(square(1.0 - square(square(distanceToLight / light.attenuation.range)))) / 
+    float falloff = square(saturate(1.0 - square(square(distanceToLight / light.attenuation.range)))) / 
                     (light.attenuation.constant + light.attenuation.linear * distanceToLight + light.attenuation.quadratic * square(distanceToLight));
-
-    if (distanceToLight > light.attenuation.range)
-        return vec4(0.0, 0.0, 0.0, 1.0);
 
     vec4 diffuse;
     diffuse.rgb = diffuseCoefficient * light.base.coloredIntensity * falloff;

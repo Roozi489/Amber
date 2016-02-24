@@ -80,6 +80,7 @@ void RenderSystem::init()
 	pointLight.intensity = 300.f;
 	pointLight.color = Color::White;
 	pointLight.position = Vector3f(0.f, 20.f, 0.f);
+	pointLight.attenuation.range = 22.f;
 	pointLights.push_back(pointLight);
 	pointLight.intensity = 50.f;
 	pointLight.color = Color::Red;
@@ -94,6 +95,13 @@ void RenderSystem::init()
 	pointLight.color = Color::Green;
 	pointLight.position = Vector3f(10.f, 10.f, -10.f);
 	pointLights.push_back(pointLight);
+
+	/*
+	SpotLight spotLight;
+	spotLight.intensity = 300.f;
+	spotLight.position = Vector3f(0.f, 20.f, 0.f);
+	spotLight.coneAngle = toRadians(30.f);
+	spotLights.push_back(spotLight);*/
 
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -146,7 +154,7 @@ void RenderSystem::geometryPass()
 	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
 	*/
 
-	// better skybox
+	// TODO: better skybox
 	//http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
 	//skybox.update();
 	//skybox.render();

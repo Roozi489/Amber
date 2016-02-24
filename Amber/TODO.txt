@@ -1,6 +1,6 @@
 Critical:
 ------------------------------------
-Deferred shading
+Proper font rendering
 Proper models with pbr materials
 
 Major:
@@ -20,7 +20,6 @@ Instanced rendering
 Fix freetype includes
 Fix component memory layout
 Cleanup EntityManager
-Proper font rendering
 Math (trigonometry)
 Better code structure (Directories and namespaces)
 Proper file system stuff
