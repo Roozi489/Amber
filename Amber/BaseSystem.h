@@ -22,7 +22,7 @@ public:
 	BaseSystem() = default;
     virtual ~BaseSystem();    
 
-    virtual void configure() = 0;
+    virtual void init() = 0;
     virtual void update(Time delta);
 	virtual void destroy();
 

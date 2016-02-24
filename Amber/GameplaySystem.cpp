@@ -14,7 +14,7 @@ GameplaySystem::~GameplaySystem()
 {
 }
 
-void GameplaySystem::configure()
+void GameplaySystem::init()
 {
     soundSystem = gWorld.getSystem<SoundSystem>();
 }

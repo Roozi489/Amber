@@ -9,14 +9,14 @@ static FT_Error faceRequester(FTC_FaceID faceId, FT_Library lib, FT_Pointer tag,
 
 RenderSystem::RenderSystem()
 {
-	
+
 }
 
 RenderSystem::~RenderSystem()
 {
 }
 
-void RenderSystem::configure()
+void RenderSystem::init()
 {
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
@@ -55,12 +55,45 @@ void RenderSystem::configure()
 		criticalError("FreeType - Could not load font:  Fonts/FreeSans.ttf");
 
 	//skybox.init();
+	
 
 	// Shaders
-	gShaderManager.createProgram("default", "default.vert", "default.frag");
-	gShaderManager.createProgram("renderTextureColor", "renderTexture.vert", "renderTextureColor.frag");
-	gShaderManager.createProgram("renderTextureDepth", "renderTexture.vert", "renderTextureDepth.frag");
+	gShaderManager.createProgram("geometry", "geometryPass.vert", "geometryPass.frag");
+	gShaderManager.createProgram("ambientLight", "fullscreenQuad.vert", "ambientLight.frag");
+	gShaderManager.createProgram("directionalLight", "fullscreenQuad.vert", "directionalLight.frag");
+	gShaderManager.createProgram("pointLight", "fullscreenQuad.vert", "pointLight.frag");
+	gShaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
+	gShaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
 	gShaderManager.createProgram("font", "font.vert", "font.frag");
+
+	// Lights
+	ambientLight.color = Color::fromByteRGB(50, 50, 50);
+	ambientLight.intensity = 0.02f;
+
+	DirectionalLight dirLight;
+	dirLight.color = Color::Gray;
+	dirLight.intensity = 0.1f;
+	dirLight.direction = normalize(Vector3f(1.f, -1.f, -0.5f));
+	directionalLights.push_back(dirLight);
+
+	PointLight pointLight;
+	pointLight.intensity = 300.f;
+	pointLight.color = Color::White;
+	pointLight.position = Vector3f(0.f, 20.f, 0.f);
+	pointLights.push_back(pointLight);
+	pointLight.intensity = 50.f;
+	pointLight.color = Color::Red;
+	pointLight.position = Vector3f(10.f, 10.f, 10.f);
+	pointLights.push_back(pointLight);
+	pointLight.color = Color::Yellow;
+	pointLight.position = Vector3f(-10.f, 10.f, 10.f);
+	pointLights.push_back(pointLight);
+	pointLight.color = Color::Blue;
+	pointLight.position = Vector3f(-10.f, 10.f, -10.f);
+	pointLights.push_back(pointLight);
+	pointLight.color = Color::Green;
+	pointLight.position = Vector3f(10.f, 10.f, -10.f);
+	pointLights.push_back(pointLight);
 
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -72,7 +105,7 @@ void RenderSystem::configure()
 	// -----------------
 
 	// Font rendering
-	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font").handle;
+	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font")->handle;
 	glUseProgram(fontShaderProgram);
 	fontTexture.genAndBind();
 	fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
@@ -89,104 +122,17 @@ void RenderSystem::configure()
 
 	// RenderTexture
 	gBuffer.create(gWindowWidth, gWindowHeight);
-	renderTexture.create(gWindowWidth, gWindowHeight);
+	lightingRenderTexture.create(gWindowWidth, gWindowHeight, RenderTexture::Lighting);
+	outRenderTexture.create(gWindowWidth, gWindowHeight, RenderTexture::Color);
 }
 
 void RenderSystem::update(Time delta)
 {
 	BaseSystem::update(delta);
 
-	//geometryPass();
-	//lightPass();
-	//outPass();
-
-	renderTexture.bind();
-
-	glEnable(GL_DEPTH_TEST);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	
-	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
-	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
-
-	TransformComponent transformComp;
-	RenderComponent renderComp;
-	
-	for (Entity& entity : gWorld.entityManager.entities_with_components(transformComp, renderComp))
-	{
-		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
-		Matrix4x4f MVP = projectionMatrix * viewMatrix * modelMatrix;
-
-		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName).handle;
-		glUseProgram(programID);
-
-		GLint matrixMVPLoc = glGetUniformLocation(programID, "MVP");
-		GLint viewMatrixLoc = glGetUniformLocation(programID, "V");
-		GLint modelMatrixLoc = glGetUniformLocation(programID, "M");
-		GLint useTextureLoc = glGetUniformLocation(programID, "useTexture");
-		GLint textureSamplerLoc = glGetUniformLocation(programID, "texSampler");
-		GLint colorLoc = glGetUniformLocation(programID, "color");
-
-		glUniformMatrix4fv(matrixMVPLoc, 1, GL_FALSE, &MVP[0][0]);
-		glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
-		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &viewMatrix[0][0]);
-
-		glUniform1i(useTextureLoc, (int)renderComp.mesh->hasTexture);
-		glUniform4f(colorLoc, renderComp.color.r, renderComp.color.g, renderComp.color.b, renderComp.color.a);
-
-		if (renderComp.mesh->hasTexture)
-		{
-			renderComp.mesh->texture->bindAndSetActive(0);
-			glUniform1i(textureSamplerLoc, 0);
-		}
-
-		GLint cameraPosLoc = glGetUniformLocation(programID, "cameraPosition");
-		glUniform3f(cameraPosLoc, gCamera.getPosition().x, gCamera.getPosition().y, gCamera.getPosition().z);
-		GLint cameraDirLoc = glGetUniformLocation(programID, "cameraDirection");
-		Vector3f cameraDirection = normalize(gCamera.getViewTarget() - gCamera.getPosition());
-		glUniform3f(cameraDirLoc, cameraDirection.x, cameraDirection.y, cameraDirection.z);
-
-		glBindVertexArray(renderComp.mesh->vao);
-		glDrawElements(GL_TRIANGLES, (GLsizei)renderComp.mesh->indices.size(), GL_UNSIGNED_SHORT, nullptr);
-
-		checkGlError();
-	}
-
-	// Disable depth write for text rendering
-	glDepthMask(GL_FALSE);
-	textRendering();
-	glDepthMask(GL_TRUE);
-
-	renderTexture.unbind();
-	
-	// --------------
-	// Second pass
-	// --------------
-	glViewport(0, 0, renderTexture.colorTexture.width, renderTexture.colorTexture.height);
-	glDisable(GL_DEPTH_TEST);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Show depth texture if F1 is pressed
-	GLuint shaderId;
-	if (gKeystate[SDL_SCANCODE_F1])
-		shaderId = gShaderManager.getShaderProgram("renderTextureDepth").handle;
-	else
-		shaderId = gShaderManager.getShaderProgram("renderTextureColor").handle;
-	
-	glUseProgram(shaderId);
-	if (gKeystate[SDL_SCANCODE_F1])
-		renderTexture.depthTexture.bindAndSetActive(0);
-	else
-		renderTexture.colorTexture.bindAndSetActive(0);
-
-	GLint texLoc = glGetUniformLocation(shaderId, "tex");
-	glUniform1i(texLoc, 0);
-	
-	Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
-	glBindVertexArray(quad->vao);
-	glDrawElements(GL_TRIANGLES, (GLsizei)quad->indices.size(), GL_UNSIGNED_SHORT, nullptr);
-
-	checkGlError();
+	geometryPass();
+	lightPass();
+	outPass();
 
 	SDL_GL_SwapWindow(gMainWindow);
 }
@@ -200,85 +146,216 @@ void RenderSystem::geometryPass()
 	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
 	*/
 
+	// better skybox
+	//http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
 	//skybox.update();
 	//skybox.render();
 
-	renderTexture.bind();
+	gBuffer.bind();
 
 	glEnable(GL_DEPTH_TEST);
+	glViewport(0, 0, gBuffer.width, gBuffer.height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glEnable(GL_DEPTH_TEST);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	Matrix4x4f viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
-	Matrix4x4f projectionMatrix = gCamera.getProjectionMatrix();
+	const Matrix4x4f& viewMatrix = gCamera.getViewMatrix();
+	const Matrix4x4f& projectionMatrix = gCamera.getProjectionMatrix();
 
 	TransformComponent transformComp;
 	RenderComponent renderComp;
 
+	ShaderProgram* activeShaderProgram = gShaderManager.getShaderProgram("geometry");
+	activeShaderProgram->use();
+
 	for (Entity& entity : gWorld.entityManager.entities_with_components(transformComp, renderComp))
 	{
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
-		Matrix4x4f MVP = projectionMatrix * viewMatrix * modelMatrix;
+		Matrix4x4f mvp = projectionMatrix * viewMatrix * modelMatrix;
 
-		GLuint programID = gShaderManager.getShaderProgram(renderComp.shaderName).handle;
-		glUseProgram(programID);
+		// TODO: different shaders for different objects ???
+		/*if (activeShaderProgram == nullptr || activeShaderProgram->name != renderComp.shaderName)
+		{
+			activeShaderProgram = gShaderManager.getShaderProgram(renderComp.shaderName);
+			glUseProgram(activeShaderProgram->handle);
+		}*/
 
-		GLint matrixMVPLoc = glGetUniformLocation(programID, "MVP");
-		GLint viewMatrixLoc = glGetUniformLocation(programID, "V");
-		GLint modelMatrixLoc = glGetUniformLocation(programID, "M");
-		GLint useTextureLoc = glGetUniformLocation(programID, "useTexture");
-		GLint textureSamplerLoc = glGetUniformLocation(programID, "texSampler");
-		GLint colorLoc = glGetUniformLocation(programID, "color");
+		activeShaderProgram->setUniform("mvp", mvp);
+		activeShaderProgram->setUniform("transform", transformComp);
 
-		glUniformMatrix4fv(matrixMVPLoc, 1, GL_FALSE, &MVP[0][0]);
-		glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
-		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &viewMatrix[0][0]);
-
-		glUniform1i(useTextureLoc, (int)renderComp.mesh->hasTexture);
-		glUniform4f(colorLoc, renderComp.color.r, renderComp.color.g, renderComp.color.b, renderComp.color.a);
-
+		activeShaderProgram->setUniform("material.hasTexture", renderComp.mesh->hasTexture);
 		if (renderComp.mesh->hasTexture)
 		{
-			renderComp.mesh->texture->bindAndSetActive(0);
-			glUniform1i(textureSamplerLoc, 0);
+			renderComp.mesh->texture->activeAndBind(0);
+			activeShaderProgram->setUniform("material.diffuseMap", 0);
+			activeShaderProgram->setUniform("material.specularMap", 1);
+		}
+		else
+		{
+			activeShaderProgram->setUniform("material.color", renderComp.material.color);
 		}
 
-		GLint cameraPosLoc = glGetUniformLocation(programID, "cameraPosition");
-		glUniform3f(cameraPosLoc, gCamera.getPosition().x, gCamera.getPosition().y, gCamera.getPosition().z);
-		GLint cameraDirLoc = glGetUniformLocation(programID, "cameraDirection");
-		Vector3f cameraDirection = normalize(gCamera.getViewTarget() - gCamera.getPosition());
-		glUniform3f(cameraDirLoc, cameraDirection.x, cameraDirection.y, cameraDirection.z);
-
 		glBindVertexArray(renderComp.mesh->vao);
-		glDrawElements(GL_TRIANGLES, (GLsizei)renderComp.mesh->indices.size(), GL_UNSIGNED_SHORT, nullptr);
-
-		checkGlError();
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
 	}
+	checkGlError();
+
+	gBuffer.unbind();
+
+	// Disable depth write for text rendering
+	glDepthMask(GL_FALSE);
+	// ############################################################
+	// TODO: text
+	//textRendering();
+	// ############################################################
+	glDepthMask(GL_TRUE);
+
 }
 
 void RenderSystem::lightPass()
 {
+	gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
+	gBuffer.textures[GBuffer::TextureType::Specular].activeAndBind(1);
+	gBuffer.textures[GBuffer::TextureType::Normal].activeAndBind(2);
+	gBuffer.textures[GBuffer::TextureType::Depth].activeAndBind(3);
+
+	lightingRenderTexture.bind();
+
+	glDisable(GL_DEPTH_TEST);
+	glViewport(0, 0, lightingRenderTexture.width, lightingRenderTexture.height);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glDepthMask(false);
+	defer(glDepthMask(true));
+
+	glEnable(GL_BLEND);
+	defer(glDisable(GL_BLEND));
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	// Ambient light
+	if (ambientLight.isOn)
+	{
+		ShaderProgram* shaderProgram = gShaderManager.getShaderProgram("ambientLight");
+
+		shaderProgram->use();
+		shaderProgram->setUniform("light.coloredIntensity", ambientLight.color.toNormalizedRGB() * ambientLight.intensity);
+
+		Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+		glBindVertexArray(quad->vao);
+		glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+	}
+
+	// Directional lights
+	ShaderProgram* shaderProgram = gShaderManager.getShaderProgram("directionalLight");
+	shaderProgram->use();
+	shaderProgram->setUniform("specular", 1);
+	shaderProgram->setUniform("normal", 2);
+	for (const auto& light : directionalLights)
+	{
+		if (light.isOn)
+		{
+			shaderProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			shaderProgram->setUniform("light.direction", light.direction);
+
+			Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+			glBindVertexArray(quad->vao);
+			glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+		}
+	}
+
+	// Point lights
+	shaderProgram = gShaderManager.getShaderProgram("pointLight");
+	shaderProgram->use();
+	shaderProgram->setUniform("specular", 1);
+	shaderProgram->setUniform("normal", 2);
+	shaderProgram->setUniform("depth", 3);
+	const auto& vpInverse = inverse(gCamera.getProjectionMatrix() * gCamera.getViewMatrix());
+	for (const auto& light : pointLights)
+	{
+		if (light.isOn)
+		{
+			shaderProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			shaderProgram->setUniform("light.position", light.position);
+			shaderProgram->setUniform("light.attenuation.constant", light.attenuation.constant);
+			shaderProgram->setUniform("light.attenuation.linear", light.attenuation.linear);
+			shaderProgram->setUniform("light.attenuation.quadratic", light.attenuation.quadratic);
+			shaderProgram->setUniform("light.attenuation.range", light.attenuation.range);
+			shaderProgram->setUniform("vpInverse", vpInverse);
+
+			Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+			glBindVertexArray(quad->vao);
+			glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+		}
+	}
+
+	// Spot lights
+	shaderProgram = gShaderManager.getShaderProgram("spotLight");
+	shaderProgram->use();
+	shaderProgram->setUniform("specular", 1);
+	shaderProgram->setUniform("normal", 2);
+	shaderProgram->setUniform("depth", 3);
+	for (const auto& light : spotLights)
+	{
+		if (light.isOn)
+		{
+			shaderProgram->setUniform("light.base.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			shaderProgram->setUniform("light.base.position", light.position);
+			shaderProgram->setUniform("light.base.attenuation.constant", light.attenuation.constant);
+			shaderProgram->setUniform("light.base.attenuation.linear", light.attenuation.linear);
+			shaderProgram->setUniform("light.base.attenuation.quadratic", light.attenuation.quadratic);
+			shaderProgram->setUniform("light.base.attenuation.range", light.attenuation.range);
+			shaderProgram->setUniform("light.direction", light.direction);
+			shaderProgram->setUniform("light.coneAngle", light.coneAngle);
+			shaderProgram->setUniform("vpInverse", vpInverse);
+
+			Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+			glBindVertexArray(quad->vao);
+			glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+		}
+	}
+	shaderProgram->stopUsing();
+
+	lightingRenderTexture.unbind();
 }
 
 void RenderSystem::outPass()
 {
+	// TODO: render to outRenderTexture and show it in window class
+	//outRenderTexture.bind();
+
+	glDisable(GL_DEPTH_TEST);
+	glViewport(0, 0, outRenderTexture.width, outRenderTexture.height);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	ShaderProgram* program = gShaderManager.getShaderProgram("out");
+
+	program->use();
+
+	gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
+	program->setUniform("diffuse", 0);
+	lightingRenderTexture.colorTexture.activeAndBind(1);
+	program->setUniform("lighting", 1);
+
+	Mesh* quad = gMeshManager.getMesh("fullscreenQuad");
+	glBindVertexArray(quad->vao);
+	glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+
+	//outRenderTexture.unbind();
+
+	program->stopUsing();
 }
 
 void RenderSystem::destroy()
 {
-	
+
 }
 
 void RenderSystem::textRendering()
 {
-	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font").handle;
+	GLuint fontShaderProgram = gShaderManager.getShaderProgram("font")->handle;
 	glUseProgram(fontShaderProgram);
 
 	glBindVertexArray(fontVao);
 
-	fontTexture.bindAndSetActive(0);
+	fontTexture.activeAndBind(0);
 	GLint texSamplerLoc = glGetUniformLocation(fontShaderProgram, "tex");
 	glUniform1i(texSamplerLoc, 0);
 
@@ -290,7 +367,7 @@ void RenderSystem::textRendering()
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float sx, float sy)
 {
-	GLint fontColorLoc = glGetUniformLocation(gShaderManager.getShaderProgram("font").handle, "fontColor");
+	GLint fontColorLoc = glGetUniformLocation(gShaderManager.getShaderProgram("font")->handle, "fontColor");
 	Color c = Color::White;
 
 	glUniform4f(fontColorLoc, c.r, c.g, c.b, c.a);

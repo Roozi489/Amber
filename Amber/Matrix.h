@@ -26,13 +26,13 @@ struct Matrix4x4
 	};
 
 	// Default constructor doesn't initialize values
-	Matrix4x4() = default;
+	Matrix4x4();
 	// Fills the _whole_ matrix with value specified 
 	explicit Matrix4x4(T value);
 
 	Matrix4x4(const Matrix4x4& other);
-	Matrix4x4(T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7, T v8, T v9, T v10, T v11, T v12, T v13, T v14, T v15);
 	Matrix4x4& operator=(const Matrix4x4& other);
+	Matrix4x4(T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7, T v8, T v9, T v10, T v11, T v12, T v13, T v14, T v15);
 	// Fills the _whole_ matrix with value specified 
 	void init(T value = 0);
 	// Fills the diagonal with the value, other values are not changed
@@ -79,6 +79,9 @@ Matrix4x4<T> inverse(const Matrix4x4<T>& matrix);
 
 template <typename T>
 Matrix4x4<T> transpose(const Matrix4x4<T>& matrix);
+
+template <typename T>
+Matrix4x4<T> operator*(const Matrix4x4<T>& lhs, const Matrix4x4<T>& rhs);
 
 template <typename T>
 Matrix4x4<T> operator*(const T& lhs, const Matrix4x4<T>& rhs);

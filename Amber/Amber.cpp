@@ -5,19 +5,17 @@
 #include "GameplaySystem.h"
 #include "SoundSystem.h"
 #include "ContextSettings.h"
+#include "OpenGL.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_keyboard.h>
-#include <GL/glew.h>
 
 Amber::Amber()
 {
 }
 
-
 Amber::~Amber()
 {
-    
 }
 
 void Amber::run()
@@ -99,7 +97,7 @@ void Amber::init()
     gWorld.addSystem<RenderSystem>();
     gWorld.addSystem<GameplaySystem>();
     gWorld.addSystem<SoundSystem>();
-    gWorld.configureSystems();
+    gWorld.initSystems();
 
     gWorld.setupLevel();
 
@@ -111,8 +109,6 @@ void Amber::init()
 void Amber::update(Time delta)
 {
     mTotalTimeElapsed += delta;
-
-    gCamera.update(delta.asSeconds());
 
     SDL_PumpEvents();
 	int mouseX, mouseY;
@@ -203,7 +199,8 @@ void Amber::update(Time delta)
         }
     }
 
-    gWorld.update(delta);
+	gCamera.update(delta);
+	gWorld.update(delta);
 
 	mLastMouseX = mouseX;
 	mLastMouseY = mouseY;

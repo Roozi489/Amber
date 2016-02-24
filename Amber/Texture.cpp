@@ -7,7 +7,7 @@
 Texture::Texture()
 : width(-1)
 , height(-1)
-, textureID(-1)
+, textureHandle(-1)
 {
 }
 
@@ -30,8 +30,8 @@ bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWra
     // some magic formula I found
     int numMipmaps = 1 + static_cast<int>(floor(log2(max(width, height, componentsPerPixel))));
 
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    glGenTextures(1, &textureHandle);
+    glBindTexture(GL_TEXTURE_2D, textureHandle);
     glTexStorage2D(GL_TEXTURE_2D, numMipmaps, GL_RGBA8, width, height);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -45,17 +45,30 @@ bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWra
 
 void Texture::genAndBind()
 {
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
 }
 
 void Texture::genAndBind(int w, int h)
 {
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
 
 	width = w;
 	height = h;
+}
+
+void Texture::activeAndBind(GLuint position)
+{
+	assert_amber(position < MaxTexturePosition, "Invalid texture position : " + position);
+
+	glActiveTexture(GL_TEXTURE0 + position);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+}
+
+void Texture::unbind()
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
@@ -68,18 +81,10 @@ void Texture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(minMag));
 }
 
-void Texture::bindAndSetActive(GLuint position)
-{
-	assert_amber(position < MaxTexturePosition, "Invalid texture position : " + position);
-
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glActiveTexture(GL_TEXTURE0 + position);
-}
-
 void Texture::destroy()
 {
-	if (textureID != -1)
-		glDeleteTextures(1, &textureID);
+	if (textureHandle != -1)
+		glDeleteTextures(1, &textureHandle);
 
-	textureID = -1;
+	textureHandle = -1;
 }

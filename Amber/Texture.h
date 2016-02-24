@@ -28,7 +28,7 @@ public:
 	TextureFilter minMagfilter;
 	TextureWrapMode wrapMode;
 
-    GLuint textureID;
+    GLuint textureHandle;
 
     Texture();
     ~Texture();
@@ -36,8 +36,9 @@ public:
     bool load(const std::string& filename, TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
 	void genAndBind();
 	void genAndBind(int w, int h);
+	void activeAndBind(GLuint position);
+	void unbind();
 	void setFilterAndWrap(TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::Repeat);
-	void bindAndSetActive(GLuint position);
 	void destroy();
 };
 

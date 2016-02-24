@@ -3,29 +3,29 @@
 
 TransformComponent::TransformComponent()
     : position(0.f, 0.f, 0.f)
-    , scale(1.f)
 	, orientation(Quaternion::Identity)
+    , scale(1.f)
 {
 }
 
 TransformComponent::TransformComponent(Vector3f pos, Vector3f scale)
     : position(pos)
-    , scale(scale)
 	, orientation(Quaternion::Identity)
-{
-}
-
-TransformComponent::TransformComponent(Vector3f pos, Vector3f scale, Quaternion orient)
-	: position(pos)
-	, scale(scale)
-	, orientation(orient)
-{
-}
-
-TransformComponent::TransformComponent(Vector3f pos, Vector3f scale, float angle, Vector3f axis)
-    : position(pos)
     , scale(scale)
+{
+}
+
+TransformComponent::TransformComponent(Vector3f pos, Quaternion orient, Vector3f scale)
+	: position(pos)
+	, orientation(orient)
+	, scale(scale)
+{
+}
+
+TransformComponent::TransformComponent(Vector3f pos, float angle, Vector3f axis, Vector3f scale)
+    : position(pos)
 	, orientation(angleAxis(angle, axis))
+    , scale(scale)
 {
 }
 

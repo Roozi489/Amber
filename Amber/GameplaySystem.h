@@ -36,7 +36,7 @@ public:
     GameplaySystem();
     ~GameplaySystem();
 
-	virtual void configure() override;
+	virtual void init() override;
     virtual void update(Time delta) override;
 
     float distFromCenter(Vector3f position);

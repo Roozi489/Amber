@@ -284,3 +284,12 @@ Vector2<T> reflect(const Vector2<T>& vector, const Vector2<T>& normal)
 	result.y = vector.y - dotTimesTwo * normal.y;
 	return result;
 }
+
+template <typename T>
+Vector4<T>::Vector4(T _x, T _y, T _z, T _w)
+	: x(_x)
+	, y(_y)
+	, z(_z)
+	, w(_w)
+{
+}

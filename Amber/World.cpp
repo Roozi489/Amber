@@ -1,5 +1,4 @@
 #include "World.h"
-
 #include "TransformComponent.h"
 #include "RenderComponent.h"
 #include "PhysicsComponent.h"
@@ -47,7 +46,7 @@ Entity* World::addBall(Vector3f position)
     ball->addComponent<TransformComponent>(position, Vector3f(1.f));
     ball->addComponent<PhysicsComponent>(BodyType::Kinematic, Vector3f::zero());
     ball->addComponent<RenderComponent>("default", "sphere_lowPoly_smooth.obj");
-    ball->getComponent<RenderComponent>().color = Color::Cyan;
+	ball->getComponent<RenderComponent>().material.color = Color::Cyan;
 
     return ball;
 }
@@ -60,8 +59,7 @@ Entity* World::addPad(Vector3f position)
     pad->addComponent<PhysicsComponent>(BodyType::Kinematic, "pad_smooth.obj");
     RenderComponent* renderComp = pad->addComponent<RenderComponent>("default", "pad.obj");
     Color color = Color::Green;
-    color.a = 0.6f;
-    pad->getComponent<RenderComponent>().color = color;
+    pad->getComponent<RenderComponent>().material.color = color;
 
     return pad;
 }
@@ -73,7 +71,7 @@ Entity* World::addBrick(Vector3f position, Color color)
     brick->addComponent<TransformComponent>(position, Vector3f(1.f));
     brick->addComponent<PhysicsComponent>(BodyType::Kinematic, "brick_smooth.obj");
     brick->addComponent<RenderComponent>("default", "brick.obj");
-    brick->getComponent<RenderComponent>().color = color;
+    brick->getComponent<RenderComponent>().material.color = color;
 
     return brick;
 }
@@ -92,7 +90,6 @@ void World::setupLevel()
                 color = Color::Yellow;
             else
                 color = Color::Red;
-            color.a = 0.88f;
             Entity* e = addBrick(Vector3f(sinf(toRadians(30.f * i)) * 5, (float)row * 2.2f, cosf(toRadians(30.f * i)) * 5), color);
 			e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(30.f * i - 90.f), Vector3f::Up);
         }
@@ -105,10 +102,10 @@ void World::setupLevel()
 	}
 }
 
-void World::configureSystems()
+void World::initSystems()
 {
     for (auto& pair : systems)
-        pair.second->configure();
+        pair.second->init();
 }
 
 void World::update(Time delta)

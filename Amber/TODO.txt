@@ -1,21 +1,21 @@
 Critical:
 ------------------------------------
- ---- RenderTextureType::Lighting = Color (not 4 | Color)
 Deferred shading
-add defer function
-Gamma correction
+Proper models with pbr materials
 
 Major:
 ------------------------------------
-Text rendering as a seperate pass
+Text rendering as a seperate pass (just add to the last ??)
 Render
 Make amber class hold systems (not World)
 Shading methods
+Check for copying of components (does it happen on foreach)
 Uniform buffer object
 Proper logging
 Shadow mapping
-Window class
+Window class (where the color of outRenderTexture is rendered to)
 Memory allocators
+Geometry shaders for fullscreen quad
 Instanced rendering
 Fix freetype includes
 Fix component memory layout
@@ -30,6 +30,7 @@ Better resource managment
 Antialiasing
 More Camera
 Fix loading of models with different texture coords
+HDR
 
 Minor:
 ------------------------------------

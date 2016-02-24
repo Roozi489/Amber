@@ -52,7 +52,6 @@ struct Bitmap
 float toDegrees(float valueInRadians);
 float toRadians(float valueInDegrees);
 
-
 bool getLowestPosRoot(float a, float b, float c, float maxR, float* root);
 
 // TODO: actual test

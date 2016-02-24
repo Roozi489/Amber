@@ -3,8 +3,6 @@
 #include "Vector.h"
 #include "Matrix.h"
 
-#include <cmath>
-
 Camera::Camera()
 {
 
@@ -18,12 +16,13 @@ void Camera::init()
 
 	// TODO: check whether the fov should't be in radians
 	projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(gWindowWidth), static_cast<float>(gWindowHeight), nearPlane, farPlane);
+	viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
 }
 
-void Camera::update(float delta)
+void Camera::update(Time delta)
 {
-	// TODO: move to postionTarget
-	// 
+	// TODO: add scale
+	viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
 }
 
 void Camera::offsetOrientation(float yaw, float pitch)
@@ -109,4 +108,9 @@ void Camera::setViewTarget(Vector3f t)
 const Matrix4x4f& Camera::getProjectionMatrix()
 {
     return projectionMatrix;
+}
+
+const Matrix4x4f& Camera::getViewMatrix()
+{
+	return viewMatrix;
 }

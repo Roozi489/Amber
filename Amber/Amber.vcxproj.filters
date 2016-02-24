@@ -46,9 +46,6 @@
     <ClCompile Include="CubeTexture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -152,9 +149,6 @@
     <ClInclude Include="CubeTexture.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -232,6 +226,9 @@
     <ClInclude Include="OpenGL.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">
@@ -270,13 +267,28 @@
     <None Include="..\Resources\Shaders\font.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\Shaders\renderTexture.vert">
+    <None Include="..\Resources\Shaders\geometryPass.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\Shaders\renderTextureColor.frag">
+    <None Include="..\Resources\Shaders\geometryPass.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\Shaders\renderTextureDepth.frag">
+    <None Include="..\Resources\Shaders\out.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\fullscreenQuad.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\ambientLight.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\directionalLight.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\pointLight.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\spotLight.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

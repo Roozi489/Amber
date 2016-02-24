@@ -63,6 +63,6 @@ public:
         return static_cast<S*>(systems[S::template getSystemID<S>()].get());
     }
 
-    void configureSystems();
+    void initSystems();
     void update(Time delta);
 };

@@ -20,13 +20,13 @@ class ShaderProgram
 public:
 	GLuint handle;
 	bool isLinked;
+	std::string name;
 	std::string errorLog;
 
 	ShaderProgram();
 	~ShaderProgram();
 
-
-	void create();
+	void create(const std::string& programName);
 	void destroy();
 
 	void link();
@@ -51,7 +51,7 @@ public:
 	void setUniform(const std::string& name, bool x);
 	void setUniform(const std::string& name, const Vector2f& v);
 	void setUniform(const std::string& name, const Vector3f& v);
-	//void setUniform(const std::string& name, const Vector4f& v);
+	void setUniform(const std::string& name, const Vector4f& v);
 	void setUniform(const std::string& name, const Matrix4x4f& m);
 	void setUniform(const std::string& name, const Quaternion& t);
 	void setUniform(const std::string& name, const TransformComponent& t);

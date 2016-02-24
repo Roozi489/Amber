@@ -17,7 +17,7 @@ public:
 	GBuffer();
 	~GBuffer();
 
-	bool create(int w, int h);
+	void create(int w, int h);
 	void destroy();
 
 	void bind();
@@ -26,7 +26,7 @@ public:
 	int width;
 	int height;
 	
-	GLuint frambufferHandle;
+	GLuint framebufferHandle;
 	Texture textures[TextureType::Count];
 };
 

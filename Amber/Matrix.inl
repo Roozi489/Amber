@@ -12,6 +12,11 @@ const Matrix4x4<T> Matrix4x4<T>::Identity = Matrix4x4<T>
 );
 
 template <typename T>
+Matrix4x4<T>::Matrix4x4()
+{
+}
+
+template <typename T>
 Matrix4x4<T>::Matrix4x4(T value)
 {
 	for (int i = 0; i < dataLength; ++i)
@@ -333,6 +338,25 @@ Vector3<T> Matrix4x4<T>::operator*(const Vector3<T>& rhs)
 	tmp.y = rhs.x * getValue(0, 1) + rhs.y * getValue(1, 1) + rhs.z * getValue(2, 1) + getValue(3, 1);
 	tmp.z = rhs.x * getValue(0, 2) + rhs.y * getValue(1, 2) + rhs.z * getValue(2, 2) + getValue(3, 2);
 	return tmp;
+}
+
+template <typename T>
+Matrix4x4<T> operator*(const Matrix4x4<T>& lhs, const Matrix4x4<T>& rhs)
+{
+	Matrix4x4<T> newMatrix;
+	for (int i = 0; i < lhs.rowsCount; ++i)
+	{
+		for (int j = 0; j < lhs.columnsCount; ++j)
+		{
+			T value = 0.0;
+			for (int k = 0; k < lhs.rowsCount; ++k)
+			{
+				value += lhs.getValue(k, i) * rhs.getValue(j, k);
+			}
+			newMatrix[j][i] = value;
+		}
+	}
+	return newMatrix;
 }
 
 template <typename T>

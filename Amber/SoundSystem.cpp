@@ -19,7 +19,7 @@ SoundSystem::~SoundSystem()
     fmodSystem->release();
 }
 
-void SoundSystem::configure()
+void SoundSystem::init()
 {
     if (FMOD::System_Create(&fmodSystem) != FMOD_OK)
     {

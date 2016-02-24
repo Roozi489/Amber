@@ -6,39 +6,40 @@ RenderTexture::RenderTexture()
 {
 }
 
-bool RenderTexture::create(int width, int height, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
+void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
 {
+	width = w;
+	height = h;
+
 	glGenFramebuffers(1, &framebufferHandle);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
-	glEnable(GL_TEXTURE_2D);
 
 	if (type & RenderTextureType::Color)
 	{
 		colorTexture.genAndBind(width, height);
 
-		// empty texture
 		if (type == RenderTextureType::Lighting)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		else
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
 		colorTexture.setFilterAndWrap(minMag, wrap);
 
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture.textureID, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture.textureHandle, 0);
+
 		drawbufferAttachments.push_back(GL_COLOR_ATTACHMENT0);
 	}
 	
 	if (type & RenderTextureType::Depth)
 	{
 		depthTexture.genAndBind(width, height);
-		// empty texture
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 		depthTexture.setFilterAndWrap(minMag, wrap);
 
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureID, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureHandle, 0);
 	}
 
-	glDrawBuffers(static_cast<GLsizei>(drawbufferAttachments.size()), &drawbufferAttachments[0]);
+	glDrawBuffers(static_cast<GLsizei>(drawbufferAttachments.size()), drawbufferAttachments.data());
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		criticalError("FrameBuffer is not complete");
@@ -46,10 +47,6 @@ bool RenderTexture::create(int width, int height, RenderTextureType type, Textur
 	// unbind
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	checkGlError();
-
-	return true;
 }
 
 void RenderTexture::destroy()
@@ -68,5 +65,6 @@ void RenderTexture::bind()
 
 void RenderTexture::unbind()
 {
+	glFlush();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

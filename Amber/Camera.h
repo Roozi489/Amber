@@ -2,6 +2,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Quaternion.h"
+#include "Time.h"
 
 class Camera
 {
@@ -18,7 +19,7 @@ public:
 
 	void init();
 
-    void update(float delta);
+    void update(Time delta);
 
 	void offsetOrientation(float yaw, float pitch);
 
@@ -40,10 +41,12 @@ public:
     void setViewTarget(Vector3f target);
 
 	const Matrix4x4f& getProjectionMatrix();
+	const Matrix4x4f& getViewMatrix();
 private:
 	float nearPlane = 0.1f;
 	float farPlane = 10000.f;	
 
 	Matrix4x4f projectionMatrix;
+	Matrix4x4f viewMatrix;
 };
 

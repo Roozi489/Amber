@@ -183,7 +183,6 @@
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="GameplaySystem.cpp" />
     <ClCompile Include="Globals.cpp" />
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -222,7 +221,7 @@
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="GameplaySystem.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="Light.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Mesh.h" />
@@ -251,11 +250,15 @@
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Resources\Shaders\ambientLight.frag" />
+    <None Include="..\Resources\Shaders\directionalLight.frag" />
     <None Include="..\Resources\Shaders\font.frag" />
     <None Include="..\Resources\Shaders\font.vert" />
-    <None Include="..\Resources\Shaders\renderTextureColor.frag" />
-    <None Include="..\Resources\Shaders\renderTexture.vert" />
-    <None Include="..\Resources\Shaders\renderTextureDepth.frag" />
+    <None Include="..\Resources\Shaders\fullscreenQuad.vert" />
+    <None Include="..\Resources\Shaders\geometryPass.frag" />
+    <None Include="..\Resources\Shaders\geometryPass.vert" />
+    <None Include="..\Resources\Shaders\out.frag" />
+    <None Include="..\Resources\Shaders\pointLight.frag" />
     <None Include="..\Resources\Shaders\skybox.frag" />
     <None Include="..\Resources\Shaders\skybox.vert" />
     <None Include="..\Resources\Shaders\pbr.frag" />
@@ -263,6 +266,7 @@
     <None Include="..\Resources\Shaders\pbr.vert" />
     <None Include="..\Resources\Shaders\default.frag" />
     <None Include="..\Resources\Shaders\default.vert" />
+    <None Include="..\Resources\Shaders\spotLight.frag" />
     <None Include="Matrix.inl" />
     <None Include="Ray.inl" />
     <None Include="Vector.inl" />

@@ -23,7 +23,7 @@ public:
     SoundSystem();
     ~SoundSystem();
 
-    virtual void configure();
+    virtual void init();
     virtual void update(Time delta);
 
     void createSound(const std::string& filename);

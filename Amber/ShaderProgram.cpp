@@ -16,35 +16,36 @@ void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& fil
 {
 	int compileStatus;
 
-	GLuint shaderID;
+	GLuint shaderHandle;
 	if (type == ShaderType::Vertex)
-		shaderID = glCreateShader(GL_VERTEX_SHADER);
+		shaderHandle = glCreateShader(GL_VERTEX_SHADER);
 	else if (type == ShaderType::Fragment)
-		shaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		shaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 	else
 		criticalError("Unsupported shader type");
 
 	std::string sourceString = loadFileToString("Shaders/" + filename);
 	const char *source = sourceString.c_str();
-	glShaderSource(shaderID, 1, &source, nullptr);
-	glCompileShader(shaderID);
-	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
+	glShaderSource(shaderHandle, 1, &source, nullptr);
+	glCompileShader(shaderHandle);
+	glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileStatus);
 	if (compileStatus == GL_FALSE)
 	{
 		int logLenght = 0;
-		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLenght);
+		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLenght);
 		std::unique_ptr<char[]> log(new char[logLenght]);
-		glGetShaderInfoLog(shaderID, logLenght, nullptr, log.get());
+		glGetShaderInfoLog(shaderHandle, logLenght, nullptr, log.get());
 		std::string message = "Failed to compile shader: " + filename + "\n";
 		criticalError(message.append(log.get()));
 	}
 
-	glAttachShader(handle, shaderID);
+	glAttachShader(handle, shaderHandle);
 }
 
-void ShaderProgram::create()
+void ShaderProgram::create(const std::string& programName)
 {
 	handle = glCreateProgram();
+	name = programName;
 }
 
 void ShaderProgram::destroy()
@@ -121,133 +122,119 @@ int ShaderProgram::getUniformLocation(const std::string& name)
 
 void ShaderProgram::setUniform(const std::string& name, float x)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1f(loc, x);
 }
 
 void ShaderProgram::setUniform(const std::string& name, float x, float y)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform2f(loc, x, y);
 }
 
 void ShaderProgram::setUniform(const std::string& name, float x, float y, float z)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform3f(loc, x, y, z);
 }
 
-void ShaderProgram::setUniform(
-	const std::string& name, float x, float y, float z, float w)
+void ShaderProgram::setUniform(const std::string& name, float x, float y, float z, float w)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform4f(loc, x, y, z, w);
 }
 
 void ShaderProgram::setUniform(const std::string& name, uint32_t x)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1ui(loc, x);
 }
 
 void ShaderProgram::setUniform(const std::string& name, int x)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1i(loc, x);
 }
 
 void ShaderProgram::setUniform(const std::string& name, bool x)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
-	glUniform1i(loc, (int)x);
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
+	glUniform1i(loc, static_cast<int>(x));
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Vector2f& v)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform2fv(loc, 1, v.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Vector3f& v)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform3fv(loc, 1, v.data);
+}
+
+void ShaderProgram::setUniform(const std::string& name, const Vector4f& v)
+{
+	int loc = getUniformLocation(name);
+	if (loc == -1)
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
+	glUniform4fv(loc, 1, v.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Matrix4x4f& m)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
-	glUniformMatrix4fv(loc, 1, false, &m[0][0]);
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
+	glUniformMatrix4fv(loc, 1, false, m.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Quaternion& q)
 {
-	checkInUse();
 	int loc = getUniformLocation(name);
 	if (loc == -1)
-		return;
-	glUniform4fv(loc, 1, &q.x);
+		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
+	glUniform4fv(loc, 1, q.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const TransformComponent& t)
 {
-	checkInUse();
-	{
-		int loc = getUniformLocation(name + ".position");
-		if (loc == -1)
-			return;
-		glUniform3fv(loc, 1, t.position.data);
-	}
-	{
-		int loc = getUniformLocation(name + ".orientation");
-		if (loc == -1)
-			return;
-		glUniform4fv(loc, 1, &t.orientation.x);
-	}
-	{
-		int loc = getUniformLocation(name + ".scale");
-		if (loc == -1)
-			return;
-		glUniform3fv(loc, 1, t.scale.data);
-	}
+	int loc = getUniformLocation(name + ".position");
+	if (loc == -1)
+		log("Uniform: " + name + ".position not found.\nShaderProgram: " + this->name);
+	glUniform3fv(loc, 1, t.position.data);
+
+	loc = getUniformLocation(name + ".orientation");
+	if (loc == -1)
+		log("Uniform: " + name + ".orientation not found.\nShaderProgram: " + this->name);
+	glUniform4fv(loc, 1, t.orientation.data);
+
+	loc = getUniformLocation(name + ".scale");
+	if (loc == -1)
+		log("Uniform: " + name + ".scale not found.\nShaderProgram: " + this->name);
+	glUniform3fv(loc, 1, t.scale.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Color& c)
 {
-	float r = c.r / 255.0f;
-	float g = c.g / 255.0f;
-	float b = c.b / 255.0f;
-	float a = c.a / 255.0f;
-
-	setUniform(name, r, g, b, a);
+	setUniform(name, c.toNormalizedRGBA());
 }

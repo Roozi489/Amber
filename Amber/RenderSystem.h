@@ -8,6 +8,7 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 #include "GBuffer.h"
+#include "Lighting.h"
 
 typedef struct FontType_
 {
@@ -23,10 +24,15 @@ typedef struct FontType_
 class RenderSystem : public BaseSystem
 {
 public:
+	AmbientLight ambientLight;
+	std::vector<DirectionalLight> directionalLights;
+	std::vector<PointLight> pointLights;
+	std::vector<SpotLight> spotLights;
+
     RenderSystem();
     ~RenderSystem();
 
-    virtual void configure() override;
+    virtual void init() override;
 	virtual void update(Time delta) override;
 	virtual void destroy() override;
 	
@@ -38,6 +44,12 @@ public:
 
     void renderText(const std::string& text, float x, float y, float sx, float sy);
 private:
+	GBuffer gBuffer;
+	RenderTexture lightingRenderTexture;
+	RenderTexture outRenderTexture;
+
+	Skybox skybox;
+
 	// Font rendering
     FT_Library ftLib;
     FTC_Manager ftCacheManager;
@@ -53,14 +65,11 @@ private:
     int numFonts = 0;
     FontHandle* fonts;
 
-	GBuffer gBuffer;
-	RenderTexture renderTexture;
-
-    Skybox skybox;
-
     FT_Error ftAddFont(const char* filepath, FT_Bool outline_only);
     FT_UInt ftGetIndex(FTC_FaceID faceID, FT_UInt32 charcode);
     FT_Error ftIndexToBitmap(FT_ULong index, FTC_FaceID faceID, int* left, int* top, int* xAdvance, int* yAdvance, Bitmap* outBitmap, FT_Glyph* outGlyph);
     FT_Error ftGlyphToBitmap(FT_Glyph glyph, int* left, int* top, int* xAdvance, int* yAdvance, Bitmap* outBitmap, FT_Glyph* outGlyph);
+
+	//-----------------------------------------
 };
 

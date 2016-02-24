@@ -71,7 +71,7 @@ void Skybox::init()
 
     skyboxTexture.create("Textures/negz.jpg", "Textures/posz.jpg", "Textures/posy.jpg", "Textures/negy.jpg", "Textures/negx.jpg", "Textures/posx.jpg");
 
-    shaderProgramID = gShaderManager.createProgram("skybox", "skybox.vert", "skybox.frag").handle;
+    shaderProgramID = gShaderManager.createProgram("skybox", "skybox.vert", "skybox.frag")->handle;
 
     checkGlError();
 }
@@ -100,7 +100,7 @@ void Skybox::update()
 void Skybox::render()
 {
     glDepthMask(GL_FALSE);
-	gShaderManager.getShaderProgram("skybox").use();
+	gShaderManager.getShaderProgram("skybox")->use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureID());
     glBindVertexArray(vao);

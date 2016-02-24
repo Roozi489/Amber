@@ -9,10 +9,10 @@
 enum MeshComponents
 {
 	Vertex = 1,
-	UV = 2,
+	TexCoord = 2,
 	Normal = 4,
 	Index = 8,
-	VertexUVNormalIndex = Vertex | UV | Normal | Index,
+	VertexUVNormalIndex = Vertex | TexCoord | Normal | Index,
 	VertexIndex = Vertex | Index
 };
 
@@ -33,14 +33,15 @@ public:
     GLuint vao;
 
     GLuint vertexVBO;
-    GLuint uvVBO;
+    GLuint texCoordVBO;
     GLuint normalVBO;
     GLuint elementVBO;
 
     Mesh();
     ~Mesh();
 
-    bool setVaoAndVbo();
+    void setVaoAndVbo();
+	void destroy();
 	void setTexture(const std::string& name);
 
     float boundingSphereRadiusFast();

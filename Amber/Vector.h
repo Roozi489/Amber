@@ -145,6 +145,8 @@ struct Vector4
 		Vector3<T> xyz;
 		T data[4];
 	};
+
+	Vector4(T _x, T _y, T _z, T _w);
 };
 
 using Vector2f = Vector2<float>;
@@ -153,5 +155,7 @@ using Vector2d = Vector2<double>;
 using Vector3f = Vector3<float>;
 using Vector3d = Vector3<double>;
 
+using Vector4f = Vector4<float>;
+using Vector4d = Vector4<double>;
 
 #include "Vector.inl"
