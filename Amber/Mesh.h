@@ -44,7 +44,11 @@ public:
 	void destroy();
 	void setTexture(const std::string& name);
 
-    float boundingSphereRadiusFast();
+	// TODO: make this automatic
+	void calculateBoundingSphereRadiusFast();
+    float getBoundingSphereRadiusFast();
 
     std::string toString();
+private:
+	float mBoundingSphereRadius;
 };

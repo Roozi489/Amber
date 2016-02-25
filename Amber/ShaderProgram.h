@@ -35,7 +35,8 @@ public:
 	void stopUsing() const;
 	void checkInUse() const;
 
-	void attachShaderFromFile(ShaderType type, const std::string& filename) const;
+	void attachShaderFromFile(ShaderType type, const std::string& filename);
+	void attachShaderFromString(ShaderType type, const std::string& name, const std::string& content);
 
 	void bindAttribLocation(int location, const std::string& name);
 
@@ -56,10 +57,11 @@ public:
 	void setUniform(const std::string& name, const Quaternion& t);
 	void setUniform(const std::string& name, const TransformComponent& t);
 	void setUniform(const std::string& name, const Color& c);
-
 private:
 	std::unordered_map<std::string, int> mAttribLocations;
 	std::unordered_map<std::string, int> mUniformLocations;
+
+	void loadFromString(GLuint shaderHandle, const std::string& name, const char* content);
 
 	ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator=(const ShaderProgram&) = delete;

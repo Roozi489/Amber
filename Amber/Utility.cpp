@@ -163,9 +163,9 @@ void testVectorsMatricesRays()
     std::cout << "Result: " << distance(r1, v1) << std::endl;
 }
 
-std::string loadFileToString(const std::string& fileName)
+std::string loadFileToString(const std::string& filePath)
 {
-    std::ifstream file(fileName);
+    std::ifstream file(filePath);
     std::stringstream ss;
     ss << file.rdbuf();
     return ss.str();

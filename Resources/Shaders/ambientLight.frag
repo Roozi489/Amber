@@ -1,9 +1,6 @@
 #version 330 core
 
-struct BaseLight
-{
-    vec3 coloredIntensity; // color * intensity
-};
+#include "Lighting.h"
 
 uniform BaseLight light;
 

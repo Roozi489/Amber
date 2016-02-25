@@ -98,6 +98,8 @@ bool MeshManager::preloadMesh(const std::string& fileName)
         mesh->indices.push_back(i);
     }
 
+	// TODO: remove this when its not necessary
+	mesh->calculateBoundingSphereRadiusFast();
     mesh->setVaoAndVbo();
 
     meshes.insert(std::make_pair(fileName, std::move(mesh)));

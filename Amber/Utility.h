@@ -57,7 +57,7 @@ bool getLowestPosRoot(float a, float b, float c, float maxR, float* root);
 // TODO: actual test
 void testVectorsMatricesRays();
 
-std::string loadFileToString(const std::string& fileName);
+std::string loadFileToString(const std::string& filePath);
 
 std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems);
 std::vector<std::string> split(const std::string& s, char delim);

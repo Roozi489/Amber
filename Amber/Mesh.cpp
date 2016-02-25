@@ -69,16 +69,21 @@ void Mesh::setTexture(const std::string& name)
     hasTexture = true;
 }
 
-float Mesh::boundingSphereRadiusFast()
+void Mesh::calculateBoundingSphereRadiusFast()
 {
-    float max = 0.f;
-    for (auto& v : vertices)
-    {
-        float length = v.length();
-        if (length > max)
-            max = length;
-    }
-    return max;
+	float max = 0.f;
+	for (auto& v : vertices)
+	{
+		float length = v.length();
+		if (length > max)
+			max = length;
+	}
+	mBoundingSphereRadius = max;
+}
+
+float Mesh::getBoundingSphereRadiusFast()
+{
+	return mBoundingSphereRadius;
 }
 
 std::string Mesh::toString()

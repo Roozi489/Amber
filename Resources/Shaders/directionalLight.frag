@@ -1,16 +1,6 @@
 #version 330 core
 
-struct BaseLight
-{
-    vec3 coloredIntensity; // color * intensity
-};
-
-struct DirectionalLight
-{
-    BaseLight base;
-
-    vec3 direction;
-};
+#include "Lighting.h"
 
 // TODO: add specular
 uniform sampler2D specular;

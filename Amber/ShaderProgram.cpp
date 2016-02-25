@@ -1,5 +1,7 @@
 #include "ShaderProgram.h"
 
+#include <fstream>
+#include <sstream>
 #include <memory>
 
 ShaderProgram::ShaderProgram()
@@ -12,10 +14,32 @@ ShaderProgram::~ShaderProgram()
 {
 }
 
-void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& filename) const
+void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& filename)
 {
-	int compileStatus;
+	std::stringstream content;
+	std::ifstream fileStream("Shaders/" + filename);
+	std::string line;
+	while (std::getline(fileStream, line))
+	{
+		if (line.find("#include") != std::string::npos)
+		{
+			auto spaceSplit = split(line, '\"');
+			if (spaceSplit.size() == 2)
+			{
+				std::string includedContent = loadFileToString("Shaders/" + spaceSplit[1] + ".glsl");
+				content << includedContent;
+			}
+		}
+		else
+		{
+			content << line << std::endl;
+		}
+	}
+	attachShaderFromString(type, filename, content.str());
+}
 
+void ShaderProgram::attachShaderFromString(ShaderType type, const std::string& name, const std::string& content)
+{
 	GLuint shaderHandle;
 	if (type == ShaderType::Vertex)
 		shaderHandle = glCreateShader(GL_VERTEX_SHADER);
@@ -24,22 +48,7 @@ void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& fil
 	else
 		criticalError("Unsupported shader type");
 
-	std::string sourceString = loadFileToString("Shaders/" + filename);
-	const char *source = sourceString.c_str();
-	glShaderSource(shaderHandle, 1, &source, nullptr);
-	glCompileShader(shaderHandle);
-	glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileStatus);
-	if (compileStatus == GL_FALSE)
-	{
-		int logLenght = 0;
-		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLenght);
-		std::unique_ptr<char[]> log(new char[logLenght]);
-		glGetShaderInfoLog(shaderHandle, logLenght, nullptr, log.get());
-		std::string message = "Failed to compile shader: " + filename + "\n";
-		criticalError(message.append(log.get()));
-	}
-
-	glAttachShader(handle, shaderHandle);
+	loadFromString(shaderHandle, name, content.c_str());
 }
 
 void ShaderProgram::create(const std::string& programName)
@@ -237,4 +246,23 @@ void ShaderProgram::setUniform(const std::string& name, const TransformComponent
 void ShaderProgram::setUniform(const std::string& name, const Color& c)
 {
 	setUniform(name, c.toNormalizedRGBA());
+}
+
+void ShaderProgram::loadFromString(GLuint shaderHandle, const std::string& name, const char* content)
+{
+	glShaderSource(shaderHandle, 1, &content, nullptr);
+	glCompileShader(shaderHandle);
+	int compileStatus;
+	glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileStatus);
+	if (compileStatus == GL_FALSE)
+	{
+		int logLenght = 0;
+		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLenght);
+		std::unique_ptr<char[]> log(new char[logLenght]);
+		glGetShaderInfoLog(shaderHandle, logLenght, nullptr, log.get());
+		std::string message = "Failed to compile shader: \"" + name + "\"\n";
+		criticalError(message.append(log.get()).append(content));
+	}
+
+	glAttachShader(handle, shaderHandle);
 }

@@ -1,25 +1,7 @@
 #version 330 core
 
-struct Attenuation
-{
-    float constant;
-    float linear;
-    float quadratic;
-    float range;
-};
-
-struct BaseLight
-{
-    vec3 coloredIntensity; // color * intensity
-};
-
-struct PointLight
-{
-    BaseLight base;
-
-    vec3 position;
-    Attenuation attenuation;
-};
+#include "Common.h"
+#include "Lighting.h"
 
 uniform sampler2D specular;
 uniform sampler2D normal;
@@ -32,28 +14,6 @@ in vec2 texCoord;
 
 out vec4 color;
 
-float square(float x)
-{
-    return x * x;
-}
-
-float saturate(float x)
-{
-    return clamp(x, 0.0, 1.0);
-}
-
-vec3 calculatePositionFromDepth(in vec2 st, in float w, in float depthValue, in mat4 inverseCameraMatrix)
-{
-    float x_ss = 2.0 * st.x - 1.0;
-    float y_ss = 2.0 * st.y - 1.0;
-    float z_ss = 2.0 * depthValue - 1.0;
-
-    vec4 position_ss = vec4(x_ss, y_ss, z_ss, 1.0) / w;
-
-    vec4 position_ws = inverseCameraMatrix * position_ss;
-
-    return position_ws.xyz / position_ws.w;
-}
 
 vec4 calculatePointLight(in vec3 surfaceToLight, in float distanceToLight, in vec3 normal)
 {

@@ -175,7 +175,7 @@ void GameplaySystem::update(Time delta)
                     if (otherEntity.tag == Tag::Brick)
                     {
                         // Bounce from brick
-                        if (distance(sphere.origin, otherTransformComp.position) <= 2 * otherPhysicsComp.collisionMesh->boundingSphereRadiusFast() + sphere.radius)
+                        if (distance(sphere.origin, otherTransformComp.position) <= 2 * otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
                         {
                             // TODO: check for collisions with all objects and respond to the first one, then repeat the collision check
                             CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
@@ -187,7 +187,6 @@ void GameplaySystem::update(Time delta)
                                 physicsComp.velocity = reflect(physicsComp.velocity, resultNormal);
 
                                 // Don't add the remaining velocity since the ball might end up in some object
-                                //transformComp.position += physicsComp.velocity * delta * (1.f - result.collisionTime);
 
                                 score += 100;
                                 soundSystem->playSound("Blop");
@@ -209,7 +208,7 @@ void GameplaySystem::update(Time delta)
                         }
 
                         // Bounce from pad
-                        if (distance(sphere.origin, otherTransformComp.position) <= otherPhysicsComp.collisionMesh->boundingSphereRadiusFast() + sphere.radius)
+                        if (distance(sphere.origin, otherTransformComp.position) <= otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
                         {
                             CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
                             if (result.collisionOccured)
