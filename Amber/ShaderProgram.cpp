@@ -5,8 +5,6 @@
 #include <memory>
 
 ShaderProgram::ShaderProgram()
-	: handle(0)
-	, isLinked(false)
 {
 }
 
@@ -27,7 +25,7 @@ void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& fil
 			if (spaceSplit.size() == 2)
 			{
 				std::string includedContent = loadFileToString("Shaders/" + spaceSplit[1] + ".glsl");
-				content << includedContent;
+				content << includedContent << std::endl;
 			}
 		}
 		else

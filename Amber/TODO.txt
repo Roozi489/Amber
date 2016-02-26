@@ -30,6 +30,8 @@ Antialiasing
 More Camera
 Fix loading of models with different texture coords
 HDR
+Displacement mapping (terrain)
+Anisotropic reflections
 
 Minor:
 ------------------------------------

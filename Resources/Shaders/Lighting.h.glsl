@@ -1,3 +1,6 @@
+#ifndef LIGHTING_H
+#define LIGHTING_H
+
 struct Attenuation
 {
     float constant;
@@ -33,3 +36,5 @@ struct SpotLight
     vec3 direction;
     float coneAngle;
 };
+
+#endif

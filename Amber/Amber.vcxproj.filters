@@ -114,6 +114,9 @@
     <ClCompile Include="Color.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="FontManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h">
@@ -228,6 +231,9 @@
     </ClInclude>
     <ClInclude Include="Lighting.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FontManager.h">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

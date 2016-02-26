@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 float square(float x)
 {
     return x * x;
@@ -20,3 +23,5 @@ vec3 calculatePositionFromDepth(in vec2 st, in float w, in float depthValue, in 
 
     return position_ws.xyz / position_ws.w;
 }
+
+#endif

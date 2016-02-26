@@ -176,6 +176,7 @@ void RenderSystem::geometryPass()
 
 	for (Entity& entity : gWorld.entityManager.entities_with_components(transformComp, renderComp))
 	{
+		// TODO: add scale
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 		Matrix4x4f mvp = projectionMatrix * viewMatrix * modelMatrix;
 

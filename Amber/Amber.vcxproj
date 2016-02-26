@@ -179,6 +179,7 @@
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="FontManager.cpp" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="GameplaySystem.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="CubeTexture.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="FontManager.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="OpenGL.h" />
     <ClInclude Include="RenderTexture.h" />

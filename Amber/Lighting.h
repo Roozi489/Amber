@@ -36,7 +36,7 @@ public:
 class DirectionalLight : public BaseLight
 {
 public:
-	Vector3f direction = Vector3f::Down;;
+	Vector3f direction = Vector3f::Down;
 };
 
 class SpotLight : public PointLight

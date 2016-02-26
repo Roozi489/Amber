@@ -19,7 +19,6 @@ class ShaderProgram
 {
 public:
 	GLuint handle;
-	bool isLinked;
 	std::string name;
 	std::string errorLog;
 
