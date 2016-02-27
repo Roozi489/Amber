@@ -40,7 +40,7 @@ void EntityManager::destroyEntity(uint32_t id)
     entities[id].components.clear();
     entities[id].componentMask.reset();
 
-    freeList.push_back(id);
+    m_freeList.push_back(id);
     entityCount--;
 }
 
@@ -58,10 +58,10 @@ Entity* EntityManager::getEntity(uint32_t id)
 EntityID EntityManager::newEntityID()
 {
     entityCount++;
-    if (freeList.size() > 0)
+    if (m_freeList.size() > 0)
     {
-        EntityID eID = freeList.front();
-        freeList.pop_front();
+        EntityID eID = m_freeList.front();
+        m_freeList.pop_front();
         return eID;
     }
 

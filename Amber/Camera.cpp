@@ -12,17 +12,16 @@ void Camera::init()
 {
     position = Vector3f::Zero;
 	orientation = Quaternion::Identity;
-    viewTarget = position + Vector3f::Forward;
 
 	// TODO: check whether the fov should't be in radians
-	projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(gWindowWidth), static_cast<float>(gWindowHeight), nearPlane, farPlane);
-	viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
+	m_projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(g_WindowWidth), static_cast<float>(g_WindowHeight), m_nearPlane, m_farPlane);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_Camera.orientation)) * Matrix4x4f::translate(-g_Camera.position);
 }
 
 void Camera::update(Time delta)
 {
 	// TODO: add scale
-	viewMatrix = quaternionToMatrix4x4f(conjugate(gCamera.orientation)) * Matrix4x4f::translate(-gCamera.position);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_Camera.orientation)) * Matrix4x4f::translate(-g_Camera.position);
 }
 
 void Camera::offsetOrientation(float yaw, float pitch)
@@ -95,22 +94,12 @@ void Camera::setPosition(Vector3f pos)
 	position = pos;
 }
 
-Vector3f Camera::getViewTarget() const
+const Matrix4x4f& Camera::getProjectionMatrix() const
 {
-    return viewTarget;
+    return m_projectionMatrix;
 }
 
-void Camera::setViewTarget(Vector3f t)
+const Matrix4x4f& Camera::getViewMatrix() const
 {
-    viewTarget = t;
-}
-
-const Matrix4x4f& Camera::getProjectionMatrix()
-{
-    return projectionMatrix;
-}
-
-const Matrix4x4f& Camera::getViewMatrix()
-{
-	return viewMatrix;
+	return m_viewMatrix;
 }

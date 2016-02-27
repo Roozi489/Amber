@@ -50,5 +50,5 @@ public:
 
     std::string toString();
 private:
-	float mBoundingSphereRadius;
+	float m_BoundingSphereRadius;
 };

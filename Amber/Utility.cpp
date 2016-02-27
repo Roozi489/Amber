@@ -346,7 +346,7 @@ void messageBox(const std::string& title, const std::string& message)
 
 void messageBox(const char* title, const char* message)
 {
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, gMainWindow);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, g_MainWindow);
 }
 
 void _assert(bool expression, const char* message, const char* file, int line, const char* function)
@@ -366,8 +366,8 @@ void _assert(bool expression, const std::string& message, const char* file, int 
 
 void quit()
 {
-    SDL_GL_DeleteContext(gContext);
-    SDL_DestroyWindow(gMainWindow);
+    SDL_GL_DeleteContext(g_Context);
+    SDL_DestroyWindow(g_MainWindow);
     SDL_Quit();
     exit(0);
 }

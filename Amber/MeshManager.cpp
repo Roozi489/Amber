@@ -1,4 +1,5 @@
 #include "MeshManager.h"
+#include "Utility.h"
 
 #include <memory>
 #include <fstream>

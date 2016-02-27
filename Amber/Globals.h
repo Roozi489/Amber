@@ -5,19 +5,23 @@
 #include "MeshManager.h"
 #include "TextureManager.h"
 #include "Time.h"
+#include "FontManager.h"
 
 #include <SDL/SDL.h>
 
-extern SDL_Window *gMainWindow;
-extern SDL_GLContext gContext;
-extern int gWindowWidth;
-extern int gWindowHeight;
-extern Time gFrameTime;
+// TODO: add all of these to Window class
+extern SDL_Window *g_MainWindow;
+extern SDL_GLContext g_Context;
+extern int g_WindowWidth;
+extern int g_WindowHeight;
+extern Time g_FrameTime;
 
-extern World gWorld;
-extern Camera gCamera;
-extern const Uint8* gKeystate;
+extern World g_World;
+extern Camera g_Camera;
+// TODO: Input class
+extern const Uint8* g_Keystate;
 
-extern ShaderManager gShaderManager; 
-extern MeshManager gMeshManager;
-extern TextureManager gTextureManager;
+extern ShaderManager g_ShaderManager; 
+extern MeshManager g_MeshManager;
+extern TextureManager g_TextureManager;
+extern FontManager g_FontManager;

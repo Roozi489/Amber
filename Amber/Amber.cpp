@@ -29,7 +29,7 @@ void Amber::run()
 	{
 		Time current = Time::now();
 		Time elapsed = current - previous;
-		gFrameTime = elapsed;
+		g_FrameTime = elapsed;
 
 		update(elapsed);
 
@@ -53,19 +53,19 @@ void Amber::init()
 	// TODO: add double buffering setting (its on by default)
 
     log("Creating window...");
-    gMainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWindowWidth, gWindowHeight, SDL_WINDOW_OPENGL);
-    if (!gMainWindow)
+    g_MainWindow = SDL_CreateWindow("Amber", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_WindowWidth, g_WindowHeight, SDL_WINDOW_OPENGL);
+    if (!g_MainWindow)
         criticalError(SDL_GetError());
 
 	SDL_Surface* iconSurface = loadSDL_SurfaceFromFile("Textures/amber_icon.png");
-	SDL_SetWindowIcon(gMainWindow, iconSurface);
+	SDL_SetWindowIcon(g_MainWindow, iconSurface);
 
 	log("Creating context...");
-    gContext = SDL_GL_CreateContext(gMainWindow);
-    if (!gContext)
+    g_Context = SDL_GL_CreateContext(g_MainWindow);
+    if (!g_Context)
         criticalError(SDL_GetError());
 
-    SDL_GL_MakeCurrent(gMainWindow, gContext);
+    SDL_GL_MakeCurrent(g_MainWindow, g_Context);
 
     int glVersionMajor;
     int glVersionMinor;
@@ -83,89 +83,89 @@ void Amber::init()
 	
     ignoreGLError();
 
-	gKeystate = SDL_GetKeyboardState(NULL);
+	g_Keystate = SDL_GetKeyboardState(NULL);
 
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	mLastMouseX = mouseX;
-	mLastMouseY = mouseY;
+	m_lastMouseX = mouseX;
+	m_lastMouseY = mouseY;
 
     //
     // Gameplay stuff
-    gWorld.init();
+    g_World.init();
 
-    gWorld.addSystem<RenderSystem>();
-    gWorld.addSystem<GameplaySystem>();
-    gWorld.addSystem<SoundSystem>();
-    gWorld.initSystems();
+    g_World.addSystem<RenderSystem>();
+    g_World.addSystem<GameplaySystem>();
+    g_World.addSystem<SoundSystem>();
+    g_World.initSystems();
 
-    gWorld.setupLevel();
+    g_World.setupLevel();
 
-    gCamera.init();
-    gCamera.setPosition(Vector3f(0.f, 100.f, 120.f));
-	gCamera.offsetOrientation(0.f, -0.7f);
+    g_Camera.init();
+    g_Camera.setPosition(Vector3f(0.f, 100.f, 120.f));
+	g_Camera.offsetOrientation(0.f, -0.7f);
 }
 
 void Amber::update(Time delta)
 {
-    mTotalTimeElapsed += delta;
+    m_totalTimeElapsed += delta;
 
     SDL_PumpEvents();
 	int mouseX, mouseY;
 	Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
-	if (gKeystate[SDL_SCANCODE_W])
+	if (g_Keystate[SDL_SCANCODE_W])
 	{
-		gCamera.moveForward();
+		g_Camera.moveForward();
 	}
-	if (gKeystate[SDL_SCANCODE_S])
+	if (g_Keystate[SDL_SCANCODE_S])
 	{
-		gCamera.moveBackward();
+		g_Camera.moveBackward();
 	}
-	if (gKeystate[SDL_SCANCODE_A])
+	if (g_Keystate[SDL_SCANCODE_A])
 	{
-		gCamera.moveLeft();
+		g_Camera.moveLeft();
 	}
-	if (gKeystate[SDL_SCANCODE_D])
+	if (g_Keystate[SDL_SCANCODE_D])
 	{
-		gCamera.moveRight();
+		g_Camera.moveRight();
 	}
-	if (gKeystate[SDL_SCANCODE_F])
+	if (g_Keystate[SDL_SCANCODE_F])
 	{
-		gCamera.rotateUp();
+		g_Camera.rotateUp();
 	}
-	if (gKeystate[SDL_SCANCODE_V])
+	if (g_Keystate[SDL_SCANCODE_V])
 	{
-		gCamera.rotateDown();
+		g_Camera.rotateDown();
 	}
-	if (gKeystate[SDL_SCANCODE_X])
+	if (g_Keystate[SDL_SCANCODE_X])
 	{
-		gCamera.rotateLeft();
+		g_Camera.rotateLeft();
 	}
-	if (gKeystate[SDL_SCANCODE_C])
+	if (g_Keystate[SDL_SCANCODE_C])
 	{
-		gCamera.rotateRight();
+		g_Camera.rotateRight();
 	}
-    if (gKeystate[SDL_SCANCODE_I])
+    if (g_Keystate[SDL_SCANCODE_I])
     {
-        gCamera.moveUp();
+        g_Camera.moveUp();
     }
-    if (gKeystate[SDL_SCANCODE_K])
+    if (g_Keystate[SDL_SCANCODE_K])
     {
-        gCamera.moveDown();
+        g_Camera.moveDown();
     }
 
 	if (mouseState & SDL_BUTTON_RMASK)
 	{	
 		SDL_ShowCursor(SDL_FALSE);
 
-		float xOffset = static_cast<float>(mLastMouseX - mouseX);
-		float yOffset = static_cast<float>(mLastMouseY - mouseY);
-		gCamera.offsetOrientation(xOffset / 500.f, yOffset / 500.f);
+		float xOffset = static_cast<float>(m_lastMouseX - mouseX);
+		float yOffset = static_cast<float>(m_lastMouseY - mouseY);
+		g_Camera.offsetOrientation(xOffset / 500.f, yOffset / 500.f);
 
-		SDL_WarpMouseInWindow(gMainWindow, gWindowWidth / 2, gWindowHeight / 2);
-		mouseX = gWindowWidth / 2;
-		mouseY = gWindowHeight / 2;
+		SDL_WarpMouseInWindow(g_MainWindow, g_WindowWidth / 2, g_WindowHeight / 2);
+		mouseX = g_WindowWidth / 2;
+		mouseY = g_WindowHeight / 2;
 	}
 	else
 	{
@@ -199,9 +199,9 @@ void Amber::update(Time delta)
         }
     }
 
-	gCamera.update(delta);
-	gWorld.update(delta);
+	g_Camera.update(delta);
+	g_World.update(delta);
 
-	mLastMouseX = mouseX;
-	mLastMouseY = mouseY;
+	m_lastMouseX = mouseX;
+	m_lastMouseY = mouseY;
 }

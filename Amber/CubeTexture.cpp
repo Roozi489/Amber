@@ -9,12 +9,12 @@ CubeTexture::CubeTexture()
 
 GLuint CubeTexture::getTextureID() const
 {
-    return mTextureID;
+    return m_TextureHandle;
 }
 
 bool CubeTexture::loadSide(std::string filename, GLenum sideTarget)
 {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, mTextureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureHandle);
 
     // TODO: write helper for this
     int x, y, n;
@@ -42,7 +42,7 @@ bool CubeTexture::loadSide(std::string filename, GLenum sideTarget)
 bool CubeTexture::create(std::string front, std::string back, std::string top, std::string bottom, std::string left, std::string right)
 {
     glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &mTextureID);
+    glGenTextures(1, &m_TextureHandle);
 
     bool result = true;
     result &= loadSide(front, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);

@@ -18,7 +18,7 @@ void World::init()
 
 void World::destroy()
 {
-	for (auto& pair : systems)
+	for (auto& pair : m_systems)
 		pair.second->destroy();
 }
 
@@ -104,13 +104,13 @@ void World::setupLevel()
 
 void World::initSystems()
 {
-    for (auto& pair : systems)
+    for (auto& pair : m_systems)
         pair.second->init();
 }
 
 void World::update(Time delta)
 {
-    for (auto& pair : systems)
+    for (auto& pair : m_systems)
     {
 		BaseSystem* system = pair.second.get();
 

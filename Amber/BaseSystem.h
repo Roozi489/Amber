@@ -23,8 +23,8 @@ public:
     virtual ~BaseSystem();    
 
     virtual void init() = 0;
-    virtual void update(Time delta);
 	virtual void destroy();
+    virtual void update(Time delta);
 
 	void setUpdateFrequency(UpdateFrequency frequency, Time frequencyTime = Time::Zero);
 

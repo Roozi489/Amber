@@ -6,18 +6,18 @@ Proper models with pbr materials
 Major:
 ------------------------------------
 Text rendering as a seperate pass (just add to the last ??)
-Render
-Make amber class hold systems (not World)
 Shading methods
-Check for copying of components (does it happen on foreach)
 Uniform buffer object
 Proper logging
 Shadow mapping
+Entity tag as string
 Window class (where the color of outRenderTexture is rendered to)
 Memory allocators
 Geometry shaders for fullscreen quad
 Instanced rendering
+Custom String class with string id
 Fix freetype includes
+Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
 Math (trigonometry)
@@ -39,9 +39,7 @@ Optimize matrix (SSE)
 Fix stb_image warnings
 
 
-
 Other:
 ------------------------------------
 ARB_multi_draw_indirect
 Replace stdlib
-Extrapolate entitties when rendering

@@ -4,6 +4,7 @@
 #include "PhysicsComponent.h"
 #include "Plane.h"
 #include "Sphere.h"
+#include "Entity.h"
 
 GameplaySystem::GameplaySystem()
 {
@@ -16,7 +17,7 @@ GameplaySystem::~GameplaySystem()
 
 void GameplaySystem::init()
 {
-    soundSystem = gWorld.getSystem<SoundSystem>();
+    soundSystem = g_World.getSystem<SoundSystem>();
 }
 
 void GameplaySystem::update(Time delta)
@@ -26,14 +27,14 @@ void GameplaySystem::update(Time delta)
     if (gameState == GameState::Defeat || gameState == GameState::Victory)
         return;
 
-    const uint8_t leftDown = gKeystate[SDL_SCANCODE_LEFT];
-    const uint8_t rightDown = gKeystate[SDL_SCANCODE_RIGHT];
+    const uint8_t leftDown = g_Keystate[SDL_SCANCODE_LEFT];
+    const uint8_t rightDown = g_Keystate[SDL_SCANCODE_RIGHT];
 
     int brickCount = 0;
 
-    if (gameState == GameState::Start && gKeystate[SDL_SCANCODE_SPACE])
+    if (gameState == GameState::Start && g_Keystate[SDL_SCANCODE_SPACE])
     {
-        for (Entity& entity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+        for (Entity& entity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
         {
             TransformComponent& transformComp = entity.getComponent<TransformComponent>();
             PhysicsComponent& physicsComp = entity.getComponent<PhysicsComponent>();
@@ -45,7 +46,7 @@ void GameplaySystem::update(Time delta)
         gameState = GameState::Playing;
     }
 
-    for (Entity& entity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+    for (Entity& entity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
     {
         TransformComponent& transformComp = entity.getComponent<TransformComponent>();
         PhysicsComponent& physicsComp = entity.getComponent<PhysicsComponent>();
@@ -62,7 +63,7 @@ void GameplaySystem::update(Time delta)
                 {
                     if (transformComp.position.y <= 0.f)
                     {
-                        for (Entity& otherEntity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                        for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                         {
                             TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                             PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();
@@ -97,7 +98,7 @@ void GameplaySystem::update(Time delta)
                 // If pad moved check for collision with ball
                 if (leftDown || rightDown)
                 {
-                    for (Entity& otherEntity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                    for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                     {
                         if (otherEntity.tag == Tag::Ball)
                         {
@@ -167,7 +168,7 @@ void GameplaySystem::update(Time delta)
 
                 bool movedToPad = false;
                 Vector3f resultNormal;
-                for (Entity& otherEntity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                 {
                     TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                     PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();
@@ -192,7 +193,7 @@ void GameplaySystem::update(Time delta)
                                 soundSystem->playSound("Blop");
                                 moveFreely = false;
                                 destroyedBricksPosition.push_back(otherTransformComp.position);
-                                gWorld.entityManager.destroyEntity(&otherEntity);
+                                g_World.entityManager.destroyEntity(&otherEntity);
                                 break;
                             }
                         }
@@ -230,7 +231,7 @@ void GameplaySystem::update(Time delta)
                 // Falling of bricks
                 for (Vector3f destroyBrickPosition : destroyedBricksPosition)
                 {
-                    for (Entity& otherEntity : gWorld.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                    for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                     {
                         TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                         PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();

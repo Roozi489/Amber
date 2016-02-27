@@ -2,9 +2,8 @@
 #include "Color.h"
 
 // Used for PBR rendering
-class Material
+struct Material
 {
-public:
 	Color color = Color::White;
 	float roughness = 0.f;
 	float metalness = 0.f;

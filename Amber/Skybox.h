@@ -2,6 +2,7 @@
 
 #include "CubeTexture.h"
 
+// TODO: decide how to do this
 class Skybox
 {
 private:

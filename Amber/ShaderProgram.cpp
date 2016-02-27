@@ -101,29 +101,13 @@ void ShaderProgram::link()
 	}
 }
 
-void ShaderProgram::bindAttribLocation(int location, const std::string& name)
-{
-	glBindAttribLocation(handle, location, name.c_str());
-	mAttribLocations.insert(std::make_pair(name, location));
-}
-
-int ShaderProgram::getAttribLocation(const std::string& name)
-{
-	if (mAttribLocations.find(name) != mAttribLocations.end())
-		return mAttribLocations[name];
-
-	int loc = glGetAttribLocation(handle, name.c_str());
-	mAttribLocations.insert(std::make_pair(name, loc));
-	return loc;
-}
-
 int ShaderProgram::getUniformLocation(const std::string& name)
 {
-	if (mUniformLocations.find(name) != mUniformLocations.end())
-		return mUniformLocations[name];
+	if (m_UniformLocations.find(name) != m_UniformLocations.end())
+		return m_UniformLocations[name];
 
 	int loc = glGetUniformLocation(handle, name.c_str());
-	mAttribLocations.insert(std::make_pair(name, loc));
+	m_UniformLocations.insert(std::make_pair(name, loc));
 	return loc;
 }
 
@@ -225,6 +209,7 @@ void ShaderProgram::setUniform(const std::string& name, const Quaternion& q)
 
 void ShaderProgram::setUniform(const std::string& name, const TransformComponent& t)
 {
+	// TODO: precompute these strings, the operator+ takes around 10% of all cpu time
 	int loc = getUniformLocation(name + ".position");
 	if (loc == -1)
 		log("Uniform: " + name + ".position not found.\nShaderProgram: " + this->name);

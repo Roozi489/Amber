@@ -5,6 +5,15 @@ class Entity;
 
 using ComponentID = std::uint32_t;
 
+namespace Impl
+{
+	inline ComponentID getUniqueComponentID()
+	{
+		static ComponentID lastID = 0;
+		return lastID++;
+	}
+}
+
 class BaseComponent
 {
 public:
@@ -21,13 +30,3 @@ public:
         return typeID;
     }
 };
-
-namespace Impl
-{
-    inline ComponentID getUniqueComponentID()
-    {
-        static ComponentID lastID = 0;
-        return lastID++;
-    }
-}
-

@@ -13,12 +13,12 @@ public:
 	Quaternion orientation;
 	Vector3f position;
 	Vector3f positionTarget;
-	Vector3f viewTarget;
+	// TODO: change to TranformComponent* ???
+	//Vector3f viewTarget;
 
     Camera();
 
 	void init();
-
     void update(Time delta);
 
 	void offsetOrientation(float yaw, float pitch);
@@ -37,16 +37,14 @@ public:
 
     Vector3f getPosition() const;
     void setPosition(Vector3f pos);
-    Vector3f getViewTarget() const;
-    void setViewTarget(Vector3f target);
 
-	const Matrix4x4f& getProjectionMatrix();
-	const Matrix4x4f& getViewMatrix();
+	const Matrix4x4f& getProjectionMatrix() const;
+	const Matrix4x4f& getViewMatrix() const;
 private:
-	float nearPlane = 0.1f;
-	float farPlane = 10000.f;	
+	float m_nearPlane = 0.1f;
+	float m_farPlane = 10000.f;	
 
-	Matrix4x4f projectionMatrix;
-	Matrix4x4f viewMatrix;
+	Matrix4x4f m_projectionMatrix;
+	Matrix4x4f m_viewMatrix;
 };
 

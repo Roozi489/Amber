@@ -13,68 +13,68 @@ class ViewIterator : public std::iterator<std::input_iterator_tag, EntityID>
 public:
     Delegate& operator++()
     {
-        ++i;
+        ++m_i;
         next();
         return *static_cast<Delegate*>(this);
     }
-    bool operator==(const Delegate& rhs) const { return i == rhs.i; }
-    bool operator!=(const Delegate& rhs) const { return i != rhs.i; }
-    Entity& operator*() { return *entityManager->getEntity(i); }
-    const Entity& operator*() const { return *entityManager->getEntity(i); }
+    bool operator==(const Delegate& rhs) const { return m_i == rhs.m_i; }
+    bool operator!=(const Delegate& rhs) const { return m_i != rhs.m_i; }
+    Entity& operator*() { return *m_entityManager->getEntity(m_i); }
+    const Entity& operator*() const { return *m_entityManager->getEntity(m_i); }
 
 protected:
-	EntityManager* entityManager;
-	ComponentMask compMask;
-	EntityID i;
-	size_t capacity;
-	std::list<EntityID>::iterator freeCursor;
+	EntityManager* m_entityManager;
+	ComponentMask m_compMask;
+	EntityID m_i;
+	size_t m_capacity;
+	std::list<EntityID>::iterator m_freeCursor;
 
     ViewIterator(EntityManager* manager, EntityID index)
-        : entityManager(manager)
-        , i(index)
-        , capacity(entityManager->capacity())
+        : m_entityManager(manager)
+        , m_i(index)
+        , m_capacity(m_entityManager->m_capacity())
     {
         if (All)
         {
-			entityManager->freeList.sort();
-			freeCursor = entityManager->freeList.begin();
+			m_entityManager->m_freeList.sort();
+			m_freeCursor = m_entityManager->m_freeList.begin();
         }
     }
     ViewIterator(EntityManager* manager, const ComponentMask mask, EntityID index)
-    : entityManager(manager)
-    , compMask(mask)
-    , i(index)
-    , capacity(entityManager->capacity())
+    : m_entityManager(manager)
+    , m_compMask(mask)
+    , m_i(index)
+    , m_capacity(m_entityManager->capacity())
     {
 		if (All)
 		{
-			entityManager->freeList.sort();
-			freeCursor = entityManager->freeList.begin();
+			m_entityManager->m_freeList.sort();
+			m_freeCursor = m_entityManager->m_freeList.begin();
 		}
     }
 
     void next()
     {
-        while (i < capacity && !predicate())
+        while (m_i < m_capacity && !predicate())
         {
-            ++i;
+            ++m_i;
         }
 
-        if (i < capacity)
+        if (m_i < m_capacity)
         {
-            Entity* entity = entityManager->getEntity(i);
+            Entity* entity = m_entityManager->getEntity(m_i);
             static_cast<Delegate*>(this)->next_entity(*entity);
         }
     }
 
     inline bool predicate()
     {
-        return (All && validEntity()) || (entityManager->getEntity(i)->componentMask & compMask) == compMask;
+        return (All && validEntity()) || (m_entityManager->getEntity(m_i)->componentMask & m_compMask) == m_compMask;
     }
 
     inline bool validEntity()
     {
-        if (freeCursor != entityManager->freeList.end() && *freeCursor == i)
+        if (m_freeCursor != m_entityManager->m_freeList.end() && *m_freeCursor == m_i)
         {
             ++free_cursor_;
             return false;
@@ -100,24 +100,24 @@ public:
     };
 
 
-    Iterator begin() { return Iterator(entityManager, compMask, 0); }
-    Iterator end() { return Iterator(entityManager, compMask, entityManager->capacity()); }
-    const Iterator begin() const { return Iterator(entityManager, compMask, 0); }
-    const Iterator end() const { return Iterator(entityManager, compMask, entityManager->capacity()); }
+    Iterator begin() { return Iterator(m_entityManager, m_compMask, 0); }
+    Iterator end() { return Iterator(m_entityManager, m_compMask, m_entityManager->capacity()); }
+    const Iterator begin() const { return Iterator(m_entityManager, m_compMask, 0); }
+    const Iterator end() const { return Iterator(m_entityManager, m_compMask, m_entityManager->capacity()); }
 
 private:
-	EntityManager* entityManager;
-	ComponentMask compMask;
+	EntityManager* m_entityManager;
+	ComponentMask m_compMask;
     friend class EntityManager;
 
     BaseView(EntityManager* manager)
-		: entityManager(manager)
+		: m_entityManager(manager)
     {
-	    compMask.set();
+	    m_compMask.set();
     }
     BaseView(EntityManager* manager, ComponentMask mask)
-        : entityManager(manager)
-        , compMask(mask)
+        : m_entityManager(manager)
+        , m_compMask(mask)
     {
     }
 };
@@ -164,36 +164,36 @@ public:
     public:
         Iterator(EntityManager* manager, const ComponentMask mask, uint32_t index, const Unpacker& unpacker)
             : ViewIterator<Iterator>(manager, mask, index)
-            , unpacker(unpacker)
+            , m_unpacker(unpacker)
         {
             ViewIterator<Iterator>::next();
         }
 
         void next_entity(Entity &entity)
         {
-            unpacker.unpack(entity);
+            m_unpacker.unpack(entity);
         }
 
     private:
-        const Unpacker& unpacker;
+        const Unpacker& m_unpacker;
     };
 
 
-    Iterator begin() { return Iterator(entityManager, compMask, 0, unpacker); }
-    Iterator end() { return Iterator(entityManager, compMask, entityManager->capacity(), unpacker); }
-    const Iterator begin() const { return Iterator(entityManager, compMask, 0, unpacker); }
-    const Iterator end() const { return Iterator(entityManager, compMask, entityManager->capacity(), unpacker); }
+    Iterator begin() { return Iterator(m_entityManager, m_compMask, 0, m_unpacker); }
+    Iterator end() { return Iterator(m_entityManager, m_compMask, m_entityManager->capacity(), m_unpacker); }
+    const Iterator begin() const { return Iterator(m_entityManager, m_compMask, 0, m_unpacker); }
+    const Iterator end() const { return Iterator(m_entityManager, m_compMask, m_entityManager->capacity(), m_unpacker); }
 
 
 private:
-	EntityManager* entityManager;
-	ComponentMask compMask;
-	Unpacker unpacker;
+	EntityManager* m_entityManager;
+	ComponentMask m_compMask;
+	Unpacker m_unpacker;
 
     UnpackingView(EntityManager* manager, ComponentMask mask, Components& ... components)
-        : entityManager(manager)
-        , compMask(mask)
-        , unpacker(components...)
+        : m_entityManager(manager)
+        , m_compMask(mask)
+        , m_unpacker(components...)
     {
     }
 
@@ -266,7 +266,7 @@ public:
     }
 
 private:
-    std::list<EntityID> freeList;
+    std::list<EntityID> m_freeList;
 
     EntityID newEntityID();
 

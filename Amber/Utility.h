@@ -14,8 +14,6 @@ struct FaceIndexVertTexNorm
     unsigned int v2, t2, n2;
 };
 
-
-
 enum class CollisionHit
 {
     Face,
@@ -34,20 +32,7 @@ struct CollisionResult
     CollisionHit collisionHit;
 };
 
-enum class BitmapFormat
-{
-    GRAY8,
-    RGB8,
-    RGBA8
-};
 
-struct Bitmap
-{
-    int width;
-    int height;
-    BitmapFormat format;
-    unsigned char* buffer;
-};
 
 float toDegrees(float valueInRadians);
 float toRadians(float valueInDegrees);

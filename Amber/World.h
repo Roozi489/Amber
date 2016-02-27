@@ -11,11 +11,9 @@
 class World : public NonCopyable
 {
 public:
-    EntityManager entityManager;
+	EntityManager entityManager;
 
-    std::unordered_map<SystemID, std::shared_ptr<BaseSystem>> systems;
-
-    World();
+	World();
     ~World();
 
     void init();
@@ -36,8 +34,8 @@ public:
     {
     C* c = new C[MAX_ENTITIES];
 
-    for (int i = 0; i < MAX_ENTITIES; ++i)
-    c[i].id = C::getComponentID<C>();
+    for (int m_i = 0; m_i < MAX_ENTITIES; ++m_i)
+    c[m_i].id = C::getComponentID<C>();
 
     components.insert(std::make_pair(C::getComponentID<C>(), c));
     }
@@ -53,16 +51,19 @@ public:
     {
         std::shared_ptr<S> s(new S(std::forward<Args>(args) ...));
         s->systemID = S::template getSystemID<S>();
-        systems.insert(std::make_pair(s->systemID, std::shared_ptr<BaseSystem>(s)));
+        m_systems.insert(std::make_pair(s->systemID, std::shared_ptr<BaseSystem>(s)));
         return s;
     }
 
     template <typename S>
     S* getSystem()
     {
-        return static_cast<S*>(systems[S::template getSystemID<S>()].get());
+        return static_cast<S*>(m_systems[S::template getSystemID<S>()].get());
     }
 
     void initSystems();
     void update(Time delta);
+	
+private:
+	std::unordered_map<SystemID, std::shared_ptr<BaseSystem>> m_systems;
 };

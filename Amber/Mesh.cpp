@@ -24,8 +24,8 @@ void Mesh::setVaoAndVbo()
 		glGenBuffers(1, &vertexVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vector3f), vertices.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	if (meshComponents & MeshComponents::TexCoord)
@@ -33,8 +33,8 @@ void Mesh::setVaoAndVbo()
 		glGenBuffers(1, &texCoordVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, texCoordVBO);
 		glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(Vector2f), uvs.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	if (meshComponents & MeshComponents::Normal)
@@ -42,8 +42,8 @@ void Mesh::setVaoAndVbo()
 		glGenBuffers(1, &normalVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
 		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vector3f), normals.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
 	if (meshComponents & MeshComponents::Index)
@@ -65,7 +65,7 @@ void Mesh::destroy()
 
 void Mesh::setTexture(const std::string& name)
 {
-	texture = gTextureManager.getTexture(name);
+	texture = g_TextureManager.getTexture(name);
     hasTexture = true;
 }
 
@@ -78,12 +78,12 @@ void Mesh::calculateBoundingSphereRadiusFast()
 		if (length > max)
 			max = length;
 	}
-	mBoundingSphereRadius = max;
+	m_BoundingSphereRadius = max;
 }
 
 float Mesh::getBoundingSphereRadiusFast()
 {
-	return mBoundingSphereRadius;
+	return m_BoundingSphereRadius;
 }
 
 std::string Mesh::toString()

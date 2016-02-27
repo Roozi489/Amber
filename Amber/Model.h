@@ -1,7 +1,5 @@
 #pragma once
-#include "Utility.h"
 #include "Mesh.h"
-#include "Matrix.h"
 
 #include <vector>
 #include <memory>
@@ -15,6 +13,6 @@ public:
 
     void addMesh(std::unique_ptr<Mesh> mesh);
 private:
-    std::vector<std::unique_ptr<Mesh>> mMeshes;
+    std::vector<std::unique_ptr<Mesh>> m_Meshes;
 };
 

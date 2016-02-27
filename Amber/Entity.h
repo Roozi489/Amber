@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseComponent.h"
+
 #include <bitset>
 #include <array>
 #include <cstdint>
@@ -16,7 +17,7 @@ enum class Tag
     Pad
 };
 
-static const int MAX_COMPONENTS = 32;
+static constexpr int MAX_COMPONENTS = 16;
 
 using EntityID = std::uint32_t;
 using ComponentMask = std::bitset<MAX_COMPONENTS>;
@@ -25,6 +26,7 @@ class Entity
 {
 public:
     EntityID id;
+	// TODO: change to stringid
     Tag tag;
 
     // TODO: change how components are stored

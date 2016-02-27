@@ -5,6 +5,7 @@
 #include "TransformComponent.h"
 #include "Color.h"
 #include "OpenGL.h"
+#include "NonCopyable.h"
 
 #include <unordered_map>
 #include <string>
@@ -15,7 +16,7 @@ enum class ShaderType
 	Fragment,
 };
 
-class ShaderProgram
+class ShaderProgram : public NonCopyable
 {
 public:
 	GLuint handle;
@@ -37,9 +38,6 @@ public:
 	void attachShaderFromFile(ShaderType type, const std::string& filename);
 	void attachShaderFromString(ShaderType type, const std::string& name, const std::string& content);
 
-	void bindAttribLocation(int location, const std::string& name);
-
-	int getAttribLocation(const std::string& name);
 	int getUniformLocation(const std::string& name);
 
 	void setUniform(const std::string& name, float x);
@@ -57,11 +55,7 @@ public:
 	void setUniform(const std::string& name, const TransformComponent& t);
 	void setUniform(const std::string& name, const Color& c);
 private:
-	std::unordered_map<std::string, int> mAttribLocations;
-	std::unordered_map<std::string, int> mUniformLocations;
+	std::unordered_map<std::string, int> m_UniformLocations;
 
 	void loadFromString(GLuint shaderHandle, const std::string& name, const char* content);
-
-	ShaderProgram(const ShaderProgram&) = delete;
-	ShaderProgram& operator=(const ShaderProgram&) = delete;
 };

@@ -2,7 +2,6 @@
 #include "BaseSystem.h"
 #include "Vector.h"
 #include "Sphere.h"
-#include "Entity.h"
 #include "Utility.h"
 #include "Triangle.h"
 #include "TransformComponent.h"

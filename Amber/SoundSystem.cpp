@@ -4,31 +4,24 @@
 #include <fmod/fmod_errors.h>
 #include <fmod/fmod_common.h>
 
-#include <assert.h>
-
 SoundSystem::SoundSystem()
 {
 }
 
 SoundSystem::~SoundSystem()
 {
-    for (auto& pair : sounds)
-        pair.second->release();
-
-    fmodSystem->close();
-    fmodSystem->release();
 }
 
 void SoundSystem::init()
 {
-    if (FMOD::System_Create(&fmodSystem) != FMOD_OK)
+    if (FMOD::System_Create(&m_fmodSystem) != FMOD_OK)
     {
         criticalError("FMOD: Failed to create system");
         return;
     }
 
     int driverCount = 0;
-    fmodSystem->getNumDrivers(&driverCount);
+    m_fmodSystem->getNumDrivers(&driverCount);
 
     if (driverCount == 0)
     {
@@ -37,7 +30,7 @@ void SoundSystem::init()
     }
 
     // Initialize our Instance with 36 Channels
-    fmodSystem->init(36, FMOD_INIT_NORMAL, 0);
+    m_fmodSystem->init(36, FMOD_INIT_NORMAL, 0);
 
     // TODO: automate this
     createSound("Bleep.wav");
@@ -47,11 +40,20 @@ void SoundSystem::init()
     createSound("defeat.wav");
 }
 
+void SoundSystem::destroy()
+{
+	for (auto& pair : m_sounds)
+		pair.second->release();
+
+	m_fmodSystem->close();
+	m_fmodSystem->release();
+}
+
 void SoundSystem::update(Time delta)
 {
 	BaseSystem::update(delta);
 
-	FMOD_RESULT result = fmodSystem->update();
+	FMOD_RESULT result = m_fmodSystem->update();
     if (result != FMOD_OK)
     {
         std::string message = "FMOD::update error - ";
@@ -64,19 +66,19 @@ void SoundSystem::createSound(const std::string& filename)
 {
     FMOD::Sound* sound;
     std::string path = "Sounds/" + filename;
-    FMOD_RESULT result = fmodSystem->createSound(path.c_str(), FMOD_DEFAULT, 0, &sound);
+    FMOD_RESULT result = m_fmodSystem->createSound(path.c_str(), FMOD_DEFAULT, 0, &sound);
     if (result != FMOD_OK)
         criticalError("Error creating sound " + filename +"\nReason: " + FMOD_ErrorString(result));
 
     std::string soundName = split(toLower(filename), '.')[0];
-    sounds.insert(std::make_pair(soundName, sound));
+    m_sounds.insert(std::make_pair(soundName, sound));
 }
 
 void SoundSystem::playSound(const std::string& name, bool loop, bool playEvenIfAlreadyPlaying)
 {
     std::string nameLower = toLower(name);
-    assert(sounds.find(nameLower) != sounds.end());
-    FMOD::Sound* sound = sounds[nameLower];
+    assert_amber(m_sounds.find(nameLower) != m_sounds.end(), "sound:" + name + " not found. Probably just wasn't created beforehand.");
+    FMOD::Sound* sound = m_sounds[nameLower];
     if (!loop)
     {
         sound->setMode(FMOD_LOOP_OFF);
@@ -88,9 +90,9 @@ void SoundSystem::playSound(const std::string& name, bool loop, bool playEvenIfA
     }
 
     FMOD::Sound* currentSound;
-    channel->getCurrentSound(&currentSound);
+    m_channel->getCurrentSound(&currentSound);
 
     // Check whether to play
     if (playEvenIfAlreadyPlaying || currentSound != sound)
-        fmodSystem->playSound(sound, 0, false, &channel);
+        m_fmodSystem->playSound(sound, 0, false, &m_channel);
 }
