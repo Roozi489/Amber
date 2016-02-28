@@ -2,7 +2,7 @@
 #include "Utility.h"
 #include "Globals.h"
 
-#include FT_GLYPH_H
+#include <freetype/ftglyph.h>
 static FT_Error faceRequester(FTC_FaceID faceId, FT_Library lib, FT_Pointer tag, FT_Face* newFace);
 
 enum class BitmapFormat
@@ -53,54 +53,32 @@ void FontManager::init()
 	if (error)
 		criticalError("FreeType - Could not initialize charmap cache");
 
-	fonts = (FontHandle*)calloc(maxFonts, sizeof(FontHandle));
+	fonts = new FtFontType*[maxFonts];
 
 	error = ftAddFont("Fonts/FreeSans.ttf", false);
 	if (error)
 		criticalError("FreeType - Could not load font:  Fonts/FreeSans.ttf");
-
-	ShaderProgram& fontShaderProgram = g_ShaderManager.createProgram("font", "font.vert", "font.frag");
-	fontShaderProgram.use();
-	fontTexture.genAndBind();
-	fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glGenVertexArrays(1, &fontVao);
-	glBindVertexArray(fontVao);
-
-	glGenBuffers(1, &fontVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
-void FontManager::textRendering()
+// TODO: add left top or center options
+void FontManager::renderText(const std::string& text, float x, float y)
 {
-	ShaderProgram& fontShaderProgram = g_ShaderManager.getShaderProgram("font");
-	fontShaderProgram.use();
-
-	glDepthMask(GL_FALSE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glBindVertexArray(fontVao);
-	fontTexture.activeAndBind(0);
-	fontShaderProgram.setUniform("tex", 0);
-
 	float sx = 2.0f / g_WindowWidth;
 	float sy = 2.0f / g_WindowHeight;
 
-	renderText(std::to_string(g_FrameTime.asMilliseconds()) + " ms", -0.99f, 0.95f, sx, sy);
-	glDepthMask(GL_TRUE);
-}
+	// TODO: fix y value not being top-left
+	// Change to <-1, 1> and invert y coord
+	auto xPos = [](float value) { return value * 2 - 1; };
+	auto yPos = [](float value) { return -(value * 2 - 1); };
+	x = xPos(x);
+	y = yPos(y);
 
-void FontManager::renderText(const std::string& text, float x, float y, float sx, float sy)
-{
 	ShaderProgram& fontShaderProgram = g_ShaderManager.getShaderProgram("font");
 	// TODO: add color to the parameters
 	Color c = Color::White;
 
 	fontShaderProgram.setUniform("fontColor", c);
-	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 
 	// TODO: fix this
 	//		 only works with one font
@@ -133,7 +111,10 @@ void FontManager::renderText(const std::string& text, float x, float y, float sx
 		int left, top;
 		int xAdvance, yAdvance;
 		error = ftIndexToBitmap(glyphIndex, faceID, &left, &top, &xAdvance, &yAdvance, &bitmap, &glyph);
+		if (error)
+			criticalError("ftIndexToBitmap returned error");
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.height, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
+
 
 		// TODO: center the text position
 		float x2 = x + left * sx;
@@ -187,8 +168,6 @@ FT_Error FontManager::ftAddFont(const char* filepath, FT_Bool outline_only)
 	num_faces = face->num_faces;
 	for (i = 0; i < num_faces; i++)
 	{
-		FontHandle font;
-
 		if (i > 0)
 		{
 			error = FT_New_Face(ftLib, filename, i, &face);
@@ -204,7 +183,7 @@ FT_Error FontManager::ftAddFont(const char* filepath, FT_Bool outline_only)
 			return error;
 		}
 
-		font = (FontHandle)malloc(sizeof(*font));
+		FtFontType* font = new FtFontType;
 
 		/* We allocate four more bytes since we want to attach an AFM */
 		/* or PFM file for Type 1 fonts (if available).  Such fonts   */
@@ -257,9 +236,7 @@ FT_Error FontManager::ftAddFont(const char* filepath, FT_Bool outline_only)
 		if (numFonts >= maxFonts)
 		{
 			maxFonts *= 2;
-			fonts = (FontHandle*)realloc(fonts, maxFonts * sizeof(FontHandle));
-
-			memset(&fonts[numFonts], 0, (size_t)(maxFonts - numFonts) * sizeof(FontHandle));
+			fonts = new FtFontType*[maxFonts];
 		}
 
 		fonts[numFonts++] = font;
@@ -336,8 +313,9 @@ FT_Error FontManager::ftIndexToBitmap(FT_ULong index, FTC_FaceID faceID, int* le
 		FT_Glyph glyph;
 		error = FTC_ImageCache_LookupScaler(ftImageCache, &scaler, FT_LOAD_DEFAULT, index, &glyph, nullptr);
 
-		if (!error)
-			error = ftGlyphToBitmap(glyph, left, top, xAdvance, yAdvance, outBitmap, outGlyph);
+		if (error)
+			criticalError("FreeType - FTC_ImageCache_LookupScaler");
+		error = ftGlyphToBitmap(glyph, left, top, xAdvance, yAdvance, outBitmap, outGlyph);
 	}
 
 	/* don't accept a `missing' character with zero or negative width */
@@ -390,14 +368,11 @@ FT_Error FontManager::ftGlyphToBitmap(FT_Glyph glyph, int* left, int* top, int* 
 
 static FT_Error faceRequester(FTC_FaceID faceId, FT_Library lib, FT_Pointer tag, FT_Face* outFace)
 {
-	FontHandle font = (FontHandle)faceId;
+	FtFontType* font = (FtFontType*)faceId;
 
 	FT_Error error = FT_New_Face(lib, font->filepathname, font->face_index, outFace);
-	if (!error)
-	{
-		if ((*outFace)->charmaps)
-			(*outFace)->charmap = (*outFace)->charmaps[font->cmap_index];
-	}
+	if (!error && (*outFace)->charmaps)
+		(*outFace)->charmap = (*outFace)->charmaps[font->cmap_index];
 
 	return error;
 }

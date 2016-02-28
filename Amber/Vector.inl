@@ -1,23 +1,25 @@
-template <typename T>
-const Vector3<T> Vector3<T>::Zero = Vector3<T>(0, 0, 0);
+#include <iostream>
 
 template <typename T>
-const Vector3<T> Vector3<T>::Up = Vector3<T>(0, 1, 0);
+const Vector3<T> Vector3<T>::Zero = { 0, 0, 0 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Down = Vector3<T>(0, -1, 0);
+const Vector3<T> Vector3<T>::Up = { 0, 1, 0 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Forward = Vector3<T>(0, 0, -1);
+const Vector3<T> Vector3<T>::Down = { 0, -1, 0 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Backward = Vector3<T>(0, 0, 1);
+const Vector3<T> Vector3<T>::Forward = { 0, 0, -1 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Left = Vector3<T>(-1, 0, 0);
+const Vector3<T> Vector3<T>::Backward = { 0, 0, 1 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Right = Vector3<T>(1, 0, 0);
+const Vector3<T> Vector3<T>::Left = { -1, 0, 0 };
+
+template <typename T>
+const Vector3<T> Vector3<T>::Right = { 1, 0, 0 };
 
 template <typename T>
 Vector3<T>::Vector3(T value)
@@ -199,6 +201,9 @@ Vector3<T> reflect(const Vector3<T>& vector, const Vector3<T>& normal)
 //
 
 template <typename T>
+const Vector2<T> Vector2<T>::Zero = { 0, 0 };
+
+template <typename T>
 Vector2<T>::Vector2(T _x, T _y)
 	: x(_x)
 	, y(_y)
@@ -241,7 +246,7 @@ template <typename T>
 Vector2<T> Vector2<T>::operator-(const Vector2& rhs) { return Vector2(x - rhs.x, y - rhs.y); }
 
 template <typename T>
-Vector2<T> Vector2<T>::operator-() { return Vector2(-x, -y, -z); }
+Vector2<T> Vector2<T>::operator-() { return Vector2(-x, -y); }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(T rhs) { return Vector2(rhs * x, rhs * y); }

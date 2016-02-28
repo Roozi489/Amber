@@ -34,46 +34,47 @@ void RenderSystem::init()
 	g_ShaderManager.createProgram("pointLight", "fullscreenQuad.vert", "pointLight.frag");
 	g_ShaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
 	g_ShaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
+	g_ShaderManager.createProgram("font", "font.vert", "font.frag");
 
 	g_FontManager.init();
 	
 	//m_skybox.init();
 
 	// Lights
-	ambientLight.color = Color::fromByteRGB(50, 50, 50);
-	ambientLight.intensity = 0.02f;
+	m_ambientLight.color = Color::fromByteRGB(50, 50, 50);
+	m_ambientLight.intensity = 0.02f;
 
 	DirectionalLight dirLight;
 	dirLight.color = Color::Gray;
 	dirLight.intensity = 0.1f;
 	dirLight.direction = normalize(Vector3f(1.f, -1.f, -0.5f));
-	directionalLights.push_back(dirLight);
+	m_directionalLights.push_back(dirLight);
 	
 	PointLight pointLight;
 	pointLight.intensity = 300.f;
 	pointLight.color = Color::White;
 	pointLight.position = Vector3f(0.f, 20.f, 0.f);
 	pointLight.attenuation.range = 22.f;
-	pointLights.push_back(pointLight);
+	m_pointLights.push_back(pointLight);
 	pointLight.intensity = 50.f;
 	pointLight.color = Color::Red;
 	pointLight.position = Vector3f(10.f, 10.f, 10.f);
-	pointLights.push_back(pointLight);
+	m_pointLights.push_back(pointLight);
 	pointLight.color = Color::Yellow;
 	pointLight.position = Vector3f(-10.f, 10.f, 10.f);
-	pointLights.push_back(pointLight);
+	m_pointLights.push_back(pointLight);
 	pointLight.color = Color::Blue;
 	pointLight.position = Vector3f(-10.f, 10.f, -10.f);
-	pointLights.push_back(pointLight);
+	m_pointLights.push_back(pointLight);
 	pointLight.color = Color::Green;
 	pointLight.position = Vector3f(10.f, 10.f, -10.f);
-	pointLights.push_back(pointLight);
+	m_pointLights.push_back(pointLight);
 
 	SpotLight spotLight;
 	spotLight.intensity = 300.f;
 	spotLight.position = Vector3f(0.f, 20.f, 0.f);
 	spotLight.coneAngle = toRadians(17.f);
-	spotLights.push_back(spotLight);
+	m_spotLights.push_back(spotLight);
 
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -82,6 +83,18 @@ void RenderSystem::init()
 	fullscreenQuadMesh->indices = { 0, 1, 2, 2, 3, 0 };
 	fullscreenQuadMesh->setVaoAndVbo();
 	g_MeshManager.meshes.insert(std::make_pair("fullscreenQuad", std::move(fullscreenQuadMesh)));
+
+	m_fontTexture.genAndBind();
+	m_fontTexture.setFilterAndWrap(TextureFilter::Linear, TextureWrapMode::ClampToEdge);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glGenVertexArrays(1, &m_fontVao);
+	glBindVertexArray(m_fontVao);
+
+	glGenBuffers(1, &m_fontVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_fontVbo);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
 void RenderSystem::destroy()
@@ -93,11 +106,19 @@ void RenderSystem::update(Time delta)
 {
 	BaseSystem::update(delta);
 
+	// TODO: move to window class
+	displayText(stringFormat("%5.3f ms", g_FrameTime.asMilliseconds()), { 0.01f, 0.02f });
+
 	geometryPass();
 	lightPass();
 	outPass();
 
 	SDL_GL_SwapWindow(g_MainWindow);
+}
+
+void RenderSystem::displayText(const std::string& text, Vector2f position, FontID fontId)
+{
+	m_textsToRender.emplace_back(text, position, fontId);
 }
 
 void RenderSystem::geometryPass()
@@ -184,12 +205,12 @@ void RenderSystem::lightPass()
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	// Ambient light
-	if (ambientLight.isOn)
+	if (m_ambientLight.isOn)
 	{
 		ShaderProgram& shaderProgram = g_ShaderManager.getShaderProgram("ambientLight");
 
 		shaderProgram.use();
-		shaderProgram.setUniform("light.coloredIntensity", ambientLight.color.toNormalizedRGB() * ambientLight.intensity);
+		shaderProgram.setUniform("light.coloredIntensity", m_ambientLight.color.toNormalizedRGB() * m_ambientLight.intensity);
 
 		renderFullscreenQuad();
 	}
@@ -199,7 +220,7 @@ void RenderSystem::lightPass()
 	directionalLightProgram.use();
 	directionalLightProgram.setUniform("specular", 1);
 	directionalLightProgram.setUniform("normal", 2);
-	for (const auto& light : directionalLights)
+	for (const auto& light : m_directionalLights)
 	{
 		if (light.isOn)
 		{
@@ -217,7 +238,7 @@ void RenderSystem::lightPass()
 	pointLightProgram.setUniform("normal", 2);
 	pointLightProgram.setUniform("depth", 3);
 	const auto& vpInverse = inverse(g_Camera.getProjectionMatrix() * g_Camera.getViewMatrix());
-	for (const auto& light : pointLights)
+	for (const auto& light : m_pointLights)
 	{
 		if (light.isOn)
 		{
@@ -239,7 +260,7 @@ void RenderSystem::lightPass()
 	spotLightProgram.setUniform("specular", 1);
 	spotLightProgram.setUniform("normal", 2);
 	spotLightProgram.setUniform("depth", 3);
-	for (const auto& light : spotLights)
+	for (const auto& light : m_spotLights)
 	{
 		if (light.isOn)
 		{
@@ -274,14 +295,30 @@ void RenderSystem::outPass()
 	program.use();
 
 	m_gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
-	program.setUniform("diffuse", 0);
 	m_lightingRenderTexture.colorTexture.activeAndBind(1);
+	program.setUniform("diffuse", 0);
 	program.setUniform("lighting", 1);
 
 	renderFullscreenQuad();
-	program.stopUsing();
 
-	g_FontManager.textRendering();
+	// Text rendering
+	ShaderProgram& fontShaderProgram = g_ShaderManager.getShaderProgram("font");
+	fontShaderProgram.use();
+
+	glDepthMask(GL_FALSE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindVertexArray(m_fontVao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_fontVbo);
+	m_fontTexture.activeAndBind(0);
+	fontShaderProgram.setUniform("tex", 0);
+
+	for (auto& text : m_textsToRender)
+	{
+		g_FontManager.renderText(text.text, text.position.x, text.position.y);
+	}
+	m_textsToRender.clear();
+	
+	glDepthMask(GL_TRUE);
 
 	//m_outRenderTexture.unbind();
 }

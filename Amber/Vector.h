@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 
 // TODO: use concepts
@@ -15,6 +14,8 @@ struct Vector2
 		};
 		T data[2];
 	};
+
+	static const Vector2<T> Zero;
 
 	Vector2() = default;
 	Vector2(T _x, T _y);

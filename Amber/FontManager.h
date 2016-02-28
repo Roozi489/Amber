@@ -8,7 +8,7 @@
 
 namespace
 {
-	typedef struct FontType_
+	struct FtFontType
 	{
 		const char*  filepathname;
 		int          face_index;
@@ -16,18 +16,25 @@ namespace
 		int          num_indices;
 		void*        file_address;  // for preloaded files - what is this???
 		size_t       file_size;
-
-	} FontType, *FontHandle;
+	};
 }
+
+// TODO: move to Font.h ???
+enum FontID
+{
+	Default,
+	Count
+};
+
 
 struct Bitmap;
 
 class FontManager
 {
 public:
-	size_t maxFonts = 16;
+	size_t maxFonts = FontID::Count;
 	int numFonts = 0;
-	FontHandle* fonts;
+	FtFontType** fonts;
 
 	// Font rendering
 	FT_Library ftLib;
@@ -36,16 +43,11 @@ public:
 	FTC_SBitCache ftSmallBitmapsCache;
 	FTC_CMapCache ftCharmapCache;
 
-	GLuint fontVao;
-	GLuint fontVbo;
-	Texture fontTexture;
-
 	FontManager();
 	~FontManager();
 
 	void init();
-	void textRendering();
-	void renderText(const std::string& text, float x, float y, float sx, float sy);
+	void renderText(const std::string& text, float x, float y);
 
 	FT_Error ftAddFont(const char* filepath, FT_Bool outline_only);
 	FT_UInt ftGetIndex(FTC_FaceID faceID, FT_UInt32 charcode);

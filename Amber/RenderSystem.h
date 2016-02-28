@@ -4,32 +4,41 @@
 #include "Skybox.h"
 #include "GBuffer.h"
 #include "Lighting.h"
+#include "RenderText.h"
 
 class RenderSystem : public BaseSystem
 {
 public:
-	AmbientLight ambientLight;
-	std::vector<DirectionalLight> directionalLights;
-	std::vector<PointLight> pointLights;
-	std::vector<SpotLight> spotLights;
-
     RenderSystem();
     ~RenderSystem();
 
     virtual void init() override;
 	virtual void destroy() override;
 	virtual void update(Time delta) override;
+
+	void displayText(const std::string& text, Vector2f position, FontID fontId = FontID::Default);
 	
 	void geometryPass();
 	void lightPass();
 	void outPass();
 
 private:
+	AmbientLight m_ambientLight;
+	std::vector<DirectionalLight> m_directionalLights;
+	std::vector<PointLight> m_pointLights;
+	std::vector<SpotLight> m_spotLights;
+	
+	Skybox m_skybox;
+
+	std::vector<RenderText> m_textsToRender;
+
 	GBuffer m_gBuffer;
 	RenderTexture m_lightingRenderTexture;
 	RenderTexture m_outRenderTexture;
 
-	Skybox m_skybox;
+	GLuint m_fontVao;
+	GLuint m_fontVbo;
+	Texture m_fontTexture;
 
 	void renderFullscreenQuad();
 };

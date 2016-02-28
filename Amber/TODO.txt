@@ -1,6 +1,5 @@
 Critical:
 ------------------------------------
-Proper font rendering
 Proper models with pbr materials
 
 Major:
@@ -16,7 +15,7 @@ Memory allocators
 Geometry shaders for fullscreen quad
 Instanced rendering
 Custom String class with string id
-Fix freetype includes
+Proper font rendering
 Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager

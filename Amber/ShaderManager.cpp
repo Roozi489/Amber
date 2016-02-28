@@ -27,9 +27,7 @@ ShaderProgram& ShaderManager::createProgram(const std::string& programName, cons
 	program->attachShaderFromFile(ShaderType::Fragment, fragmentShaderFilename);
 	program->link();
 
-    m_shaderPrograms[programName] = std::move(program);
-
-    return *m_shaderPrograms[programName];
+	return *(m_shaderPrograms[programName] = std::move(program));
 }
 
 ShaderProgram& ShaderManager::getShaderProgram(const std::string& shaderName)

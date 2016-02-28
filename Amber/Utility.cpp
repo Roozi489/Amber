@@ -1,11 +1,10 @@
 #include "Utility.h"
 #include "Globals.h"
-#include "Amber.h"
 #include "Ray.h"
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
-#include <stb_image.h>
+#include <stb/stb_image.h>
 
 #include <iostream>
 #include <fstream>

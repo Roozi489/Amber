@@ -1,7 +1,7 @@
 #include "CubeTexture.h"
 #include "Utility.h"
 
-#include "stb_image.h"
+#include <stb/stb_image.h>
 
 CubeTexture::CubeTexture()
 {
@@ -26,11 +26,10 @@ bool CubeTexture::loadSide(std::string filename, GLenum sideTarget)
         criticalError("ERROR: Could not load texture " + filename + " for cubemap.");
         return false;
     }
-    // TODO: add logging of these things
     // non-power-of-2 dimensions check
     if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0)
     {
-        fprintf(stderr, "WARNING: image %s is not power-of-2 dimensions\n", filename.c_str());
+        log("WARNING: Image \"" + filename + "\" is not power-of-2 dimensions.");
     }
 
     glTexImage2D(sideTarget, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
