@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include "Vector.h"
 #include "Matrix.h"
+#include "Input.h"
 
 Camera::Camera()
 {
@@ -10,18 +11,31 @@ Camera::Camera()
 
 void Camera::init()
 {
-    position = Vector3f::Zero;
+	position = Vector3f::Zero;
 	orientation = Quaternion::Identity;
 
 	// TODO: check whether the fov should't be in radians
-	m_projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(g_WindowWidth), static_cast<float>(g_WindowHeight), m_nearPlane, m_farPlane);
-	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_Camera.orientation)) * Matrix4x4f::translate(-g_Camera.position);
+	m_projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane, m_farPlane);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
 }
 
 void Camera::update(Time delta)
 {
 	// TODO: add scale
-	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_Camera.orientation)) * Matrix4x4f::translate(-g_Camera.position);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
+
+	if (Input::isKeyDown(SDL_SCANCODE_W))
+		moveForward();
+	if (Input::isKeyDown(SDL_SCANCODE_S))
+		moveBackward();
+	if (Input::isKeyDown(SDL_SCANCODE_A))
+		moveLeft();
+	if (Input::isKeyDown(SDL_SCANCODE_D))
+		moveRight();
+	if (Input::isKeyDown(SDL_SCANCODE_I))
+		moveUp();
+	if (Input::isKeyDown(SDL_SCANCODE_K))
+		moveDown();
 }
 
 void Camera::offsetOrientation(float yaw, float pitch)
@@ -86,7 +100,7 @@ void Camera::rotateRight(float value)
 
 Vector3f Camera::getPosition() const
 {
-    return position;
+	return position;
 }
 
 void Camera::setPosition(Vector3f pos)
@@ -96,7 +110,7 @@ void Camera::setPosition(Vector3f pos)
 
 const Matrix4x4f& Camera::getProjectionMatrix() const
 {
-    return m_projectionMatrix;
+	return m_projectionMatrix;
 }
 
 const Matrix4x4f& Camera::getViewMatrix() const

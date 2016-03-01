@@ -1,5 +1,7 @@
 #include "SoundSystem.h"
+#include "Window.h"
 #include "Utility.h"
+#include "String.h"
 
 #include <fmod/fmod_errors.h>
 #include <fmod/fmod_common.h>

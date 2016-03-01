@@ -1,4 +1,6 @@
 #include "ShaderProgram.h"
+#include "Utility.h"
+#include "String.h"
 
 #include <fstream>
 #include <sstream>
@@ -22,7 +24,7 @@ void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& fil
 		if (line.find("#include") != std::string::npos)
 		{
 			auto spaceSplit = split(line, '\"');
-			if (spaceSplit.size() == 2)
+			if (spaceSplit.size() >= 2)
 			{
 				std::string includedContent = loadFileToString("Shaders/" + spaceSplit[1] + ".glsl");
 				content << includedContent << std::endl;
@@ -71,7 +73,7 @@ bool ShaderProgram::isInUse() const
 	int currentProgram = 0;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
 
-	return (currentProgram == (int)handle);
+	return currentProgram == (int)handle;
 }
 
 void ShaderProgram::stopUsing() const
@@ -101,19 +103,29 @@ void ShaderProgram::link()
 	}
 }
 
-int ShaderProgram::getUniformLocation(const std::string& name)
+GLint ShaderProgram::getUniformLocation(const std::string& name)
 {
 	if (m_UniformLocations.find(name) != m_UniformLocations.end())
 		return m_UniformLocations[name];
 
-	int loc = glGetUniformLocation(handle, name.c_str());
+	GLint loc = glGetUniformLocation(handle, name.c_str());
+	m_UniformLocations.insert(std::make_pair(name, loc));
+	return loc;
+}
+
+GLint ShaderProgram::getUniformLocation(std::string&& name)
+{
+	if (m_UniformLocations.find(name) != m_UniformLocations.end())
+		return m_UniformLocations[name];
+
+	GLint loc = glGetUniformLocation(handle, name.c_str());
 	m_UniformLocations.insert(std::make_pair(name, loc));
 	return loc;
 }
 
 void ShaderProgram::setUniform(const std::string& name, float x)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1f(loc, x);
@@ -121,7 +133,7 @@ void ShaderProgram::setUniform(const std::string& name, float x)
 
 void ShaderProgram::setUniform(const std::string& name, float x, float y)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform2f(loc, x, y);
@@ -129,7 +141,7 @@ void ShaderProgram::setUniform(const std::string& name, float x, float y)
 
 void ShaderProgram::setUniform(const std::string& name, float x, float y, float z)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform3f(loc, x, y, z);
@@ -137,15 +149,15 @@ void ShaderProgram::setUniform(const std::string& name, float x, float y, float 
 
 void ShaderProgram::setUniform(const std::string& name, float x, float y, float z, float w)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform4f(loc, x, y, z, w);
 }
 
-void ShaderProgram::setUniform(const std::string& name, uint32_t x)
+void ShaderProgram::setUniform(const std::string& name, uint32 x)
 {
-	int loc = getUniformLocation(name);
+	GLint loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1ui(loc, x);
@@ -153,7 +165,7 @@ void ShaderProgram::setUniform(const std::string& name, uint32_t x)
 
 void ShaderProgram::setUniform(const std::string& name, int x)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1i(loc, x);
@@ -161,7 +173,7 @@ void ShaderProgram::setUniform(const std::string& name, int x)
 
 void ShaderProgram::setUniform(const std::string& name, bool x)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform1i(loc, static_cast<int>(x));
@@ -169,7 +181,7 @@ void ShaderProgram::setUniform(const std::string& name, bool x)
 
 void ShaderProgram::setUniform(const std::string& name, const Vector2f& v)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform2fv(loc, 1, v.data);
@@ -177,7 +189,7 @@ void ShaderProgram::setUniform(const std::string& name, const Vector2f& v)
 
 void ShaderProgram::setUniform(const std::string& name, const Vector3f& v)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform3fv(loc, 1, v.data);
@@ -185,7 +197,7 @@ void ShaderProgram::setUniform(const std::string& name, const Vector3f& v)
 
 void ShaderProgram::setUniform(const std::string& name, const Vector4f& v)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform4fv(loc, 1, v.data);
@@ -193,7 +205,7 @@ void ShaderProgram::setUniform(const std::string& name, const Vector4f& v)
 
 void ShaderProgram::setUniform(const std::string& name, const Matrix4x4f& m)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniformMatrix4fv(loc, 1, false, m.data);
@@ -201,7 +213,7 @@ void ShaderProgram::setUniform(const std::string& name, const Matrix4x4f& m)
 
 void ShaderProgram::setUniform(const std::string& name, const Quaternion& q)
 {
-	int loc = getUniformLocation(name);
+	auto loc = getUniformLocation(name);
 	if (loc == -1)
 		log("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
 	glUniform4fv(loc, 1, q.data);
@@ -209,18 +221,20 @@ void ShaderProgram::setUniform(const std::string& name, const Quaternion& q)
 
 void ShaderProgram::setUniform(const std::string& name, const TransformComponent& t)
 {
-	// TODO: precompute these strings, the operator+ takes around 10% of all cpu time
-	int loc = getUniformLocation(name + ".position");
+	// TOOD: glBufferSubData
+	// TODO: add better string handling
+	assert_amber(name == "transform", "Tranform name in shader isn't \"transform\". ");
+	auto loc = getUniformLocation("transform.position");
 	if (loc == -1)
 		log("Uniform: " + name + ".position not found.\nShaderProgram: " + this->name);
 	glUniform3fv(loc, 1, t.position.data);
 
-	loc = getUniformLocation(name + ".orientation");
+	loc = getUniformLocation("transform.orientation");
 	if (loc == -1)
 		log("Uniform: " + name + ".orientation not found.\nShaderProgram: " + this->name);
 	glUniform4fv(loc, 1, t.orientation.data);
 
-	loc = getUniformLocation(name + ".scale");
+	loc = getUniformLocation("transform.scale");
 	if (loc == -1)
 		log("Uniform: " + name + ".scale not found.\nShaderProgram: " + this->name);
 	glUniform3fv(loc, 1, t.scale.data);

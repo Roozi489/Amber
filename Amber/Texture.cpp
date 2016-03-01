@@ -1,13 +1,11 @@
 ﻿#include "Texture.h"
+#include "Window.h"
 #include "Utility.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
 Texture::Texture()
-: width(-1)
-, height(-1)
-, textureHandle(-1)
 {
 }
 

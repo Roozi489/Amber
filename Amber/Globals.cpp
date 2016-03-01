@@ -1,16 +1,13 @@
 #include "Globals.h"
 
-SDL_Window *g_MainWindow;
-SDL_GLContext g_Context;
-int g_WindowWidth = 1024;
-int g_WindowHeight = 768;
-Time g_FrameTime;
+Window g_window;
+World g_world;
+Camera g_camera;
+Time g_startTime;
+Time g_frameTime;
+const uint8* g_keystate;
 
-World g_World;
-Camera g_Camera;
-const Uint8* g_Keystate;
-
-ShaderManager g_ShaderManager;
-MeshManager g_MeshManager;
-TextureManager g_TextureManager;
-FontManager g_FontManager;
+ShaderManager g_shaderManager;
+MeshManager g_meshManager;
+TextureManager g_textureManager;
+FontManager g_fontManager;

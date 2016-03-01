@@ -63,8 +63,8 @@ void FontManager::init()
 // TODO: add left top or center options
 void FontManager::renderText(const std::string& text, float x, float y)
 {
-	float sx = 2.0f / g_WindowWidth;
-	float sy = 2.0f / g_WindowHeight;
+	float sx = 2.0f / g_window.getWidth();
+	float sy = 2.0f / g_window.getHeight();
 
 	// TODO: fix y value not being top-left
 	// Change to <-1, 1> and invert y coord
@@ -73,7 +73,7 @@ void FontManager::renderText(const std::string& text, float x, float y)
 	x = xPos(x);
 	y = yPos(y);
 
-	ShaderProgram& fontShaderProgram = g_ShaderManager.getShaderProgram("font");
+	ShaderProgram& fontShaderProgram = g_shaderManager.getShaderProgram("font");
 	// TODO: add color to the parameters
 	Color c = Color::White;
 

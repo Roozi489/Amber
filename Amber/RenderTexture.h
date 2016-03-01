@@ -1,10 +1,11 @@
 #pragma once
 #include "Texture.h"
 #include "OpenGL.h"
+#include "NonCopyable.h"
 
 #include <vector>
 
-class RenderTexture
+class RenderTexture : public NonCopyable
 {
 public:
 	enum RenderTextureType

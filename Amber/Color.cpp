@@ -17,7 +17,7 @@ Color::Color()
 {
 }
 
-Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+Color::Color(uint8 r, uint8 g, uint8 b, uint8 a)
 	: r(r)
 	, g(g)
 	, b(b)
@@ -36,7 +36,7 @@ Vector4f Color::toNormalizedRGBA() const
 	return Vector4f(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
-Color Color::fromByteRGB(uint8_t r, uint8_t g, uint8_t b)
+Color Color::fromByteRGB(uint8 r, uint8 g, uint8 b)
 {
 	Color color;
 	color.r = r;
@@ -45,7 +45,7 @@ Color Color::fromByteRGB(uint8_t r, uint8_t g, uint8_t b)
 	return color;
 }
 
-Color Color::fromByteRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+Color Color::fromByteRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	Color color;
 	color.r = r;

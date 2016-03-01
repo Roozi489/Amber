@@ -1,7 +1,7 @@
 #version 330 core
 
-#include "Common.h"
-#include "Lighting.h"
+#include "common.h"
+#include "lighting.h"
 
 uniform sampler2D specular;
 uniform sampler2D normal;

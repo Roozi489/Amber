@@ -1,5 +1,6 @@
 #include "CubeTexture.h"
 #include "Utility.h"
+#include "Window.h"
 
 #include <stb/stb_image.h>
 

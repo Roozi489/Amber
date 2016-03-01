@@ -1,6 +1,6 @@
 #version 330 core
 
-#include "Lighting.h"
+#include "lighting.h"
 
 // TODO: add specular
 uniform sampler2D specular;

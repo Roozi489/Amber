@@ -65,7 +65,7 @@ void Mesh::destroy()
 
 void Mesh::setTexture(const std::string& name)
 {
-	texture = g_TextureManager.getTexture(name);
+	texture = g_textureManager.getTexture(name);
     hasTexture = true;
 }
 

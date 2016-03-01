@@ -1,27 +1,21 @@
 #pragma once
+#include "Window.h"
 #include "World.h"
 #include "Camera.h"
+#include "Time.h"
 #include "ShaderManager.h"
 #include "MeshManager.h"
 #include "TextureManager.h"
-#include "Time.h"
 #include "FontManager.h"
 
-#include <SDL/SDL.h>
+extern Window g_window;
+extern World g_world;
+extern Camera g_camera;
 
-// TODO: add all of these to Window class
-extern SDL_Window *g_MainWindow;
-extern SDL_GLContext g_Context;
-extern int g_WindowWidth;
-extern int g_WindowHeight;
-extern Time g_FrameTime;
+extern Time g_startTime;
+extern Time g_frameTime;
 
-extern World g_World;
-extern Camera g_Camera;
-// TODO: Input class
-extern const Uint8* g_Keystate;
-
-extern ShaderManager g_ShaderManager; 
-extern MeshManager g_MeshManager;
-extern TextureManager g_TextureManager;
-extern FontManager g_FontManager;
+extern ShaderManager g_shaderManager; 
+extern MeshManager g_meshManager;
+extern TextureManager g_textureManager;
+extern FontManager g_fontManager;

@@ -2,6 +2,7 @@
 #include "TransformComponent.h"
 #include "RenderComponent.h"
 #include "PhysicsComponent.h"
+#include "Math.h"
 
 World::World()
 {

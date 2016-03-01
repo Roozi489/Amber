@@ -1,7 +1,7 @@
 #pragma once
 #include "Vector.h"
 #include "Color.h"
-#include "Utility.h"
+#include "Math.h"
 
 struct Attenuation
 {

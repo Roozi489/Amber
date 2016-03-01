@@ -1,5 +1,5 @@
 #include "RenderTexture.h"
-#include "Utility.h"
+#include "Window.h"
 
 
 RenderTexture::RenderTexture()

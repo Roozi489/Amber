@@ -1,4 +1,5 @@
 #pragma once
+#include "Types.h"
 #include "Vector.h"
 
 class Color
@@ -8,10 +9,10 @@ public:
 	{
 		struct
 		{
-			uint8_t r;
-			uint8_t g;
-			uint8_t b;
-			uint8_t a;
+			uint8 r;
+			uint8 g;
+			uint8 b;
+			uint8 a;
 		};
 		Vector3f rgb;
 		Vector4f rgba;
@@ -35,11 +36,11 @@ public:
 	Vector3f toNormalizedRGB() const;
 	Vector4f toNormalizedRGBA() const;
 
-	static Color fromByteRGB(uint8_t r, uint8_t g, uint8_t b);
-	static Color fromByteRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+	static Color fromByteRGB(uint8 r, uint8 g, uint8 b);
+	static Color fromByteRGBA(uint8 r, uint8 g, uint8 b, uint8 a);
 	static Color fromNormalizedRGB(float r, float g, float b);
 	static Color fromNormalizedRGBA(float r, float g, float b, char a);
 
 private:
-	Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+	Color(uint8 r, uint8 g, uint8 b, uint8 a);
 };

@@ -47,12 +47,11 @@ public:
     }*/
 
     template <typename S, typename ... Args>
-    std::shared_ptr<S> addSystem(Args && ... args)
+    void addSystem(Args && ... args)
     {
-        std::shared_ptr<S> s(new S(std::forward<Args>(args) ...));
+        std::unique_ptr<S> s(new S(std::forward<Args>(args) ...));
         s->systemID = S::template getSystemID<S>();
-        m_systems.insert(std::make_pair(s->systemID, std::shared_ptr<BaseSystem>(s)));
-        return s;
+        m_systems.insert(std::make_pair(s->systemID, std::move(s)));
     }
 
     template <typename S>
@@ -65,5 +64,5 @@ public:
     void update(Time delta);
 	
 private:
-	std::unordered_map<SystemID, std::shared_ptr<BaseSystem>> m_systems;
+	std::unordered_map<SystemID, std::unique_ptr<BaseSystem>> m_systems;
 };

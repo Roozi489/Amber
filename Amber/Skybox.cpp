@@ -71,7 +71,7 @@ void Skybox::init()
 
     skyboxTexture.create("Textures/negz.jpg", "Textures/posz.jpg", "Textures/posy.jpg", "Textures/negy.jpg", "Textures/negx.jpg", "Textures/posx.jpg");
 
-    shaderProgramID = g_ShaderManager.createProgram("skybox", "skybox.vert", "skybox.frag").handle;
+    shaderProgramID = g_shaderManager.createProgram("skybox", "skybox.vert", "skybox.frag").handle;
 
     checkGlError();
 }
@@ -87,12 +87,12 @@ void Skybox::update()
     glUseProgram(shaderProgramID);
 
     // TODO: add support for proper camera rotation
-    //Matrix4x4f vMat = Matrix4x4f::rotate(Matrix4x4f::identity(), (g_Camera.getRotationY() + pi_2), Vector3f(0.f, 1.f, 0.f));
+    //Matrix4x4f vMat = Matrix4x4f::rotate(Matrix4x4f::identity(), (g_camera.getRotationY() + PI_HALF), Vector3f(0.f, 1.f, 0.f));
 
     GLuint vLoc = glGetUniformLocation(shaderProgramID, "V");
     //glUniformMatrix4fv(vLoc, 1, GL_FALSE, &vMat[0][0]);
 
-    Matrix4x4f pMat = g_Camera.getProjectionMatrix();
+    Matrix4x4f pMat = g_camera.getProjectionMatrix();
     GLuint pLoc = glGetUniformLocation(shaderProgramID, "P");
     glUniformMatrix4fv(pLoc, 1, GL_FALSE, &pMat[0][0]);
 }
@@ -100,7 +100,7 @@ void Skybox::update()
 void Skybox::render()
 {
     glDepthMask(GL_FALSE);
-	g_ShaderManager.getShaderProgram("skybox").use();
+	g_shaderManager.getShaderProgram("skybox").use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.getTextureID());
     glBindVertexArray(vao);

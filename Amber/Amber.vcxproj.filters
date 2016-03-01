@@ -20,6 +20,9 @@
     <Filter Include="Managers">
       <UniqueIdentifier>{34a20170-a821-42a3-8263-6d5abb3b1b9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{2eae2758-493b-4e27-be88-625675845bf2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseSystem.cpp">
@@ -59,7 +62,6 @@
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="World.cpp" />
     <ClCompile Include="Plane.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -119,6 +121,25 @@
     </ClCompile>
     <ClCompile Include="RenderText.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="String.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp" />
+    <ClCompile Include="Window.cpp">
+      <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -243,6 +264,24 @@
     <ClInclude Include="RenderText.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shaders\irradianceConvolution.glsl">
@@ -297,6 +336,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\Shaders\spotLight.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\common.h.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\lighting.h.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\Shaders\texPass.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -17,10 +17,13 @@ public:
 	virtual void update(Time delta) override;
 
 	void displayText(const std::string& text, Vector2f position, FontID fontId = FontID::Default);
-	
+	void drawFullscreenQuad();
+
 	void geometryPass();
 	void lightPass();
 	void outPass();
+
+	RenderTexture& getOutRenderTexture();
 
 private:
 	AmbientLight m_ambientLight;
@@ -40,6 +43,8 @@ private:
 	GLuint m_fontVbo;
 	Texture m_fontTexture;
 
-	void renderFullscreenQuad();
+	int m_fps = 0;
+	int m_fpsCounter = 0;
+	Time m_timeSinceFpsUpdate = Time::Zero;
 };
 

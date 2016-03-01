@@ -5,6 +5,8 @@
 #include "Plane.h"
 #include "Sphere.h"
 #include "Entity.h"
+#include "Math.h"
+#include "Input.h"
 
 GameplaySystem::GameplaySystem()
 {
@@ -17,7 +19,7 @@ GameplaySystem::~GameplaySystem()
 
 void GameplaySystem::init()
 {
-    soundSystem = g_World.getSystem<SoundSystem>();
+    soundSystem = g_world.getSystem<SoundSystem>();
 }
 
 void GameplaySystem::update(Time delta)
@@ -27,14 +29,11 @@ void GameplaySystem::update(Time delta)
     if (gameState == GameState::Defeat || gameState == GameState::Victory)
         return;
 
-    const uint8_t leftDown = g_Keystate[SDL_SCANCODE_LEFT];
-    const uint8_t rightDown = g_Keystate[SDL_SCANCODE_RIGHT];
-
     int brickCount = 0;
 
-    if (gameState == GameState::Start && g_Keystate[SDL_SCANCODE_SPACE])
+    if (gameState == GameState::Start && Input::isKeyDown(SDL_SCANCODE_SPACE))
     {
-        for (Entity& entity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+        for (Entity& entity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
         {
             TransformComponent& transformComp = entity.getComponent<TransformComponent>();
             PhysicsComponent& physicsComp = entity.getComponent<PhysicsComponent>();
@@ -46,7 +45,7 @@ void GameplaySystem::update(Time delta)
         gameState = GameState::Playing;
     }
 
-    for (Entity& entity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+    for (Entity& entity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
     {
         TransformComponent& transformComp = entity.getComponent<TransformComponent>();
         PhysicsComponent& physicsComp = entity.getComponent<PhysicsComponent>();
@@ -63,7 +62,7 @@ void GameplaySystem::update(Time delta)
                 {
                     if (transformComp.position.y <= 0.f)
                     {
-                        for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                        for (Entity& otherEntity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                         {
                             TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                             PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();
@@ -82,23 +81,23 @@ void GameplaySystem::update(Time delta)
             if (entity.tag == Tag::Pad)
             {
                 float angle = angleFromCenter(transformComp.position);
-                if (leftDown)
+                if (Input::isKeyDown(SDL_SCANCODE_LEFT))
                 {
                     angle -= 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
-                    transformComp.orientation = angleAxis(pi + angle, Vector3f::Up);
+                    transformComp.orientation = angleAxis(PI + angle, Vector3f::Up);
                 }
-                if (rightDown)
+                if (Input::isKeyDown(SDL_SCANCODE_RIGHT))
                 {
                     angle += 1.5f * delta.asSeconds();
                     transformComp.position = Vector3f(sinf(angle) * 25, 0.f, cosf(angle) * 25);
-					transformComp.orientation = angleAxis(pi + angle, Vector3f::Up);
+					transformComp.orientation = angleAxis(PI + angle, Vector3f::Up);
                 }
 
                 // If pad moved check for collision with ball
-                if (leftDown || rightDown)
+                if (Input::isKeyDown(SDL_SCANCODE_LEFT) || Input::isKeyDown(SDL_SCANCODE_RIGHT))
                 {
-                    for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                    for (Entity& otherEntity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                     {
                         if (otherEntity.tag == Tag::Ball)
                         {
@@ -168,7 +167,7 @@ void GameplaySystem::update(Time delta)
 
                 bool movedToPad = false;
                 Vector3f resultNormal;
-                for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                for (Entity& otherEntity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                 {
                     TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                     PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();
@@ -193,7 +192,7 @@ void GameplaySystem::update(Time delta)
                                 soundSystem->playSound("Blop");
                                 moveFreely = false;
                                 destroyedBricksPosition.push_back(otherTransformComp.position);
-                                g_World.entityManager.destroyEntity(&otherEntity);
+                                g_world.entityManager.destroyEntity(&otherEntity);
                                 break;
                             }
                         }
@@ -231,7 +230,7 @@ void GameplaySystem::update(Time delta)
                 // Falling of bricks
                 for (Vector3f destroyBrickPosition : destroyedBricksPosition)
                 {
-                    for (Entity& otherEntity : g_World.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
+                    for (Entity& otherEntity : g_world.entityManager.entities_with_components<TransformComponent, PhysicsComponent>())
                     {
                         TransformComponent& otherTransformComp = otherEntity.getComponent<TransformComponent>();
                         PhysicsComponent& otherPhysicsComp = otherEntity.getComponent<PhysicsComponent>();
@@ -256,6 +255,17 @@ void GameplaySystem::update(Time delta)
         gameState = GameState::Victory;
         //soundSystem->playSound("victory");
     }
+
+	if (Input::MouseRightDown())
+	{
+		g_window.showCursor(false);
+		g_camera.offsetOrientation(Input::mouseRelativeChangeX() / 500.f, Input::mouseRelativeChangeY() / 500.f);
+		g_window.setCursorPosition(g_window.getWidth() / 2, g_window.getHeight() / 2);
+	}
+	else
+	{
+		g_window.showCursor(true);
+	}
 }
 
 float GameplaySystem::distFromCenter(Vector3f position)

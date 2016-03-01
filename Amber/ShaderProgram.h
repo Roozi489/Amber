@@ -38,13 +38,14 @@ public:
 	void attachShaderFromFile(ShaderType type, const std::string& filename);
 	void attachShaderFromString(ShaderType type, const std::string& name, const std::string& content);
 
-	int getUniformLocation(const std::string& name);
+	GLint getUniformLocation(const std::string& name);
+	GLint getUniformLocation(std::string&& name);
 
 	void setUniform(const std::string& name, float x);
 	void setUniform(const std::string& name, float x, float y);
 	void setUniform(const std::string& name, float x, float y, float z);
 	void setUniform(const std::string& name, float x, float y, float z, float w);
-	void setUniform(const std::string& name, uint32_t x);
+	void setUniform(const std::string& name, uint32 x);
 	void setUniform(const std::string& name, int x);
 	void setUniform(const std::string& name, bool x);
 	void setUniform(const std::string& name, const Vector2f& v);
@@ -55,7 +56,7 @@ public:
 	void setUniform(const std::string& name, const TransformComponent& t);
 	void setUniform(const std::string& name, const Color& c);
 private:
-	std::unordered_map<std::string, int> m_UniformLocations;
+	std::unordered_map<std::string, GLint> m_UniformLocations;
 
 	void loadFromString(GLuint shaderHandle, const std::string& name, const char* content);
 };

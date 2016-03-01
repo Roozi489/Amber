@@ -14,7 +14,7 @@ PhysicsComponent::PhysicsComponent(BodyType bodyType, const std::string& collisi
     : bodyType(bodyType)
     , velocity(Vector3f::zero())
 {
-    collisionMesh = g_MeshManager.getMesh(collisionMeshName);
+    collisionMesh = g_meshManager.getMesh(collisionMeshName);
 
 }
 
@@ -29,7 +29,7 @@ PhysicsComponent::PhysicsComponent(BodyType type, Vector3f velocity, const std::
     : bodyType(bodyType)
     , velocity(velocity)
 {
-    collisionMesh = g_MeshManager.getMesh(collisionMeshName);
+    collisionMesh = g_meshManager.getMesh(collisionMeshName);
 }
 
 PhysicsComponent::~PhysicsComponent()

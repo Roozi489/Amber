@@ -1,8 +1,9 @@
 #include "GBuffer.h"
 #include "OpenGL.h"
+#include "Window.h"
+#include "Utility.h"
 
 #include <vector>
-#include "Utility.h"
 
 GBuffer::GBuffer()
 {

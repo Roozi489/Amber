@@ -1,6 +1,6 @@
 #version 330 core
 
-#include "Lighting.h"
+#include "lighting.h"
 
 uniform BaseLight light;
 

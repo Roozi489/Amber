@@ -4,7 +4,6 @@ Proper models with pbr materials
 
 Major:
 ------------------------------------
-Text rendering as a seperate pass (just add to the last ??)
 Shading methods
 Uniform buffer object
 Proper logging
@@ -15,11 +14,9 @@ Memory allocators
 Geometry shaders for fullscreen quad
 Instanced rendering
 Custom String class with string id
-Proper font rendering
 Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
-Math (trigonometry)
 Better code structure (Directories and namespaces)
 Proper file system stuff
 Input manager
@@ -31,6 +28,9 @@ Fix loading of models with different texture coords
 HDR
 Displacement mapping (terrain)
 Anisotropic reflections
+Math (trigonometry)
+Proper text rendering
+Text rendering as a seperate pass (just add to the last ??)
 
 Minor:
 ------------------------------------

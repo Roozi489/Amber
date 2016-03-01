@@ -1,8 +1,15 @@
 #include "MeshManager.h"
-#include "Utility.h"
+#include "Window.h"
 
 #include <memory>
 #include <fstream>
+
+struct FaceIndexVertTexNorm
+{
+	unsigned int v0, t0, n0;
+	unsigned int v1, t1, n1;
+	unsigned int v2, t2, n2;
+};
 
 MeshManager::MeshManager()
 {

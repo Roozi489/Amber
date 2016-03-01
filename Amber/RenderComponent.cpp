@@ -3,7 +3,7 @@
 
 RenderComponent::RenderComponent(const std::string& meshName)
 {
-	mesh = g_MeshManager.getMesh(meshName);
+	mesh = g_meshManager.getMesh(meshName);
 }
 
 RenderComponent::~RenderComponent()
