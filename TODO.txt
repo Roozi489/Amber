@@ -1,41 +1,36 @@
 Critical:
 ------------------------------------
 Proper models with pbr materials
+Namespace
 
 Major:
 ------------------------------------
-Shading methods
+Specular component
 Uniform buffer object
 Proper logging
 Shadow mapping
 Entity tag as string
-Window class (where the color of outRenderTexture is rendered to)
 Memory allocators
-Geometry shaders for fullscreen quad
 Instanced rendering
 Custom String class with string id
 Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
-Better code structure (Directories and namespaces)
 Proper file system stuff
-Input manager
 Mesh loading
 Better resource managment
-Antialiasing
-More Camera
+Better Camera
 Fix loading of models with different texture coords
 HDR
 Displacement mapping (terrain)
 Anisotropic reflections
 Math (trigonometry)
 Proper text rendering
-Text rendering as a seperate pass (just add to the last ??)
 
 Minor:
 ------------------------------------
 Optimize matrix (SSE)
-Fix stb_image warnings
+Antialiasing
 
 
 Other:
