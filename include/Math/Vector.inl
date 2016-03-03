@@ -68,15 +68,6 @@ void Vector3<T>::normalize()
 }
 
 template <typename T>
-void Vector3<T>::inverse()
-{
-	auto tmp = length() * length();
-	x /= tmp;
-	y /= tmp;
-	z /= tmp;
-}
-
-template <typename T>
 T Vector3<T>::dot(Vector3 vector)
 {
 	return x * vector.x + y * vector.y + z * vector.z;
@@ -120,6 +111,9 @@ bool Vector3<T>::operator==(Vector3 const& rhs) { return x == rhs.x && y == rhs.
 
 template <typename T>
 bool Vector3<T>::operator!=(Vector3 const& rhs) { return x != rhs.x || y != rhs.y || z != rhs.z; }
+
+template <typename T>
+Vector3<T> operator-(Vector3<T>&& rhs) { return Vector3<T>(-rhs.x, -rhs.y, -rhs.z); }
 
 template <typename T>
 Vector3<T> operator+(const Vector3<T>& lhs, const Vector3<T>& rhs) { return Vector3<T>(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z); }
@@ -232,14 +226,6 @@ void Vector2<T>::normalize()
 	auto lenght = std::sqrt(x*x + y*y);
 	x /= lenght;
 	y /= lenght;
-}
-
-template <typename T>
-void Vector2<T>::inverse()
-{
-	auto tmp = magnitude() * magnitude();
-	x /= tmp;
-	y /= tmp;
 }
 
 template <typename T>

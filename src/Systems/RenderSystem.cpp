@@ -13,10 +13,6 @@ RenderSystem::RenderSystem()
 
 }
 
-RenderSystem::~RenderSystem()
-{
-}
-
 void RenderSystem::init()
 {
 	glFrontFace(GL_CCW);
@@ -29,8 +25,8 @@ void RenderSystem::init()
 
 	// Deferred shading structures
 	m_gBuffer.create(g_window.getWidth(), g_window.getHeight());
-	m_lightingRenderTexture.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Lighting);
-	m_outRenderTexture.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Color);
+	m_lightingRT.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Lighting);
+	m_outRT.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Color);
 
 	// Shaders
 	g_shaderManager.createProgram("geometry", "geometryPass.vert", "geometryPass.frag");
@@ -38,6 +34,7 @@ void RenderSystem::init()
 	g_shaderManager.createProgram("directionalLight", "fullscreenQuad.vert", "directionalLight.frag");
 	g_shaderManager.createProgram("pointLight", "fullscreenQuad.vert", "pointLight.frag");
 	g_shaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
+	g_shaderManager.createProgram("shadowMap", "shadowMap.vert");
 	g_shaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
 	g_shaderManager.createProgram("texPass", "fullscreenQuad.vert", "texPass.frag");
 	g_shaderManager.createProgram("font", "font.vert", "font.frag");
@@ -52,11 +49,15 @@ void RenderSystem::init()
 
 	DirectionalLight dirLight;
 	dirLight.color = Color::Gray;
-	dirLight.intensity = 0.1f;
+	dirLight.intensity = 0.15f;
 	dirLight.direction = normalize(Vector3f(1.f, -1.f, -0.5f));
 	m_directionalLights.push_back(dirLight);
 
-	PointLight pointLight;
+
+	dirLight.direction = normalize(Vector3f(0.4f, -0.8f, 0.85f));
+	m_directionalLights.push_back(dirLight);
+
+	/*PointLight pointLight;
 	pointLight.intensity = 300.f;
 	pointLight.color = Color::White;
 	pointLight.position = Vector3f(0.f, 20.f, 0.f);
@@ -80,7 +81,11 @@ void RenderSystem::init()
 	spotLight.intensity = 300.f;
 	spotLight.position = Vector3f(0.f, 20.f, 0.f);
 	spotLight.coneAngle = toRadians(17.f);
-	m_spotLights.push_back(spotLight);
+	m_spotLights.push_back(spotLight);*/
+
+	// Shadow maps
+	m_dirLightDepthRT.create(1024, 1024, RenderTexture::Depth);
+
 
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -120,7 +125,6 @@ void RenderSystem::update(Time delta)
 	lightPass();
 	outPass();
 
-
 	m_fpsCounter++;
 	m_timeSinceFpsUpdate += delta;
 	if (m_timeSinceFpsUpdate >= milliseconds(500))
@@ -143,7 +147,6 @@ void RenderSystem::drawFullscreenQuad()
 	glDrawElements(GL_TRIANGLES, static_cast<int>(quad->indices.size()), GL_UNSIGNED_SHORT, nullptr);
 }
 
-
 void RenderSystem::geometryPass()
 {
 	/* TODO:
@@ -160,24 +163,24 @@ void RenderSystem::geometryPass()
 
 	m_gBuffer.bind();
 
+	glDepthMask(true);
 	glEnable(GL_DEPTH_TEST);
 	glViewport(0, 0, m_gBuffer.width, m_gBuffer.height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	const Matrix4x4f& viewMatrix = g_camera.getViewMatrix();
-	const Matrix4x4f& projectionMatrix = g_camera.getProjectionMatrix();
-
-	TransformComponent transformComp;
-	RenderComponent renderComp;
+	const Matrix4x4f& vp = g_camera.getProjectionMatrix() * g_camera.getViewMatrix();
 
 	ShaderProgram& activeShaderProgram = g_shaderManager.getShaderProgram("geometry");
 	activeShaderProgram.use();
+	
+	TransformComponent transformComp;
+	RenderComponent renderComp;
 
 	for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
 		// TODO: add scale
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
-		Matrix4x4f mvp = projectionMatrix * viewMatrix * modelMatrix;
+		Matrix4x4f mvp = vp * modelMatrix;
 
 		// TODO: different shaders for different objects ???
 		/*if (activeShaderProgram == nullptr || activeShaderProgram->name != renderComp.shaderName)
@@ -211,19 +214,19 @@ void RenderSystem::geometryPass()
 
 void RenderSystem::lightPass()
 {
-	m_gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
+	const auto& cameraVpInv = inverse(g_camera.getProjectionMatrix() * g_camera.getViewMatrix());
+
 	m_gBuffer.textures[GBuffer::TextureType::Specular].activeAndBind(1);
 	m_gBuffer.textures[GBuffer::TextureType::Normal].activeAndBind(2);
 	m_gBuffer.textures[GBuffer::TextureType::Depth].activeAndBind(3);
 
-	m_lightingRenderTexture.bind();
+	m_lightingRT.bind();
 
 	glDisable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_lightingRenderTexture.width, m_lightingRenderTexture.height);
+	glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glDepthMask(false);
-	defer(glDepthMask(true));
 
 	glBlendFunc(GL_ONE, GL_ONE);
 
@@ -239,14 +242,70 @@ void RenderSystem::lightPass()
 	}
 
 	// Directional lights
+	ShaderProgram& directionalShadowMapProgram = g_shaderManager.getShaderProgram("shadowMap");
 	ShaderProgram& directionalLightProgram = g_shaderManager.getShaderProgram("directionalLight");
-	directionalLightProgram.use();
-	directionalLightProgram.setUniform("specular", 1);
-	directionalLightProgram.setUniform("normal", 2);
 	for (const auto& light : m_directionalLights)
 	{
 		if (light.isOn)
 		{
+			if (light.castsShadow)
+			{
+				m_lightingRT.unbind();
+
+				// Shadow map
+				Matrix4x4f projection = ortho(-50, 50, -50, 50, -50, 50);
+				Vector3f lightDirInv = -light.direction;
+				Matrix4x4f view = Camera::lookAt(lightDirInv, Vector3f::Zero, Vector3f::Up);
+
+				m_dirLightDepthRT.bind();
+				directionalShadowMapProgram.use();
+
+				glDepthMask(true);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				glEnable(GL_DEPTH_TEST);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glCullFace(GL_FRONT);
+				glViewport(0, 0, m_dirLightDepthRT.width, m_dirLightDepthRT.height);
+
+				TransformComponent transformComp;
+				RenderComponent renderComp;
+
+				for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+				{
+					Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+					Matrix4x4f mvp = projection * view * model;
+					directionalShadowMapProgram.setUniform("mvp", mvp);
+
+					glBindVertexArray(renderComp.mesh->vao);
+					glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+				}
+
+				// Lighting
+				glBlendFunc(GL_ONE, GL_ONE);
+				glDisable(GL_DEPTH_TEST);
+				glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
+				glDepthMask(false);
+				glCullFace(GL_BACK);
+
+				m_lightingRT.bind();
+
+				directionalLightProgram.use();
+				m_dirLightDepthRT.depthTexture.activeAndBind(4);
+				directionalLightProgram.setUniform("shadow", 4);
+
+				directionalLightProgram.setUniform("cameraVpInv", cameraVpInv);
+				directionalLightProgram.setUniform("shadowVp", projection * view);
+			}
+			else
+			{
+				criticalError("gg");
+				// TODO: different shader?
+			}
+
+			directionalLightProgram.setUniform("specular", 1);
+			directionalLightProgram.setUniform("normal", 2);
+			directionalLightProgram.setUniform("depth", 3);
+
 			directionalLightProgram.setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
 			directionalLightProgram.setUniform("light.direction", light.direction);
 
@@ -260,7 +319,6 @@ void RenderSystem::lightPass()
 	pointLightProgram.setUniform("specular", 1);
 	pointLightProgram.setUniform("normal", 2);
 	pointLightProgram.setUniform("depth", 3);
-	const auto& vpInverse = inverse(g_camera.getProjectionMatrix() * g_camera.getViewMatrix());
 	for (const auto& light : m_pointLights)
 	{
 		if (light.isOn)
@@ -271,7 +329,7 @@ void RenderSystem::lightPass()
 			pointLightProgram.setUniform("light.attenuation.linear", light.attenuation.linear);
 			pointLightProgram.setUniform("light.attenuation.quadratic", light.attenuation.quadratic);
 			pointLightProgram.setUniform("light.attenuation.range", light.attenuation.range);
-			pointLightProgram.setUniform("vpInverse", vpInverse);
+			pointLightProgram.setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
@@ -295,29 +353,29 @@ void RenderSystem::lightPass()
 			spotLightProgram.setUniform("light.base.attenuation.range", light.attenuation.range);
 			spotLightProgram.setUniform("light.direction", light.direction);
 			spotLightProgram.setUniform("light.coneAngle", light.coneAngle);
-			spotLightProgram.setUniform("vpInverse", vpInverse);
+			spotLightProgram.setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
 	}
 	spotLightProgram.stopUsing();
 
-	m_lightingRenderTexture.unbind();
+	m_lightingRT.unbind();
 }
 
 void RenderSystem::outPass()
 {
-	m_outRenderTexture.bind();
+	m_outRT.bind();
 
 	glDisable(GL_DEPTH_TEST);
-	glViewport(0, 0, m_outRenderTexture.width, m_outRenderTexture.height);
+	glViewport(0, 0, m_outRT.width, m_outRT.height);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	ShaderProgram& program = g_shaderManager.getShaderProgram("out");
 	program.use();
 
 	m_gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
-	m_lightingRenderTexture.colorTexture.activeAndBind(1);
+	m_lightingRT.colorTexture.activeAndBind(1);
 	program.setUniform("diffuse", 0);
 	program.setUniform("lighting", 1);
 
@@ -342,12 +400,12 @@ void RenderSystem::outPass()
 
 	glDepthMask(GL_TRUE);
 
-	m_outRenderTexture.unbind();
+	m_outRT.unbind();
 }
 
-RenderTexture& RenderSystem::getOutRenderTexture()
+Texture& RenderSystem::getOutColorTexture()
 {
-	return m_outRenderTexture;
+	return m_outRT.colorTexture;
 }
 
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "Matrix.h"
 
 namespace Amber
 {
@@ -10,6 +11,8 @@ float toDegrees(float valueInRadians);
 float toRadians(float valueInDegrees);
 
 bool getLowestPosRoot(float a, float b, float c, float maxR, float* root);
+
+Matrix4x4f ortho(float left, float right, float bottom, float top, float zNear, float zFar);
 
 // TODO: make actual tests, preferably unit tests
 void testVectorsMatricesRays();

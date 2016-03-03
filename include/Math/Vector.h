@@ -26,7 +26,6 @@ struct Vector2
 	void print() const;
 	T magnitude() const;
 	void normalize();
-	void inverse();
 
 	Vector2 operator+(const Vector2& rhs);
 	Vector2 operator-(const Vector2& rhs);
@@ -42,9 +41,6 @@ T dot(Vector2<T>& first, Vector2<T>& second);
 
 template <typename T>
 Vector2<T> normalize(Vector2<T>& vec);
-
-template <typename T>
-Vector2<T> inverse(Vector2<T>& vec);
 
 template <typename T>
 Vector2<T> reflect(const Vector2<T>& vector, const Vector2<T>& normal);
@@ -80,7 +76,6 @@ struct Vector3
 	T length() const;
 	T lengthSquared() const;
 	void normalize();
-	void inverse();
 
 	T dot(Vector3 vector);
 	Vector3 cross(Vector3 vector);
@@ -97,6 +92,9 @@ struct Vector3
 	bool operator==(Vector3 const& rhs);
 	bool operator!=(Vector3 const& rhs);
 };
+
+template <typename T>
+Vector3<T> operator-(Vector3<T>&& rhs);
 
 template <typename T>
 Vector3<T> operator+(const Vector3<T>& lhs, const Vector3<T>& rhs);
@@ -127,9 +125,6 @@ Vector3<T> cross(const Vector3<T>& first, const Vector3<T>& second);
 
 template <typename T>
 Vector3<T> normalize(const Vector3<T>& vec);
-
-template <typename T>
-Vector3<T> inverse(Vector3<T>& vec);
 
 template <typename T>
 Vector3<T> reflect(const Vector3<T>& vector, const Vector3<T>& normal);

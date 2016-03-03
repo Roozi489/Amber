@@ -1,6 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+struct Transform
+{
+    vec3 position;
+    vec4 orientation;
+    vec3 scale;
+};
+
 float square(float x)
 {
     return x * x;

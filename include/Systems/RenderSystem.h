@@ -13,7 +13,7 @@ class RenderSystem : public BaseSystem
 {
 public:
 	RenderSystem();
-	~RenderSystem();
+	~RenderSystem() = default;
 
 	virtual void init() override;
 	virtual void destroy() override;
@@ -26,7 +26,7 @@ public:
 	void lightPass();
 	void outPass();
 
-	RenderTexture& getOutRenderTexture();
+	Texture& RenderSystem::getOutColorTexture();
 
 private:
 	AmbientLight m_ambientLight;
@@ -34,13 +34,15 @@ private:
 	std::vector<PointLight> m_pointLights;
 	std::vector<SpotLight> m_spotLights;
 
+	RenderTexture m_dirLightDepthRT;
+
 	Skybox m_skybox;
 
 	std::vector<RenderText> m_textsToRender;
 
 	GBuffer m_gBuffer;
-	RenderTexture m_lightingRenderTexture;
-	RenderTexture m_outRenderTexture;
+	RenderTexture m_outRT;
+	RenderTexture m_lightingRT;
 
 	GLuint m_fontVao;
 	GLuint m_fontVbo;

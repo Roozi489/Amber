@@ -69,10 +69,6 @@ struct Matrix4x4
 	static Matrix4x4 rotate(T angle, Vector3<T> axis);
 	// Rotates the specified matrix by the angle (in radians) around the axis
 	static Matrix4x4 rotate(Matrix4x4& matrix, T angle, Vector3<T> axis);
-	// Returns perspective projection matrix from the values specified
-	static Matrix4x4 perspectiveFov(float fov, float width, float height, float zNear, float zFar);
-	// Returns view matrix from the values specified
-	static Matrix4x4 lookAt(Vector3<T>& eye, Vector3<T> center, Vector3<T> up);
 };
 
 template <typename T>

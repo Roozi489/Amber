@@ -1,14 +1,14 @@
 Critical:
 ------------------------------------
-Proper models with pbr materials
-Namespace
 
 Major:
 ------------------------------------
+Shadow mapping
+Proper models with pbr materials
 Specular component
 Uniform buffer object
+Frustum culling
 Proper logging
-Shadow mapping
 Entity tag as string
 Memory allocators
 Instanced rendering
@@ -17,10 +17,9 @@ Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
 Proper file system stuff
-Mesh loading
 Better resource managment
 Better Camera
-Fix loading of models with different texture coords
+Fix loading of models with no texture coords
 HDR
 Displacement mapping (terrain)
 Anisotropic reflections
@@ -37,3 +36,5 @@ Other:
 ------------------------------------
 ARB_multi_draw_indirect
 Replace stdlib
+
+XCOPY "$(SolutionDir)data" "$(OutDir)" /s /i /y

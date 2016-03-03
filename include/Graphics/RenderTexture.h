@@ -11,6 +11,7 @@ namespace Amber
 class RenderTexture : public NonCopyable
 {
 public:
+
 	enum RenderTextureType
 	{
 		Color = 1,
@@ -23,8 +24,6 @@ public:
 	int height;
 
 	GLuint framebufferHandle;
-	GLuint vaoHandle;
-	GLuint vboHandle;
 
 	RenderTextureType type;
 	Texture colorTexture;

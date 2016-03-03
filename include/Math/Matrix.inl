@@ -446,48 +446,6 @@ Matrix4x4<T> Matrix4x4<T>::rotate(Matrix4x4<T>& matrix, T angle, Vector3<T> axis
 }
 
 template <typename T>
-Matrix4x4<T> Matrix4x4<T>::perspectiveFov(float fov, float width, float height, float zNear, float zFar)
-{
-	// TODO: why is it needed to be inverted
-	fov *= -1.f;
-	T h = cos(T(0.5) * fov) / sin(T(0.5) * fov);
-	T w = h * height / width;
-
-	Matrix4x4<T> result(0);
-	result[0][0] = w;
-	result[1][1] = h;
-	result[2][2] = -(zFar + zNear) / (zFar - zNear);
-	result[2][3] = -T(1);
-	result[3][2] = -(T(2) * zFar * zNear) / (zFar - zNear);
-	return result;
-}
-
-template <typename T>
-Matrix4x4<T> Matrix4x4<T>::lookAt(Vector3<T>& eye, Vector3<T> center, Vector3<T> up)
-{
-	Vector3<T> f(normalize(center - eye));
-	Vector3<T> s(normalize(cross(f, up)));
-	Vector3<T> u(cross(s, f));
-
-	Matrix4x4<T> result(0);
-	result.fillDiag(1);
-
-	result[0][0] = s.x;
-	result[1][0] = s.y;
-	result[2][0] = s.z;
-	result[0][1] = u.x;
-	result[1][1] = u.y;
-	result[2][1] = u.z;
-	result[0][2] = -f.x;
-	result[1][2] = -f.y;
-	result[2][2] = -f.z;
-	result[3][0] = -dot(s, eye);
-	result[3][1] = -dot(u, eye);
-	result[3][2] = dot(f, eye);
-	return result;
-}
-
-template <typename T>
 Matrix4x4<T> inverse(const Matrix4x4<T>& matrix)
 {
 	Matrix4x4f result = matrix;
@@ -811,11 +769,5 @@ operator/(const T& lhs, const Matrix3x3<T>& rhs)
 	for (int i = 0; i < newMatrix.dataLength; ++i) newMatrix.data[i] = lhs / rhs.data[i];
 	return newMatrix;
 }
-
-using Matrix4x4f = Matrix4x4<float>;
-using Matrix4x4d = Matrix4x4<double>;
-
-using Matrix3x3f = Matrix3x3<float>;
-using Matrix3x3d = Matrix3x3<double>;
 
 }

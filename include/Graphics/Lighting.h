@@ -28,15 +28,17 @@ struct BaseLight
 
 using AmbientLight = BaseLight;
 
+struct DirectionalLight : BaseLight
+{
+	Vector3f direction = Vector3f::Down;
+	bool castsShadow = true;
+};
+
 struct PointLight : BaseLight
 {
 	Vector3f position = Vector3f::Zero;
 	Attenuation attenuation = {};
-};
-
-struct DirectionalLight : BaseLight
-{
-	Vector3f direction = Vector3f::Down;
+	bool castsShadow = true;
 };
 
 struct SpotLight : PointLight

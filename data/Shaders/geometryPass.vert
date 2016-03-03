@@ -1,13 +1,6 @@
 #version 330
 
-//#include "Common.h.glsl"
-
-struct Transform
-{
-    vec3 position;
-    vec4 orientation;
-    vec3 scale;
-};
+#include "common.h"
 
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec2 in_texCoord;

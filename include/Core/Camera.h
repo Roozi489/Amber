@@ -13,9 +13,6 @@ public:
 	bool lockOnTarget = false;
 	bool smoothMovement = false;
 
-	Quaternion orientation;
-	Vector3f position;
-	Vector3f positionTarget;
 	// TODO: change to TranformComponent* ???
 	//Vector3f viewTarget;
 
@@ -43,12 +40,21 @@ public:
 
 	const Matrix4x4f& getProjectionMatrix() const;
 	const Matrix4x4f& getViewMatrix() const;
+
+	static Matrix4x4f perspectiveFov(float fov, float width, float height, float zNear, float zFar);
+	static Matrix4x4f lookAt(Vector3f& eye, Vector3f center, Vector3f up);
+
 private:
 	float m_nearPlane = 0.1f;
 	float m_farPlane = 10000.f;
 
+	Quaternion orientation;
+	Vector3f position;
+
 	Matrix4x4f m_projectionMatrix;
 	Matrix4x4f m_viewMatrix;
+
+	void recomputeViewMatrix();
 };
 
 }

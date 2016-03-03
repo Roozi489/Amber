@@ -3,12 +3,13 @@
 #include "common.h"
 #include "lighting.h"
 
+uniform PointLight light;
+
 uniform sampler2D specular;
 uniform sampler2D normal;
 uniform sampler2D depth;
 
-uniform PointLight light;
-uniform mat4 vpInverse;
+uniform mat4 cameraVpInv;
 
 in vec2 texCoord;
 
@@ -36,7 +37,7 @@ void main()
     vec3 normalEncoded = texture(normal, texCoord).xyz;
     float depthValue = texture(depth, texCoord).x;
 
-    vec3 position = calculatePositionFromDepth(texCoord, gl_FragCoord.w, depthValue, vpInverse);
+    vec3 position = calculatePositionFromDepth(texCoord, gl_FragCoord.w, depthValue, cameraVpInv);
     vec3 normal = normalize(2.0 * normalEncoded - vec3(1.0));
 
     vec3 surfaceToLight = normalize(light.position - position);

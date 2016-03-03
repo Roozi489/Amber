@@ -21,9 +21,9 @@ void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter m
 		colorTexture.genAndBind(width, height);
 
 		if (type == RenderTextureType::Lighting)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 		else
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
 		colorTexture.setFilterAndWrap(minMag, wrap);
 
@@ -35,7 +35,7 @@ void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter m
 	if (type & RenderTextureType::Depth)
 	{
 		depthTexture.genAndBind(width, height);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		depthTexture.setFilterAndWrap(minMag, wrap);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureHandle, 0);

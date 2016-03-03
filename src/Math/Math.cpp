@@ -52,6 +52,20 @@ bool getLowestPosRoot(float a, float b, float c, float maxR, float* root)
 	return false;
 }
 
+Matrix4x4f ortho(float left, float right, float bottom, float top, float zNear, float zFar)
+{
+	Matrix4x4f result = Matrix4x4f::Identity;
+
+	result[0][0] = 2.0f / (right - left);
+	result[1][1] = 2.0f / (top - bottom);
+	result[2][2] = -2.0f / (zFar - zNear);
+	result[3][0] = -(right + left) / (right - left);
+	result[3][1] = -(top + bottom) / (top - bottom);
+	result[3][2] = -(zFar + zNear) / (zFar - zNear);
+
+	return result;
+}
+
 void testVectorsMatricesRays()
 {
 	std::cout << "-----Vectors-----" << std::endl;

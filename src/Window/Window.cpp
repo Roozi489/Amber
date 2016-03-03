@@ -94,14 +94,14 @@ void Window::update()
 void Window::display()
 {
 	static RenderSystem* renderSystem = g_world.getSystem<RenderSystem>();
-
+	
 	glViewport(0, 0, m_width, m_height);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 
 	ShaderProgram& program = g_shaderManager.getShaderProgram("texPass");
 	program.use();
-	renderSystem->getOutRenderTexture().colorTexture.activeAndBind(0);
+	renderSystem->getOutColorTexture().activeAndBind(0);
 	program.setUniform("tex", 0);
 	renderSystem->drawFullscreenQuad();
 	program.stopUsing();

@@ -1,5 +1,7 @@
 #version 330 core
 
+#include "common.h"
+
 struct Material
 {
     bool hasTexture;
@@ -7,13 +9,6 @@ struct Material
 
     sampler2D diffuseMap;
     sampler2D specularMap;
-};
-
-struct Transform
-{
-    vec3 position;
-    vec4 orientation;
-    vec3 scale;
 };
 
 vec3 quaternionRotate(vec4 q, vec3 v)

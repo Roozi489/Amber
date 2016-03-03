@@ -18,14 +18,13 @@ void Camera::init()
 	orientation = Quaternion::Identity;
 
 	// TODO: check whether the fov should't be in radians
-	m_projectionMatrix = Matrix4x4f::perspectiveFov(50.f, static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane, m_farPlane);
+	m_projectionMatrix = perspectiveFov(50.f, static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane, m_farPlane);
 	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
 }
 
 void Camera::update(Time delta)
 {
-	// TODO: add scale
-	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
+	recomputeViewMatrix();
 
 	if (Input::isKeyDown(SDL_SCANCODE_W))
 		moveForward();
@@ -49,6 +48,7 @@ void Camera::offsetOrientation(float yaw, float pitch)
 	const Quaternion pitchRot = angleAxis(pitch, orientation * Vector3f::Right);
 
 	orientation = yawRot * pitchRot * orientation;
+	recomputeViewMatrix();
 }
 
 void Camera::moveForward(float value)
@@ -109,6 +109,7 @@ Vector3f Camera::getPosition() const
 void Camera::setPosition(Vector3f pos)
 {
 	position = pos;
+	recomputeViewMatrix();
 }
 
 const Matrix4x4f& Camera::getProjectionMatrix() const
@@ -119,6 +120,51 @@ const Matrix4x4f& Camera::getProjectionMatrix() const
 const Matrix4x4f& Camera::getViewMatrix() const
 {
 	return m_viewMatrix;
+}
+
+Matrix4x4f Camera::perspectiveFov(float fov, float width, float height, float zNear, float zFar)
+{
+	// TODO: why is it needed to be inverted
+	fov *= -1.f;
+	auto h = cos(0.5f * fov) / sin(0.5f * fov);
+	auto w = h * height / width;
+
+	Matrix4x4f result(0);
+	result[0][0] = w;
+	result[1][1] = h;
+	result[2][2] = -(zFar + zNear) / (zFar - zNear);
+	result[2][3] = -1;
+	result[3][2] = -(2 * zFar * zNear) / (zFar - zNear);
+	return result;
+}
+
+Matrix4x4f Camera::lookAt(Vector3f& eye, Vector3f center, Vector3f up)
+{
+	Vector3f f(normalize(center - eye));
+	Vector3f s(normalize(cross(f, up)));
+	Vector3f u(cross(s, f));
+
+	Matrix4x4f result(0);
+	result.fillDiag(1);
+
+	result[0][0] = s.x;
+	result[1][0] = s.y;
+	result[2][0] = s.z;
+	result[0][1] = u.x;
+	result[1][1] = u.y;
+	result[2][1] = u.z;
+	result[0][2] = -f.x;
+	result[1][2] = -f.y;
+	result[2][2] = -f.z;
+	result[3][0] = -dot(s, eye);
+	result[3][1] = -dot(u, eye);
+	result[3][2] = dot(f, eye);
+	return result;
+}
+
+void Camera::recomputeViewMatrix()
+{
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
 }
 
 }
