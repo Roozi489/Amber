@@ -61,7 +61,7 @@ void Texture::genAndBind(int w, int h)
 
 void Texture::activeAndBind(GLuint position)
 {
-	assert_amber(position < MaxTexturePosition, "Invalid texture position : " + position);
+	assert_amber(position < MAX_TEXTURE_POSITION, "Invalid texture position : " + position);
 
 	glActiveTexture(GL_TEXTURE0 + position);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);

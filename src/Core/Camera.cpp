@@ -3,6 +3,7 @@
 #include "Math/Vector.h"
 #include "Math/Matrix.h"
 #include "Window/Input.h"
+#include "Math/Math.h"
 
 namespace Amber
 {
@@ -18,7 +19,7 @@ void Camera::init()
 	orientation = Quaternion::Identity;
 
 	// TODO: check whether the fov should't be in radians
-	m_projectionMatrix = perspectiveFov(50.f, static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane, m_farPlane);
+	m_projectionMatrix = perspectiveFov(toRadians(60.f), static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane);
 	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
 }
 
@@ -122,19 +123,16 @@ const Matrix4x4f& Camera::getViewMatrix() const
 	return m_viewMatrix;
 }
 
-Matrix4x4f Camera::perspectiveFov(float fov, float width, float height, float zNear, float zFar)
+Matrix4x4f Camera::perspectiveFov(float fovX, float width, float height, float zNear)
 {
-	// TODO: why is it needed to be inverted
-	fov *= -1.f;
-	auto h = cos(0.5f * fov) / sin(0.5f * fov);
-	auto w = h * height / width;
-
-	Matrix4x4f result(0);
-	result[0][0] = w;
-	result[1][1] = h;
-	result[2][2] = -(zFar + zNear) / (zFar - zNear);
+	float ratio = (height / width);
+	auto e = 1.f / tan(fovX * ratio / 2);
+	Matrix4x4f result(0.f);
+	result[0][0] = e;
+	result[1][1] = e / ratio;
+	result[2][2] = -1;
 	result[2][3] = -1;
-	result[3][2] = -(2 * zFar * zNear) / (zFar - zNear);
+	result[3][2] = -2 * zNear;
 	return result;
 }
 

@@ -51,6 +51,8 @@ private:
 	int m_fps = 0;
 	int m_fpsCounter = 0;
 	Time m_timeSinceFpsUpdate = Time::Zero;
+	
+	const Time m_fpsUpdateInterval = milliseconds(500);
 };
 
 }

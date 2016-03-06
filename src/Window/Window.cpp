@@ -19,8 +19,6 @@ void Window::create()
 {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-	SDL_GL_SetSwapInterval(0);
-
 	ContextSettings settings;
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, settings.majorVersion);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, settings.minorVersion);
@@ -42,6 +40,7 @@ void Window::create()
 	if (!m_context)
 		criticalError(SDL_GetError());
 
+	SDL_GL_SetSwapInterval(settings.vsyncEnabled);
 	SDL_GL_MakeCurrent(m_sdlWindow, m_context);
 
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &m_actualGlVersionMajor);
@@ -99,12 +98,12 @@ void Window::display()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 
-	ShaderProgram& program = g_shaderManager.getShaderProgram("texPass");
-	program.use();
+	ShaderProgram* program = g_shaderManager.getShaderProgram("texPass");
+	program->use();
 	renderSystem->getOutColorTexture().activeAndBind(0);
-	program.setUniform("tex", 0);
+	program->setUniform("tex", 0);
 	renderSystem->drawFullscreenQuad();
-	program.stopUsing();
+	program->stopUsing();
 
 	SDL_GL_SwapWindow(m_sdlWindow);
 }

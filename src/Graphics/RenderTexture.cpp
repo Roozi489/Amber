@@ -38,6 +38,12 @@ void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter m
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		depthTexture.setFilterAndWrap(minMag, wrap);
 
+		if (type == RenderTextureType::Shadow)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+		}
+
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureHandle, 0);
 	}
 

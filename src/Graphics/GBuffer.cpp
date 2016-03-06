@@ -37,8 +37,8 @@ void GBuffer::create(int w, int h)
 			drawBuffers.push_back(attachment);
 	};
 
-	addRenderTarget(textures[TextureType::Albedo], GL_COLOR_ATTACHMENT0, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE);
-	addRenderTarget(textures[TextureType::Specular], GL_COLOR_ATTACHMENT1, GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE);
+	addRenderTarget(textures[TextureType::Albedo], GL_COLOR_ATTACHMENT0, GL_RGBA8, GL_RGB, GL_UNSIGNED_BYTE);
+	addRenderTarget(textures[TextureType::Specular], GL_COLOR_ATTACHMENT1, GL_RGBA8, GL_RGB, GL_UNSIGNED_BYTE);
 	addRenderTarget(textures[TextureType::Normal], GL_COLOR_ATTACHMENT2, GL_RGB10_A2, GL_RGBA, GL_FLOAT);
 	addRenderTarget(textures[TextureType::Depth], GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
 

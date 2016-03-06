@@ -77,11 +77,11 @@ void FontManager::renderText(const std::string& text, float x, float y)
 	x = xPos(x);
 	y = yPos(y);
 
-	ShaderProgram& fontShaderProgram = g_shaderManager.getShaderProgram("font");
+	static ShaderProgram* fontShaderProgram = g_shaderManager.getShaderProgram("font");
 	// TODO: add color to the parameters
 	Color c = Color::White;
 
-	fontShaderProgram.setUniform("fontColor", c);
+	fontShaderProgram->setUniform("fontColor", c);
 	//glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 
 	// TODO: fix this

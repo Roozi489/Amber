@@ -24,7 +24,7 @@ enum class TextureWrapMode : GLint
 class Texture
 {
 public:
-	static const GLuint MaxTexturePosition = 31;
+	static const GLuint MAX_TEXTURE_POSITION = 32;
 
 	int width;
 	int height;

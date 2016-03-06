@@ -26,7 +26,8 @@ struct CollisionResult
 };
 
 // TODO: Logger
-void log(std::string message);
+void log(std::string&& message);
+void log(const std::string& message);
 void clearLog();
 
 
@@ -73,27 +74,5 @@ auto max(T first, R second, S third)
 {
 	return max(first, second) > third ? max(first, second) : third;
 }
-
-namespace Impl
-{
-template <typename Fn>
-struct Defer
-{
-	Defer(Fn&& fn)
-		: fn{ std::forward<Fn>(fn) }
-	{
-	}
-	~Defer() { fn(); };
-	Fn fn;
-};
-
-template <typename Fn>
-Defer<Fn> deferFn(Fn&& fn) { return Defer<Fn>(std::forward<Fn>(fn)); }
-}
-
-#define DEFER_1(x, y) x##y
-#define DEFER_2(x, y) DEFER_1(x, y)
-#define DEFER_3(x) DEFER_2(x, __COUNTER__)
-#define defer(code) auto DEFER_3(_defer_) = Impl::deferFn([&](){code;});
 
 }

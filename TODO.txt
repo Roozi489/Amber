@@ -7,7 +7,7 @@ Shadow mapping
 Proper models with pbr materials
 Specular component
 Uniform buffer object
-Frustum culling
+Frustrum culling
 Proper logging
 Entity tag as string
 Memory allocators

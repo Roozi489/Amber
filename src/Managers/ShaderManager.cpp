@@ -22,17 +22,17 @@ void ShaderManager::destroy()
 	m_shaderPrograms.clear();
 }
 
-ShaderProgram& ShaderManager::createProgram(const std::string& programName, const std::string& vertexShaderFilename)
+ShaderProgram* ShaderManager::createProgram(const std::string& programName, const std::string& vertexShaderFilename)
 {
 	std::unique_ptr<ShaderProgram> program = std::make_unique<ShaderProgram>();
 	program->create(programName);
 	program->attachShaderFromFile(ShaderType::Vertex, vertexShaderFilename);
 	program->link();
 
-	return *(m_shaderPrograms[programName] = std::move(program));
+	return (m_shaderPrograms[programName] = std::move(program)).get();
 }
 
-ShaderProgram& ShaderManager::createProgram(const std::string& programName, const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename)
+ShaderProgram* ShaderManager::createProgram(const std::string& programName, const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename)
 {
 	std::unique_ptr<ShaderProgram> program = std::make_unique<ShaderProgram>();
 	program->create(programName);
@@ -40,13 +40,13 @@ ShaderProgram& ShaderManager::createProgram(const std::string& programName, cons
 	program->attachShaderFromFile(ShaderType::Fragment, fragmentShaderFilename);
 	program->link();
 
-	return *(m_shaderPrograms[programName] = std::move(program));
+	return (m_shaderPrograms[programName] = std::move(program)).get();
 }
 
-ShaderProgram& ShaderManager::getShaderProgram(const std::string& programName)
+ShaderProgram* ShaderManager::getShaderProgram(const std::string& programName)
 {
 	assert_amber(m_shaderPrograms.find(programName) != m_shaderPrograms.end(), "ShaderProgram \"" + programName + "\" not found.");
-	return *m_shaderPrograms[programName].get();
+	return m_shaderPrograms[programName].get();
 }
 
 }

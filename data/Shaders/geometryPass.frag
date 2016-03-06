@@ -1,4 +1,4 @@
-#version 330 core
+#version 420 core
 
 #include "common.h"
 
@@ -22,8 +22,8 @@ in vec3 position;
 in vec2 texCoord;
 in vec3 normal;
 
-layout(location = 0) out vec3 diffuseColor;
-layout(location = 1) out vec3 specularColor;
+layout(location = 0) out vec4 diffuseColor;
+layout(location = 1) out vec4 specularColor;
 layout(location = 2) out vec4 normalOut;
 
 uniform Transform transform;
@@ -37,9 +37,9 @@ void main()
     vec3 normal = normalize(quaternionRotate(transform.orientation, normal));
 
     if (material.hasTexture)
-        diffuseColor = texture(material.diffuseMap, texCoord).rgb;
+        diffuseColor = texture(material.diffuseMap, texCoord);
     else
-        diffuseColor = material.color.rgb;
-    specularColor = texture(material.specularMap, texCoord).rgb;
+        diffuseColor = material.color;
+    specularColor = texture(material.specularMap, texCoord);
     normalOut = vec4(0.5 * (normal + vec3(1.0)), 1.0);
 }

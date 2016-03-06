@@ -18,6 +18,7 @@ public:
 		Depth = 2,
 		ColorAndDepth = Color | Depth,
 		Lighting = 4 | Color,
+		Shadow = 8 | Depth
 	};
 
 	int width;

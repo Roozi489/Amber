@@ -229,18 +229,21 @@ void ShaderProgram::setUniform(const std::string& name, const TransformComponent
 	assert_amber(name == "transform", "Tranform name in shader isn't \"transform\". ");
 	auto loc = getUniformLocation("transform.position");
 	if (loc == -1)
-		log("Uniform: " + name + ".position not found.\nShaderProgram: " + this->name);
-	glUniform3fv(loc, 1, t.position.data);
+		log("Uniform: tranform.position not found.\nShaderProgram: " + this->name);
+	else
+		glUniform3fv(loc, 1, t.position.data);
 
 	loc = getUniformLocation("transform.orientation");
 	if (loc == -1)
-		log("Uniform: " + name + ".orientation not found.\nShaderProgram: " + this->name);
-	glUniform4fv(loc, 1, t.orientation.data);
+		log("Uniform: tranform.orientation not found.\nShaderProgram: " + this->name);
+	else
+		glUniform4fv(loc, 1, t.orientation.data);
 
 	loc = getUniformLocation("transform.scale");
 	if (loc == -1)
-		log("Uniform: " + name + ".scale not found.\nShaderProgram: " + this->name);
-	glUniform3fv(loc, 1, t.scale.data);
+		log("Uniform: tranform.scale not found.\nShaderProgram: " + this->name);
+	else
+		glUniform3fv(loc, 1, t.scale.data);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const Color& c)

@@ -40,8 +40,8 @@ public:
 
 	const Matrix4x4f& getProjectionMatrix() const;
 	const Matrix4x4f& getViewMatrix() const;
-
-	static Matrix4x4f perspectiveFov(float fov, float width, float height, float zNear, float zFar);
+	
+	static Matrix4x4f perspectiveFov(float fov, float width, float height, float zNear);
 	static Matrix4x4f lookAt(Vector3f& eye, Vector3f center, Vector3f up);
 
 private:

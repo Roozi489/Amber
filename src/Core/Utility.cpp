@@ -7,9 +7,15 @@
 namespace Amber
 {
 
-void log(std::string message)
+void log(std::string&& message)
 {
-	std::ofstream log_file("log.txt", std::ios::out | std::ios::app);
+	static std::ofstream log_file("log.txt", std::ios::out | std::ios::app);
+	log_file << message << std::endl;
+}
+
+void log(const std::string& message)
+{
+	static std::ofstream log_file("log.txt", std::ios::out | std::ios::app);
 	log_file << message << std::endl;
 }
 

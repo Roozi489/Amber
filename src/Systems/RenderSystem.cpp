@@ -1,6 +1,5 @@
 #include "Systems/RenderSystem.h"
 #include "Core/Globals.h"
-#include "Core/Utility.h"
 #include "Core/String.h"
 #include "Components/TransformComponent.h"
 #include "Components/RenderComponent.h"
@@ -29,15 +28,33 @@ void RenderSystem::init()
 	m_outRT.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Color);
 
 	// Shaders
-	g_shaderManager.createProgram("geometry", "geometryPass.vert", "geometryPass.frag");
-	g_shaderManager.createProgram("ambientLight", "fullscreenQuad.vert", "ambientLight.frag");
-	g_shaderManager.createProgram("directionalLight", "fullscreenQuad.vert", "directionalLight.frag");
-	g_shaderManager.createProgram("pointLight", "fullscreenQuad.vert", "pointLight.frag");
-	g_shaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
-	g_shaderManager.createProgram("shadowMap", "shadowMap.vert");
-	g_shaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
-	g_shaderManager.createProgram("texPass", "fullscreenQuad.vert", "texPass.frag");
-	g_shaderManager.createProgram("font", "font.vert", "font.frag");
+	ShaderProgram* shaderProgram = g_shaderManager.createProgram("geometry", "geometryPass.vert", "geometryPass.frag");
+	shaderProgram->use();
+	shaderProgram->setUniform("material.diffuseMap", GBuffer::TextureType::Albedo);
+	//shaderProgram->setUniform("material.specularMap", GBuffer::TextureType::Specular);
+	shaderProgram = g_shaderManager.createProgram("ambientLight", "fullscreenQuad.vert", "ambientLight.frag");
+	shaderProgram = g_shaderManager.createProgram("directionalLight", "fullscreenQuad.vert", "directionalLight.frag");
+	shaderProgram->use();
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram = g_shaderManager.createProgram("directionalLightShadow", "fullscreenQuad.vert", "directionalLightShadow.frag");
+	shaderProgram->use();
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram->setUniform("shadow", 4);
+	shaderProgram = g_shaderManager.createProgram("pointLight", "fullscreenQuad.vert", "pointLight.frag");
+	shaderProgram->use();
+	//shaderProgram->setUniform("specular", GBuffer::TextureType::Specular);
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram = g_shaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
+	shaderProgram->use();
+	//shaderProgram->setUniform("specular", GBuffer::TextureType::Specular);
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram = g_shaderManager.createProgram("shadowMap", "shadowMap.vert");
+	shaderProgram = g_shaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
+	shaderProgram = g_shaderManager.createProgram("texPass", "fullscreenQuad.vert", "texPass.frag");
+	shaderProgram = g_shaderManager.createProgram("font", "font.vert", "font.frag");
 
 	g_fontManager.init();
 
@@ -45,18 +62,14 @@ void RenderSystem::init()
 
 	// Lights
 	m_ambientLight.color = Color::fromByteRGB(50, 50, 50);
-	m_ambientLight.intensity = 0.02f;
+	m_ambientLight.intensity = 0.01f;
 
 	DirectionalLight dirLight;
 	dirLight.color = Color::Gray;
-	dirLight.intensity = 0.15f;
-	dirLight.direction = normalize(Vector3f(1.f, -1.f, -0.5f));
+	dirLight.intensity = 0.5f;
+	dirLight.direction = normalize(Vector3f(0.8f, -1.f, 0.2f));
 	m_directionalLights.push_back(dirLight);
-
-
-	dirLight.direction = normalize(Vector3f(0.4f, -0.8f, 0.85f));
-	m_directionalLights.push_back(dirLight);
-
+	
 	/*PointLight pointLight;
 	pointLight.intensity = 300.f;
 	pointLight.color = Color::White;
@@ -84,8 +97,8 @@ void RenderSystem::init()
 	m_spotLights.push_back(spotLight);*/
 
 	// Shadow maps
-	m_dirLightDepthRT.create(1024, 1024, RenderTexture::Depth);
-
+	// TODO: setting for shadow map size
+	m_dirLightDepthRT.create(2048, 2048, RenderTexture::Shadow);
 
 	// Meshes
 	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -117,7 +130,6 @@ void RenderSystem::update(Time delta)
 {
 	BaseSystem::update(delta);
 
-	// TODO: move to window class
 	displayText(stringFormat("%5.3f ms", g_frameTime.asMilliseconds()), { 0.01f, 0.02f });
 	displayText(stringFormat("%d fps", m_fps), { 0.01f, 0.04f });
 
@@ -127,11 +139,11 @@ void RenderSystem::update(Time delta)
 
 	m_fpsCounter++;
 	m_timeSinceFpsUpdate += delta;
-	if (m_timeSinceFpsUpdate >= milliseconds(500))
+	if (m_timeSinceFpsUpdate >= m_fpsUpdateInterval)
 	{
 		m_fps = m_fpsCounter * 2;
 		m_fpsCounter = 0;
-		m_timeSinceFpsUpdate -= milliseconds(500);
+		m_timeSinceFpsUpdate -= m_fpsUpdateInterval;
 	}
 }
 
@@ -170,8 +182,8 @@ void RenderSystem::geometryPass()
 
 	const Matrix4x4f& vp = g_camera.getProjectionMatrix() * g_camera.getViewMatrix();
 
-	ShaderProgram& activeShaderProgram = g_shaderManager.getShaderProgram("geometry");
-	activeShaderProgram.use();
+	static ShaderProgram* activeShaderProgram = g_shaderManager.getShaderProgram("geometry");
+	activeShaderProgram->use();
 	
 	TransformComponent transformComp;
 	RenderComponent renderComp;
@@ -179,35 +191,28 @@ void RenderSystem::geometryPass()
 	for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
 		// TODO: add scale
+		// TODO: pass matrices separately to increase precision
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 		Matrix4x4f mvp = vp * modelMatrix;
 
 		// TODO: different shaders for different objects ???
-		/*if (activeShaderProgram == nullptr || activeShaderProgram->name != renderComp.shaderName)
-		{
-			activeShaderProgram = g_shaderManager.getShaderProgram(renderComp.shaderName);
-			glUseProgram(activeShaderProgram->handle);
-		}*/
 
-		activeShaderProgram.setUniform("mvp", mvp);
-		activeShaderProgram.setUniform("transform", transformComp);
+		activeShaderProgram->setUniform("mvp", mvp);
+		activeShaderProgram->setUniform("transform", transformComp);
 
-		activeShaderProgram.setUniform("material.hasTexture", renderComp.mesh->hasTexture);
+		activeShaderProgram->setUniform("material.hasTexture", renderComp.mesh->hasTexture);
 		if (renderComp.mesh->hasTexture)
 		{
 			renderComp.mesh->texture->activeAndBind(0);
-			activeShaderProgram.setUniform("material.diffuseMap", 0);
-			activeShaderProgram.setUniform("material.specularMap", 1);
 		}
 		else
 		{
-			activeShaderProgram.setUniform("material.color", renderComp.material.color);
+			activeShaderProgram->setUniform("material.color", renderComp.material.color);
 		}
 
 		glBindVertexArray(renderComp.mesh->vao);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
 	}
-	checkGlError();
 
 	m_gBuffer.unbind();
 }
@@ -225,40 +230,40 @@ void RenderSystem::lightPass()
 	glDisable(GL_DEPTH_TEST);
 	glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
 	glClear(GL_COLOR_BUFFER_BIT);
-
 	glDepthMask(false);
-
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	// Ambient light
 	if (m_ambientLight.isOn)
 	{
-		ShaderProgram& shaderProgram = g_shaderManager.getShaderProgram("ambientLight");
+		static ShaderProgram* shaderProgram = g_shaderManager.getShaderProgram("ambientLight");
 
-		shaderProgram.use();
-		shaderProgram.setUniform("light.coloredIntensity", m_ambientLight.color.toNormalizedRGB() * m_ambientLight.intensity);
+		shaderProgram->use();
+		shaderProgram->setUniform("light.coloredIntensity", m_ambientLight.color.toNormalizedRGB() * m_ambientLight.intensity);
 
 		drawFullscreenQuad();
 	}
 
 	// Directional lights
-	ShaderProgram& directionalShadowMapProgram = g_shaderManager.getShaderProgram("shadowMap");
-	ShaderProgram& directionalLightProgram = g_shaderManager.getShaderProgram("directionalLight");
+	static ShaderProgram* directionalShadowMapProgram = g_shaderManager.getShaderProgram("shadowMap");
+	ShaderProgram* directionalLightProgram = g_shaderManager.getShaderProgram("directionalLightShadow");
 	for (const auto& light : m_directionalLights)
 	{
 		if (light.isOn)
 		{
 			if (light.castsShadow)
 			{
-				m_lightingRT.unbind();
+				//m_lightingRT.unbind();
+				m_dirLightDepthRT.bind();
 
 				// Shadow map
-				Matrix4x4f projection = ortho(-50, 50, -50, 50, -50, 50);
+				// TODO: proper size
+
+				Matrix4x4f projection = ortho(-35, 35, -35, 35, -35, 35);
 				Vector3f lightDirInv = -light.direction;
 				Matrix4x4f view = Camera::lookAt(lightDirInv, Vector3f::Zero, Vector3f::Up);
 
-				m_dirLightDepthRT.bind();
-				directionalShadowMapProgram.use();
+				directionalShadowMapProgram->use();
 
 				glDepthMask(true);
 				glClear(GL_DEPTH_BUFFER_BIT);
@@ -274,7 +279,7 @@ void RenderSystem::lightPass()
 				{
 					Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 					Matrix4x4f mvp = projection * view * model;
-					directionalShadowMapProgram.setUniform("mvp", mvp);
+					directionalShadowMapProgram->setUniform("mvp", mvp);
 
 					glBindVertexArray(renderComp.mesh->vao);
 					glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
@@ -289,76 +294,65 @@ void RenderSystem::lightPass()
 
 				m_lightingRT.bind();
 
-				directionalLightProgram.use();
+				directionalLightProgram->use();
 				m_dirLightDepthRT.depthTexture.activeAndBind(4);
-				directionalLightProgram.setUniform("shadow", 4);
 
-				directionalLightProgram.setUniform("cameraVpInv", cameraVpInv);
-				directionalLightProgram.setUniform("shadowVp", projection * view);
+				directionalLightProgram->setUniform("cameraVpInv", cameraVpInv);
+				directionalLightProgram->setUniform("shadowVp", projection * view);
 			}
 			else
 			{
-				criticalError("gg");
-				// TODO: different shader?
+				directionalLightProgram = g_shaderManager.getShaderProgram("directionalLight");
+				directionalLightProgram->use();
 			}
 
-			directionalLightProgram.setUniform("specular", 1);
-			directionalLightProgram.setUniform("normal", 2);
-			directionalLightProgram.setUniform("depth", 3);
-
-			directionalLightProgram.setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
-			directionalLightProgram.setUniform("light.direction", light.direction);
+			directionalLightProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			directionalLightProgram->setUniform("light.direction", light.direction);
 
 			drawFullscreenQuad();
 		}
 	}
 
 	// Point lights
-	ShaderProgram& pointLightProgram = g_shaderManager.getShaderProgram("pointLight");
-	pointLightProgram.use();
-	pointLightProgram.setUniform("specular", 1);
-	pointLightProgram.setUniform("normal", 2);
-	pointLightProgram.setUniform("depth", 3);
+	static ShaderProgram* pointLightProgram = g_shaderManager.getShaderProgram("pointLight");
+	pointLightProgram->use();
 	for (const auto& light : m_pointLights)
 	{
 		if (light.isOn)
 		{
-			pointLightProgram.setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
-			pointLightProgram.setUniform("light.position", light.position);
-			pointLightProgram.setUniform("light.attenuation.constant", light.attenuation.constant);
-			pointLightProgram.setUniform("light.attenuation.linear", light.attenuation.linear);
-			pointLightProgram.setUniform("light.attenuation.quadratic", light.attenuation.quadratic);
-			pointLightProgram.setUniform("light.attenuation.range", light.attenuation.range);
-			pointLightProgram.setUniform("cameraVpInv", cameraVpInv);
+			pointLightProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			pointLightProgram->setUniform("light.position", light.position);
+			pointLightProgram->setUniform("light.attenuation.constant", light.attenuation.constant);
+			pointLightProgram->setUniform("light.attenuation.linear", light.attenuation.linear);
+			pointLightProgram->setUniform("light.attenuation.quadratic", light.attenuation.quadratic);
+			pointLightProgram->setUniform("light.attenuation.range", light.attenuation.range);
+			pointLightProgram->setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
 	}
 
 	// Spot lights
-	ShaderProgram& spotLightProgram = g_shaderManager.getShaderProgram("spotLight");
-	spotLightProgram.use();
-	spotLightProgram.setUniform("specular", 1);
-	spotLightProgram.setUniform("normal", 2);
-	spotLightProgram.setUniform("depth", 3);
+	static ShaderProgram* spotLightProgram = g_shaderManager.getShaderProgram("spotLight");
+	spotLightProgram->use();
 	for (const auto& light : m_spotLights)
 	{
 		if (light.isOn)
 		{
-			spotLightProgram.setUniform("light.base.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
-			spotLightProgram.setUniform("light.base.position", light.position);
-			spotLightProgram.setUniform("light.base.attenuation.constant", light.attenuation.constant);
-			spotLightProgram.setUniform("light.base.attenuation.linear", light.attenuation.linear);
-			spotLightProgram.setUniform("light.base.attenuation.quadratic", light.attenuation.quadratic);
-			spotLightProgram.setUniform("light.base.attenuation.range", light.attenuation.range);
-			spotLightProgram.setUniform("light.direction", light.direction);
-			spotLightProgram.setUniform("light.coneAngle", light.coneAngle);
-			spotLightProgram.setUniform("cameraVpInv", cameraVpInv);
+			spotLightProgram->setUniform("light.base.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
+			spotLightProgram->setUniform("light.base.position", light.position);
+			spotLightProgram->setUniform("light.base.attenuation.constant", light.attenuation.constant);
+			spotLightProgram->setUniform("light.base.attenuation.linear", light.attenuation.linear);
+			spotLightProgram->setUniform("light.base.attenuation.quadratic", light.attenuation.quadratic);
+			spotLightProgram->setUniform("light.base.attenuation.range", light.attenuation.range);
+			spotLightProgram->setUniform("light.direction", light.direction);
+			spotLightProgram->setUniform("light.coneAngle", light.coneAngle);
+			spotLightProgram->setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
 	}
-	spotLightProgram.stopUsing();
+	spotLightProgram->stopUsing();
 
 	m_lightingRT.unbind();
 }
@@ -371,26 +365,26 @@ void RenderSystem::outPass()
 	glViewport(0, 0, m_outRT.width, m_outRT.height);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	ShaderProgram& program = g_shaderManager.getShaderProgram("out");
-	program.use();
+	static ShaderProgram* program = g_shaderManager.getShaderProgram("out");
+	program->use();
 
 	m_gBuffer.textures[GBuffer::TextureType::Albedo].activeAndBind(0);
 	m_lightingRT.colorTexture.activeAndBind(1);
-	program.setUniform("diffuse", 0);
-	program.setUniform("lighting", 1);
+	program->setUniform("diffuse", 0);
+	program->setUniform("lighting", 1);
 
 	drawFullscreenQuad();
 
 	// Text rendering
-	ShaderProgram& fontShaderProgram = g_shaderManager.getShaderProgram("font");
-	fontShaderProgram.use();
+	static ShaderProgram* fontShaderProgram = g_shaderManager.getShaderProgram("font");
+	fontShaderProgram->use();
 
 	glDepthMask(GL_FALSE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindVertexArray(m_fontVao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_fontVbo);
 	m_fontTexture.activeAndBind(0);
-	fontShaderProgram.setUniform("tex", 0);
+	fontShaderProgram->setUniform("tex", 0);
 
 	for (auto& text : m_textsToRender)
 	{

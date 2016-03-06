@@ -101,7 +101,7 @@ void World::setupLevel()
 
 	for (int i = 0; i < 3; ++i)
 	{
-		Entity* e = addPad(Vector3f(sinf(toRadians(120.f * i)) * 25, 0.5f, cosf(toRadians(120.f * i)) * 25));
+		Entity* e = addPad(Vector3f(sinf(toRadians(120.f * i)) * 25, 0.f, cosf(toRadians(120.f * i)) * 25));
 		e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(180.f + 120.f * i), Vector3f::Up);
 	}
 }

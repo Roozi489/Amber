@@ -1,4 +1,4 @@
-#version 330
+#version 420 core
 
 #include "common.h"
 
@@ -13,7 +13,7 @@ out vec3 normal;
 
 uniform mat4 mvp;
 
-uniform Transform transform;
+//uniform Transform transform;
 
 vec3 quaternionRotate(vec4 q, vec3 v)
 {
