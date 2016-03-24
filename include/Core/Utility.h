@@ -39,40 +39,4 @@ void _assert(bool expression, const std::string& message, const char* file, int 
 #define assert_amber(expression, message)
 #endif
 
-template <typename T>
-T clamp(T value, T min = 0, T max = 1)
-{
-	if (value < min)
-		value = min;
-	if (value > max)
-		value = max;
-
-	return value;
-}
-
-// TODO: rewrite to use variadic templates
-template <typename T, typename R>
-auto min(T first, R second)
-{
-	return first < second ? first : second;
-}
-
-template <typename T, typename R, typename S>
-auto min(T first, R second, S third)
-{
-	return min(first, second) < third ? min(first, second) : third;
-}
-
-template <typename T, typename R>
-auto max(T first, R second)
-{
-	return first > second ? first : second;
-}
-
-template <typename T, typename R, typename S>
-auto max(T first, R second, S third)
-{
-	return max(first, second) > third ? max(first, second) : third;
-}
-
 }

@@ -11,7 +11,6 @@ namespace Amber
 class RenderTexture : public NonCopyable
 {
 public:
-
 	enum RenderTextureType
 	{
 		Color = 1,
@@ -32,7 +31,7 @@ public:
 
 	std::vector<GLenum> drawbufferAttachments;
 
-	RenderTexture();
+	RenderTexture() = default;
 
 	void create(int w, int h, RenderTextureType type = RenderTextureType::ColorAndDepth, TextureFilter minMag = TextureFilter::Linear, TextureWrapMode wrap = TextureWrapMode::ClampToEdge);
 	void destroy();

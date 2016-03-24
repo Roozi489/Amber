@@ -5,6 +5,7 @@
 #include "Graphics/GBuffer.h"
 #include "Graphics/Lighting.h"
 #include "Graphics/RenderText.h"
+#include "Graphics/RenderTextureCubeShadow.h"
 
 namespace Amber
 {
@@ -34,7 +35,9 @@ private:
 	std::vector<PointLight> m_pointLights;
 	std::vector<SpotLight> m_spotLights;
 
-	RenderTexture m_dirLightDepthRT;
+	RenderTexture m_dirLightShadowRT;
+	RenderTextureCubeShadow m_pointLightShadowRT;
+	RenderTexture m_spotLightShadowRT;
 
 	Skybox m_skybox;
 

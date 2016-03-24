@@ -4,10 +4,6 @@
 namespace Amber
 {
 
-RenderTexture::RenderTexture()
-{
-}
-
 void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter minMag, TextureWrapMode wrap)
 {
 	width = w;
@@ -21,9 +17,9 @@ void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter m
 		colorTexture.genAndBind(width, height);
 
 		if (type == RenderTextureType::Lighting)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB10_A2, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+			colorTexture.setFormat(TextureInternalFormat::RGB10A2, TextureFormat::RGB, TextureType::UByte);
 		else
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+			colorTexture.setFormat(TextureInternalFormat::RGB8, TextureFormat::RGB, TextureType::UByte);
 
 		colorTexture.setFilterAndWrap(minMag, wrap);
 
@@ -35,13 +31,15 @@ void RenderTexture::create(int w, int h, RenderTextureType type, TextureFilter m
 	if (type & RenderTextureType::Depth)
 	{
 		depthTexture.genAndBind(width, height);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		depthTexture.setFormat(TextureInternalFormat::Depth32F, TextureFormat::DepthComponent, TextureType::Float);
 		depthTexture.setFilterAndWrap(minMag, wrap);
 
 		if (type == RenderTextureType::Shadow)
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.textureHandle, 0);

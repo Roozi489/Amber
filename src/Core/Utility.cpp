@@ -1,5 +1,6 @@
 #include "Core/Utility.h"
 #include "Core/Globals.h"
+#include "Window/File.h"
 
 #include <fstream>
 #include <sstream>
@@ -21,7 +22,7 @@ void log(const std::string& message)
 
 void clearLog()
 {
-	std::ofstream log_file("log.txt", std::ios::out | std::ios::trunc);
+	clearFile("log.txt");
 }
 
 void _assert(bool expression, const char* message, const char* file, int line, const char* function)

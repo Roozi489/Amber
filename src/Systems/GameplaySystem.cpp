@@ -13,7 +13,6 @@ namespace Amber
 
 GameplaySystem::GameplaySystem()
 {
-	setUpdateFrequency(UpdateFrequency::FixedTimeStep, seconds(1) / 60.f);
 }
 
 GameplaySystem::~GameplaySystem()
@@ -23,13 +22,27 @@ GameplaySystem::~GameplaySystem()
 void GameplaySystem::init()
 {
 	soundSystem = g_world.getSystem<SoundSystem>();
+	setUpdateFrequency(UpdateFrequency::FixedTimeStep, seconds(1) / 60.f);
 }
 
 void GameplaySystem::update(Time delta)
 {
 	BaseSystem::update(delta);
+	
+	switch (gameState)
+	{
+	case GameState::Pause:
+		if (Input::isKeyPressed(SDL_SCANCODE_P))
+			gameState = GameState::Playing;
+		break;
+	case GameState::Playing:
+		if (Input::isKeyPressed(SDL_SCANCODE_P))
+			gameState = GameState::Pause;
+	default:
+		break;
+	}
 
-	if (gameState == GameState::Defeat || gameState == GameState::Victory)
+	if (gameState == GameState::Defeat || gameState == GameState::Victory || gameState == GameState::Pause)
 		return;
 
 	int brickCount = 0;
@@ -72,7 +85,7 @@ void GameplaySystem::update(Time delta)
 
 							if (entity != otherEntity && otherTransformComp.position.x == transformComp.position.x && otherTransformComp.position.z == transformComp.position.z)
 							{
-								otherPhysicsComp.velocity = Vector3f::zero();
+								otherPhysicsComp.velocity = Vector3f::Zero;
 							}
 						}
 						transformComp.position.y = 0.f;
@@ -257,23 +270,12 @@ void GameplaySystem::update(Time delta)
 	{
 		gameState = GameState::Victory;
 		//soundSystem->playSound("victory");
-	}
-
-	if (Input::MouseRightDown())
-	{
-		g_window.showCursor(false);
-		g_camera.offsetOrientation(Input::mouseRelativeChangeX() / 500.f, Input::mouseRelativeChangeY() / 500.f);
-		g_window.setCursorPosition(g_window.getWidth() / 2, g_window.getHeight() / 2);
-	}
-	else
-	{
-		g_window.showCursor(true);
-	}
+	}	
 }
 
 float GameplaySystem::distFromCenter(Vector3f position)
 {
-	return distance(position, Vector3f::zero());
+	return distance(position, Vector3f::Zero);
 }
 
 float GameplaySystem::angleFromCenter(Vector3f position)

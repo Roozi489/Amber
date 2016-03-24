@@ -80,8 +80,6 @@ struct Vector3
 	T dot(Vector3 vector);
 	Vector3 cross(Vector3 vector);
 
-	static Vector3 zero();
-
 	Vector3 operator-() const;
 	Vector3 operator*(T rhs) const;
 	Vector3 operator/(T rhs) const;

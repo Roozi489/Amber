@@ -2,12 +2,14 @@
 
 #include "common.h"
 #include "lighting.h"
+#include "shadow.h"
 
 uniform PointLight light;
 
 //uniform sampler2D specular;
 uniform sampler2D normal;
 uniform sampler2D depth;
+uniform samplerCubeShadow shadow;
 
 uniform mat4 cameraVpInv;
 
@@ -35,12 +37,13 @@ void main()
     //vec3 specularColor = texture(specular, texCoord).rgb;
     vec3 normalEncoded = texture(normal, texCoord).xyz;
     float depthValue = texture(depth, texCoord).x;
-    
-    vec3 position_wx = calculatePositionFromDepth(texCoord, gl_FragCoord.w, depthValue, cameraVpInv);
+
+    vec3 position_ws = calculatePositionFromDepth(texCoord, gl_FragCoord.w, depthValue, cameraVpInv);
     vec3 normal = normalize(2.0 * normalEncoded - vec3(1.0));
 
-    vec3 surfaceToLight = normalize(light.position - position_wx);
-    float distanceToLight = length(light.position - position_wx);
+    vec3 surfaceToLight = normalize(light.position - position_ws);
+    float distanceToLight = length(light.position - position_ws);
 
-    color = calculatePointLight(surfaceToLight, distanceToLight, normal);
+    float cosTheta = saturate(dot(normal, surfaceToLight));
+    color = calculatePointLight(surfaceToLight, distanceToLight, normal) * shadowCubeValue(shadow, -surfaceToLight, distanceToLight, cosTheta);
 }

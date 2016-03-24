@@ -1,5 +1,13 @@
 #pragma once
+#include "Core/Types.h"
+
 #include <SDL/SDL.h>
+
+// Asks for the context to be created on nVidia graphics when optimus is enabled
+extern "C"
+{
+	_declspec(dllexport) Amber::uint32 NvOptimusEnablement = 0x00000001;
+}
 
 namespace Amber
 {

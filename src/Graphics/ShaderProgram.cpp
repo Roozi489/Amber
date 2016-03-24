@@ -1,6 +1,7 @@
 #include "Graphics/ShaderProgram.h"
 #include "Core/Utility.h"
 #include "Core/String.h"
+#include "Window/File.h"
 
 #include <fstream>
 #include <sstream>
@@ -20,9 +21,12 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::attachShaderFromFile(ShaderType type, const std::string& filename)
 {
 	std::stringstream content;
-	std::ifstream fileStream("Shaders/" + filename);
+	std::ifstream filestream("Shaders/" + filename);
+	if (!filestream.is_open())
+		criticalError("Failed to open file: " + filename);
+
 	std::string line;
-	while (std::getline(fileStream, line))
+	while (std::getline(filestream, line))
 	{
 		if (line.find("#include") != std::string::npos)
 		{
@@ -263,8 +267,9 @@ void ShaderProgram::loadFromString(GLuint shaderHandle, const std::string& name,
 		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLenght);
 		std::unique_ptr<char[]> log(new char[logLenght]);
 		glGetShaderInfoLog(shaderHandle, logLenght, nullptr, log.get());
+		writeStringToFile("error.txt", content);
 		std::string message = "Failed to compile shader: \"" + name + "\"\n";
-		criticalError(message.append(log.get()).append(content));
+		criticalError(message.append(log.get()));
 	}
 
 	glAttachShader(handle, shaderHandle);

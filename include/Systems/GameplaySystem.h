@@ -19,6 +19,7 @@ enum class GameState
 {
 	Start,
 	Playing,
+	Pause,
 	Victory,
 	Defeat
 };
@@ -27,7 +28,7 @@ class GameplaySystem : public BaseSystem
 {
 public:
 	int score = 0;
-	int lives = 5;
+	int lives = 10000;
 	GameState gameState = GameState::Start;
 
 	SoundSystem* soundSystem;

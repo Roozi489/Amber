@@ -1,6 +1,6 @@
 #include "Amber.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	Amber::Amber amber;
 	amber.run();

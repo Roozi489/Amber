@@ -2,6 +2,7 @@
 #include "Core/Types.h"
 #include "Window/Window.h"
 
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
 #include <sstream>
@@ -9,11 +10,35 @@
 namespace Amber
 {
 
+bool Image::create(const std::string& filePath)
+{
+	return create(filePath.c_str());
+}
+
+bool Image::create(const char* filePath)
+{
+	int forceComponents = 4;
+	data = stbi_load(filePath, &width, &height, &componentsPerPixel, forceComponents);
+	name = filePath;
+	return data == nullptr;
+}
+
+void Image::destroy()
+{
+	stbi_image_free(data);
+}
+
+const char* getImageLoadError()
+{
+	return stbi__g_failure_reason;
+}
+
+
 SDL_Surface* loadSDL_SurfaceFromFile(const char* filename)
 {
-	int w, h, bytesperpixel;
-	unsigned char *data = stbi_load(filename, &w, &h, &bytesperpixel, 0);
-	if (data == nullptr)
+	Image image;
+	image.create(filename);
+	if (image.data == nullptr)
 	{
 		std::stringstream sstream;
 		sstream << "Failed to load image: " << filename << "  -  " << "stbi_load returned NULL.";
@@ -21,7 +46,7 @@ SDL_Surface* loadSDL_SurfaceFromFile(const char* filename)
 	}
 
 	uint32 Rmask, Gmask, Bmask, Amask = 0;
-	switch (bytesperpixel)
+	switch (image.componentsPerPixel)
 	{
 	case 1:
 		Rmask = 0xff;
@@ -46,15 +71,15 @@ SDL_Surface* loadSDL_SurfaceFromFile(const char* filename)
 		Amask = 0xFF000000;
 		break;
 	default:
-		stbi_image_free(data);
+		image.destroy();
 		std::stringstream sstream;
-		sstream << "Failed to load image: " << filename << "  -  Unsupported bit depth of " << bytesperpixel * 8;
+		sstream << "Failed to load image: " << filename << "  -  Unsupported bit depth of " << image.componentsPerPixel * 8;
 		criticalError(sstream.str());
 	}
 
-	// ... w = width, h = height, n = # 8-bit components per pixel ...
+	// n = # 8-bit components per pixel ...
 	// No padding for pitch, so it's w*bytesperpixel
-	SDL_Surface* result = SDL_CreateRGBSurfaceFrom(data, w, h, bytesperpixel * 8, w*bytesperpixel, Rmask, Gmask, Bmask, Amask);
+	SDL_Surface* result = SDL_CreateRGBSurfaceFrom(image.data, image.width, image.height, image.componentsPerPixel * 8, image.width*image.componentsPerPixel, Rmask, Gmask, Bmask, Amask);
 
 	if (result == nullptr)
 	{

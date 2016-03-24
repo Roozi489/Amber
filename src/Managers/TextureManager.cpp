@@ -25,7 +25,7 @@ void TextureManager::preloadTexture(const std::string& fileName)
 
 	auto texture = std::make_unique<Texture>();
 
-	texture->load(fileName);
+	texture->loadFromFile(fileName);
 	textures.insert(std::make_pair(fileName, std::move(texture)));
 }
 
