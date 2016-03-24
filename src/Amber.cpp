@@ -4,6 +4,7 @@
 #include "Systems/GameplaySystem.h"
 #include "Systems/SoundSystem.h"
 #include "Window/Input.h"
+#include <Window/File.h>
 
 namespace Amber
 {
@@ -18,6 +19,7 @@ Amber::~Amber()
 
 void Amber::run()
 {
+	clearFile("error.txt");
 	clearLog();
 	init();
 

@@ -80,12 +80,6 @@ Vector3<T> Vector3<T>::cross(Vector3 vector)
 }
 
 template <typename T>
-Vector3<T> Vector3<T>::zero()
-{
-	return Vector3<T>(0);
-}
-
-template <typename T>
 Vector3<T>& Vector3<T>::operator+=(const Vector3& rhs) { return *this = *this + rhs; }
 
 template <typename T>

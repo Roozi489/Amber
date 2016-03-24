@@ -1,19 +1,10 @@
 #include "Core/String.h"
 
-#include <fstream>
 #include <sstream>
 #include <algorithm>
 
 namespace Amber
 {
-
-std::string loadFileToString(const std::string& filePath)
-{
-	std::ifstream file(filePath);
-	std::stringstream ss;
-	ss << file.rdbuf();
-	return ss.str();
-}
 
 std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string>& elems)
 {

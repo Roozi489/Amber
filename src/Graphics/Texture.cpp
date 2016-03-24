@@ -1,9 +1,9 @@
 ﻿#include "Graphics/Texture.h"
+#include "Graphics/Image.h"
 #include "Window/Window.h"
 #include "Core/Utility.h"
+#include "Math/Math.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 
 namespace Amber
 {
@@ -16,32 +16,35 @@ Texture::~Texture()
 {
 }
 
-bool Texture::load(const std::string& filename, TextureFilter minMag, TextureWrapMode wrap)
+bool Texture::loadFromFile(const std::string& filename, TextureFilter minMag, TextureWrapMode wrap)
 {
-	int componentsPerPixel;
-	int forceChannels = 4;
-	std::string path = "Textures/" + filename;
-	unsigned char *data = stbi_load(path.c_str(), &width, &height, &componentsPerPixel, forceChannels);
-	if (!data)
+	Image image;
+	if (image.create("Textures/" + filename))
 	{
-		criticalError("Error loading texture from: " + filename + "\nReason: " + stbi__g_failure_reason);
+		criticalError("Error loading texture from: " + filename + "\nReason: " + getImageLoadError());
 		return false;
 	}
+	width = image.width;
+	height = image.height;
 
 	// some magic formula I found
-	int numMipmaps = 1 + static_cast<int>(floor(log2(max(width, height, componentsPerPixel))));
+	int numMipmaps = 1 + static_cast<int>(floor(log2(max(width, height, image.componentsPerPixel))));
 
-	glGenTextures(1, &textureHandle);
-	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	genAndBind();
 	glTexStorage2D(GL_TEXTURE_2D, numMipmaps, GL_RGBA8, width, height);
-
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
 	glGenerateMipmap(GL_TEXTURE_2D);  // Generate numMipmaps number of mipmaps here.
 
 	setFilterAndWrap(minMag, wrap);
 
-	stbi_image_free(data);
+	image.destroy();
+
 	return true;
+}
+
+void Texture::setFormat(TextureInternalFormat internalFormat, TextureFormat format, TextureType type)
+{
+	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0, static_cast<GLenum>(format), static_cast<GLenum>(type), nullptr);
 }
 
 void Texture::genAndBind()

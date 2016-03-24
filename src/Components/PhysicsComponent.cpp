@@ -6,7 +6,7 @@ namespace Amber
 
 PhysicsComponent::PhysicsComponent(BodyType bodyType)
 	: bodyType(bodyType)
-	, velocity(Vector3f::zero())
+	, velocity(Vector3f::Zero)
 	, collisionMesh(nullptr)
 {
 
@@ -14,7 +14,7 @@ PhysicsComponent::PhysicsComponent(BodyType bodyType)
 
 PhysicsComponent::PhysicsComponent(BodyType bodyType, const std::string& collisionMeshName)
 	: bodyType(bodyType)
-	, velocity(Vector3f::zero())
+	, velocity(Vector3f::Zero)
 {
 	collisionMesh = g_meshManager.getMesh(collisionMeshName);
 

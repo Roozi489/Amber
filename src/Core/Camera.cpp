@@ -8,6 +8,16 @@
 namespace Amber
 {
 
+const CameraDirs Camera::CameraDirections[] =
+{
+	{ Vector3f::Right, Vector3f(0.0f, -1.0f, 0.0f) },
+	{ Vector3f::Left, Vector3f(0.0f, -1.0f, 0.0f) },
+	{ Vector3f::Up, Vector3f(0.0f, 0.0f, -1.0f) },
+	{ Vector3f::Down, Vector3f(0.0f, 0.0f, -1.0f) },
+	{ Vector3f::Backward, Vector3f(0.0f, -1.0f, 0.0f) },
+	{ Vector3f::Forward, Vector3f(0.0f, -1.0f, 0.0f) },
+};
+
 Camera::Camera()
 {
 
@@ -18,7 +28,6 @@ void Camera::init()
 	position = Vector3f::Zero;
 	orientation = Quaternion::Identity;
 
-	// TODO: check whether the fov should't be in radians
 	m_projectionMatrix = perspectiveFov(toRadians(60.f), static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane);
 	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
 }
@@ -39,6 +48,17 @@ void Camera::update(Time delta)
 		moveUp();
 	if (Input::isKeyDown(SDL_SCANCODE_K))
 		moveDown();
+
+	if (Input::MouseRightDown())
+	{
+		g_window.showCursor(false);
+		g_camera.offsetOrientation(Input::mouseRelativeChangeX() / 500.f, Input::mouseRelativeChangeY() / 500.f);
+		g_window.setCursorPosition(g_window.getWidth() / 2, g_window.getHeight() / 2);
+	}
+	else
+	{
+		g_window.showCursor(true);
+	}
 }
 
 void Camera::offsetOrientation(float yaw, float pitch)
@@ -136,7 +156,20 @@ Matrix4x4f Camera::perspectiveFov(float fovX, float width, float height, float z
 	return result;
 }
 
-Matrix4x4f Camera::lookAt(Vector3f& eye, Vector3f center, Vector3f up)
+Matrix4x4f Camera::perspectiveFov(float fovX, float width, float height, float zNear, float zFar)
+{
+	float ratio = (height / width);
+	auto e = 1.f / tan(fovX * ratio / 2);
+	Matrix4x4f result(0.f);
+	result[0][0] = e;
+	result[1][1] = e / ratio;
+	result[2][2] = -zFar / (zFar - zNear);
+	result[2][3] = -1;
+	result[3][2] = -(zFar * zNear) / (zFar - zNear);
+	return result;
+}
+
+Matrix4x4f Camera::lookAt(const Vector3f& eye, const Vector3f center, const Vector3f up)
 {
 	Vector3f f(normalize(center - eye));
 	Vector3f s(normalize(cross(f, up)));

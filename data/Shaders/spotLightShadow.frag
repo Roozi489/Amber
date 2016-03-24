@@ -2,14 +2,17 @@
 
 #include "common.h"
 #include "lighting.h"
+#include "shadow.h"
 
 uniform SpotLight light;
 
 //uniform sampler2D specular;
 uniform sampler2D normal;
 uniform sampler2D depth;
+uniform sampler2DShadow shadow;
 
 uniform mat4 cameraVpInv;
+uniform mat4 shadowVp;
 
 in vec2 texCoord;
 
@@ -46,5 +49,5 @@ void main()
     float distanceToLight = length(light.base.position - position_ws);
     float lightToSurfaceAngle = acos(dot(-surfaceToLight, normalize(light.direction)));
 
-    color = calculateSpotLight(lightToSurfaceAngle, surfaceToLight, distanceToLight, normal);
+    color = calculateSpotLight(lightToSurfaceAngle, surfaceToLight, distanceToLight, normal) * shadowValue(shadow, position_ws, shadowVp);
 }

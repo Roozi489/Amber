@@ -46,12 +46,23 @@ void RenderSystem::init()
 	//shaderProgram->setUniform("specular", GBuffer::TextureType::Specular);
 	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
 	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram = g_shaderManager.createProgram("pointLightShadow", "fullscreenQuad.vert", "pointLightShadow.frag");
+	shaderProgram->use();
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram->setUniform("shadow", 4);
 	shaderProgram = g_shaderManager.createProgram("spotLight", "fullscreenQuad.vert", "spotLight.frag");
 	shaderProgram->use();
 	//shaderProgram->setUniform("specular", GBuffer::TextureType::Specular);
 	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
 	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram = g_shaderManager.createProgram("spotLightShadow", "fullscreenQuad.vert", "spotLightShadow.frag");
+	shaderProgram->use();
+	shaderProgram->setUniform("normal", GBuffer::TextureType::Normal);
+	shaderProgram->setUniform("depth", GBuffer::TextureType::Depth);
+	shaderProgram->setUniform("shadow", 4);
 	shaderProgram = g_shaderManager.createProgram("shadowMap", "shadowMap.vert");
+	shaderProgram = g_shaderManager.createProgram("shadowMapCube", "shadowMapCube.vert", "shadowMapCube.frag");
 	shaderProgram = g_shaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
 	shaderProgram = g_shaderManager.createProgram("texPass", "fullscreenQuad.vert", "texPass.frag");
 	shaderProgram = g_shaderManager.createProgram("font", "font.vert", "font.frag");
@@ -62,46 +73,40 @@ void RenderSystem::init()
 
 	// Lights
 	m_ambientLight.color = Color::fromByteRGB(50, 50, 50);
-	m_ambientLight.intensity = 0.01f;
-
-	DirectionalLight dirLight;
-	dirLight.color = Color::Gray;
-	dirLight.intensity = 0.5f;
-	dirLight.direction = normalize(Vector3f(0.8f, -1.f, 0.2f));
-	m_directionalLights.push_back(dirLight);
+	m_ambientLight.intensity = 0.07f;
 	
-	/*PointLight pointLight;
+	DirectionalLight dirLight;
+	//dirLight.castsShadow = false;
+	dirLight.color = Color::White;
+	dirLight.intensity = 0.2f;
+	dirLight.direction = normalize(Vector3f(0.8f, -1.f, 0.2f));
+    m_directionalLights.push_back(dirLight);
+	
+	PointLight pointLight;
+	//pointLight.castsShadow = false;
 	pointLight.intensity = 300.f;
 	pointLight.color = Color::White;
-	pointLight.position = Vector3f(0.f, 20.f, 0.f);
-	pointLight.attenuation.range = 22.f;
-	m_pointLights.push_back(pointLight);
-	pointLight.intensity = 50.f;
-	pointLight.color = Color::Red;
-	pointLight.position = Vector3f(10.f, 10.f, 10.f);
-	m_pointLights.push_back(pointLight);
-	pointLight.color = Color::Yellow;
-	pointLight.position = Vector3f(-10.f, 10.f, 10.f);
-	m_pointLights.push_back(pointLight);
-	pointLight.color = Color::Blue;
-	pointLight.position = Vector3f(-10.f, 10.f, -10.f);
-	m_pointLights.push_back(pointLight);
-	pointLight.color = Color::Green;
-	pointLight.position = Vector3f(10.f, 10.f, -10.f);
+	pointLight.position = Vector3f(7.f, 7.f, 7.f);
+	pointLight.attenuation.range = 30.f;
 	m_pointLights.push_back(pointLight);
 
 	SpotLight spotLight;
-	spotLight.intensity = 300.f;
-	spotLight.position = Vector3f(0.f, 20.f, 0.f);
-	spotLight.coneAngle = toRadians(17.f);
-	m_spotLights.push_back(spotLight);*/
+	//spotLight.castsShadow = false;
+	spotLight.intensity = 500.f;
+	spotLight.color = Color::fromByteRGB(120, 255, 120);
+	spotLight.position = Vector3f(-20.f, 20.f, 1.f);
+	spotLight.direction = normalize(Vector3f(1.8f, -1.5f, -0.2f));
+	spotLight.coneAngle = toRadians(34.f);
+	m_spotLights.push_back(spotLight);
 
 	// Shadow maps
 	// TODO: setting for shadow map size
-	m_dirLightDepthRT.create(2048, 2048, RenderTexture::Shadow);
+	m_dirLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
+	m_spotLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
+	m_pointLightShadowRT.create(1024, 1024);
 
 	// Meshes
-	std::unique_ptr<Mesh> fullscreenQuadMesh = std::make_unique<Mesh>();
+	auto fullscreenQuadMesh = std::make_unique<Mesh>();
 	fullscreenQuadMesh->meshComponents = MeshComponents::VertexIndex;
 	fullscreenQuadMesh->vertices = { { -1.0f, -1.0f, 0.0f }, { 1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 0.0f }, { -1.0f, 1.0f, 0.0f } };
 	fullscreenQuadMesh->indices = { 0, 1, 2, 2, 3, 0 };
@@ -161,14 +166,14 @@ void RenderSystem::drawFullscreenQuad()
 
 void RenderSystem::geometryPass()
 {
-	/* TODO:
+	/* TODO: sorting
 	1) Run through your game objects and do the update tick on each one. No rendering happens yet.
 	2) Run through the list of game objects, frustum/visibility cull each one, and if visible add its meshes (one mesh per material) to a render list. Generally you want two render lists, one for opaque and one for transparent objects.
 	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
 	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
 	*/
 
-	// TODO: better m_skybox
+	// TODO: better skybox
 	//http://gamedev.stackexchange.com/questions/60313/implementing-a-m_skybox-with-glsl-version-330
 	//m_skybox.update();
 	//m_skybox.render();
@@ -191,7 +196,6 @@ void RenderSystem::geometryPass()
 	for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
 		// TODO: add scale
-		// TODO: pass matrices separately to increase precision
 		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
 		Matrix4x4f mvp = vp * modelMatrix;
 
@@ -219,11 +223,53 @@ void RenderSystem::geometryPass()
 
 void RenderSystem::lightPass()
 {
+	const float zNear = 0.01f;
 	const auto& cameraVpInv = inverse(g_camera.getProjectionMatrix() * g_camera.getViewMatrix());
 
 	m_gBuffer.textures[GBuffer::TextureType::Specular].activeAndBind(1);
 	m_gBuffer.textures[GBuffer::TextureType::Normal].activeAndBind(2);
 	m_gBuffer.textures[GBuffer::TextureType::Depth].activeAndBind(3);
+
+	auto renderGeometry = [] (const Matrix4x4f& view, const Matrix4x4f& projection, int viewportWidth, int viewportHeight, ShaderProgram* program)
+	{
+		glDepthMask(true);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glCullFace(GL_FRONT);
+		glViewport(0, 0, viewportWidth, viewportHeight);
+		program->use();
+
+		TransformComponent transformComp;
+		RenderComponent renderComp;
+
+		for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+		{
+			Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+			Matrix4x4f mvp = projection * view * model;
+			program->setUniform("mvp", mvp);
+
+			glBindVertexArray(renderComp.mesh->vao);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+		}
+	};
+
+	auto setupForLightingWithShadows = [&] (const Matrix4x4f& view, const Matrix4x4f& projection, RenderTexture& shadowRT, ShaderProgram* program)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glDisable(GL_DEPTH_TEST);
+		glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
+		glDepthMask(false);
+		glCullFace(GL_BACK);
+
+		m_lightingRT.bind();
+
+		program->use();
+		shadowRT.depthTexture.activeAndBind(4);
+
+		program->setUniform("shadowVp", projection * view);
+	};
 
 	m_lightingRT.bind();
 
@@ -231,6 +277,7 @@ void RenderSystem::lightPass()
 	glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDepthMask(false);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
 	// Ambient light
@@ -246,59 +293,22 @@ void RenderSystem::lightPass()
 
 	// Directional lights
 	static ShaderProgram* directionalShadowMapProgram = g_shaderManager.getShaderProgram("shadowMap");
-	ShaderProgram* directionalLightProgram = g_shaderManager.getShaderProgram("directionalLightShadow");
+	ShaderProgram* directionalLightProgram;
 	for (const auto& light : m_directionalLights)
 	{
 		if (light.isOn)
 		{
 			if (light.castsShadow)
 			{
-				//m_lightingRT.unbind();
-				m_dirLightDepthRT.bind();
-
-				// Shadow map
+				Matrix4x4f view = Camera::lookAt(-light.direction, Vector3f::Zero, Vector3f::Up);
 				// TODO: proper size
-
 				Matrix4x4f projection = ortho(-35, 35, -35, 35, -35, 35);
-				Vector3f lightDirInv = -light.direction;
-				Matrix4x4f view = Camera::lookAt(lightDirInv, Vector3f::Zero, Vector3f::Up);
-
-				directionalShadowMapProgram->use();
-
-				glDepthMask(true);
-				glClear(GL_DEPTH_BUFFER_BIT);
-				glEnable(GL_DEPTH_TEST);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glCullFace(GL_FRONT);
-				glViewport(0, 0, m_dirLightDepthRT.width, m_dirLightDepthRT.height);
-
-				TransformComponent transformComp;
-				RenderComponent renderComp;
-
-				for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
-				{
-					Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
-					Matrix4x4f mvp = projection * view * model;
-					directionalShadowMapProgram->setUniform("mvp", mvp);
-
-					glBindVertexArray(renderComp.mesh->vao);
-					glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
-				}
-
-				// Lighting
-				glBlendFunc(GL_ONE, GL_ONE);
-				glDisable(GL_DEPTH_TEST);
-				glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
-				glDepthMask(false);
-				glCullFace(GL_BACK);
-
-				m_lightingRT.bind();
-
-				directionalLightProgram->use();
-				m_dirLightDepthRT.depthTexture.activeAndBind(4);
-
+				
+				m_dirLightShadowRT.bind();
+				renderGeometry(view, projection, m_dirLightShadowRT.width, m_dirLightShadowRT.height, directionalShadowMapProgram);
+				directionalLightProgram = g_shaderManager.getShaderProgram("directionalLightShadow");
+				setupForLightingWithShadows(view, projection, m_dirLightShadowRT, directionalLightProgram);
 				directionalLightProgram->setUniform("cameraVpInv", cameraVpInv);
-				directionalLightProgram->setUniform("shadowVp", projection * view);
 			}
 			else
 			{
@@ -314,31 +324,101 @@ void RenderSystem::lightPass()
 	}
 
 	// Point lights
-	static ShaderProgram* pointLightProgram = g_shaderManager.getShaderProgram("pointLight");
-	pointLightProgram->use();
+	static ShaderProgram* pointShadowMapProgram = g_shaderManager.getShaderProgram("shadowMapCube");
+	ShaderProgram* pointLightProgram;
 	for (const auto& light : m_pointLights)
 	{
 		if (light.isOn)
 		{
+			if (light.castsShadow)
+			{
+				Matrix4x4f projection = Camera::perspectiveFov(toRadians(90.f), static_cast<float>(m_pointLightShadowRT.width), static_cast<float>(m_pointLightShadowRT.height), zNear, light.attenuation.range);
+
+				m_pointLightShadowRT.bind();
+				for (int i = 0; i < 6; ++i)
+				{
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_pointLightShadowRT.shadowTexture.textureHandle, 0);
+					Matrix4x4f view = Camera::lookAt(light.position, light.position + Camera::CameraDirections[i].dir, Camera::CameraDirections[i].up);
+
+					glDepthMask(true);
+					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+					glEnable(GL_DEPTH_TEST);
+					glDisable(GL_BLEND);
+					glCullFace(GL_BACK);
+					glViewport(0, 0, m_pointLightShadowRT.width, m_pointLightShadowRT.height);
+					pointShadowMapProgram->use();
+					pointShadowMapProgram->setUniform("lightPosition", light.position);
+
+					TransformComponent transformComp;
+					RenderComponent renderComp;
+
+					for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+					{
+						Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+						Matrix4x4f mvp = projection * view * model;
+						pointShadowMapProgram->setUniform("mvp", mvp);
+						pointShadowMapProgram->setUniform("model", model);
+
+						glBindVertexArray(renderComp.mesh->vao);
+						glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(renderComp.mesh->indices.size()), GL_UNSIGNED_SHORT, nullptr);
+					}
+				}
+				m_pointLightShadowRT.unbind();
+
+				m_lightingRT.bind();
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_ONE, GL_ONE);
+				glDisable(GL_DEPTH_TEST);
+				glViewport(0, 0, m_lightingRT.width, m_lightingRT.height);
+				glDepthMask(false);
+				glCullFace(GL_BACK);
+
+				pointLightProgram = g_shaderManager.getShaderProgram("pointLightShadow");
+				pointLightProgram->use();
+				m_pointLightShadowRT.shadowTexture.activeAndBind(4);
+			}
+			else
+			{
+				pointLightProgram = g_shaderManager.getShaderProgram("pointLight");
+				pointLightProgram->use();
+			}
+
+			pointLightProgram->setUniform("cameraVpInv", cameraVpInv);
 			pointLightProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
 			pointLightProgram->setUniform("light.position", light.position);
 			pointLightProgram->setUniform("light.attenuation.constant", light.attenuation.constant);
 			pointLightProgram->setUniform("light.attenuation.linear", light.attenuation.linear);
 			pointLightProgram->setUniform("light.attenuation.quadratic", light.attenuation.quadratic);
 			pointLightProgram->setUniform("light.attenuation.range", light.attenuation.range);
-			pointLightProgram->setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
 	}
 
 	// Spot lights
-	static ShaderProgram* spotLightProgram = g_shaderManager.getShaderProgram("spotLight");
-	spotLightProgram->use();
+	static ShaderProgram* spotShadowMapProgram = g_shaderManager.getShaderProgram("shadowMap");
+	ShaderProgram* spotLightProgram;
 	for (const auto& light : m_spotLights)
 	{
 		if (light.isOn)
 		{
+			if (light.castsShadow)
+			{
+				Matrix4x4f view = Camera::lookAt(light.position, light.position + light.direction, Vector3f::Up);
+				Matrix4x4f projection = Camera::perspectiveFov(2 * light.coneAngle, static_cast<float>(m_spotLightShadowRT.width), static_cast<float>(m_spotLightShadowRT.height), zNear, light.attenuation.range);
+
+				m_spotLightShadowRT.bind();
+				renderGeometry(view, projection, m_spotLightShadowRT.width, m_spotLightShadowRT.height, spotShadowMapProgram);
+				spotLightProgram = g_shaderManager.getShaderProgram("spotLightShadow");
+				setupForLightingWithShadows(view, projection, m_spotLightShadowRT, spotLightProgram);
+			}
+			else
+			{
+				spotLightProgram = g_shaderManager.getShaderProgram("spotLight");
+				spotLightProgram->use();
+			}
+
+			spotLightProgram->setUniform("cameraVpInv", cameraVpInv);
 			spotLightProgram->setUniform("light.base.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
 			spotLightProgram->setUniform("light.base.position", light.position);
 			spotLightProgram->setUniform("light.base.attenuation.constant", light.attenuation.constant);
@@ -347,12 +427,10 @@ void RenderSystem::lightPass()
 			spotLightProgram->setUniform("light.base.attenuation.range", light.attenuation.range);
 			spotLightProgram->setUniform("light.direction", light.direction);
 			spotLightProgram->setUniform("light.coneAngle", light.coneAngle);
-			spotLightProgram->setUniform("cameraVpInv", cameraVpInv);
 
 			drawFullscreenQuad();
 		}
 	}
-	spotLightProgram->stopUsing();
 
 	m_lightingRT.unbind();
 }
@@ -380,6 +458,7 @@ void RenderSystem::outPass()
 	fontShaderProgram->use();
 
 	glDepthMask(GL_FALSE);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindVertexArray(m_fontVao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_fontVbo);

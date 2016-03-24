@@ -1,51 +1,34 @@
 #include "Graphics/CubeTexture.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Image.h"
 #include "Core/Utility.h"
 #include "Window/Window.h"
-
-#include <stb/stb_image.h>
 
 namespace Amber
 {
 
-CubeTexture::CubeTexture()
+bool CubeTexture::loadFromFile(std::string front, std::string back, std::string top, std::string bottom, std::string left, std::string right, TextureFilter minMag, TextureWrapMode wrap)
 {
-}
-
-GLuint CubeTexture::getTextureID() const
-{
-	return m_TextureHandle;
-}
-
-bool CubeTexture::loadSide(std::string filename, GLenum sideTarget)
-{
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureHandle);
-
-	// TODO: write helper for this
-	int x, y, n;
-	int forceChannels = 4;
-	unsigned char*  imageData = stbi_load(filename.c_str(), &x, &y, &n, forceChannels);
-	if (!imageData)
+	auto loadSide = [&](const std::string& name, GLenum target) -> bool
 	{
-		// TODO: non-critical error
-		criticalError("ERROR: Could not load texture " + filename + " for cubemap.");
-		return false;
-	}
-	// non-power-of-2 dimensions check
-	if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0)
-	{
-		log("WARNING: Image \"" + filename + "\" is not power-of-2 dimensions.");
-	}
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
 
-	glTexImage2D(sideTarget, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	stbi_image_free(imageData);
+		Image image;
+		if (image.create("Textures/" + name))
+		{
+			criticalError("Error loading texture from: " + name + "\nReason: " + getImageLoadError());
+			return false;
+		}
+		width = image.width;
+		height = image.height;
 
-	return true;
-}
+		glTexImage2D(target, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
+		image.destroy();
 
-bool CubeTexture::create(std::string front, std::string back, std::string top, std::string bottom, std::string left, std::string right)
-{
-	glActiveTexture(GL_TEXTURE0);
-	glGenTextures(1, &m_TextureHandle);
+		return true;
+	};
+
+	glGenTextures(1, &textureHandle);
 
 	bool result = true;
 	result &= loadSide(front, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
@@ -56,13 +39,57 @@ bool CubeTexture::create(std::string front, std::string back, std::string top, s
 	result &= loadSide(left, GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
 	result &= loadSide(right, GL_TEXTURE_CUBE_MAP_POSITIVE_X);
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	setFilterAndWrap();
 
 	return result;
+}
+
+void CubeTexture::genAndBind()
+{
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+}
+
+void CubeTexture::genAndBind(int w, int h)
+{
+	glGenTextures(1, &textureHandle);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+
+	width = w;
+	height = h;
+}
+
+void CubeTexture::activeAndBind(GLuint position)
+{
+	assert_amber(position < Texture::MAX_TEXTURE_POSITION, "Invalid texture position : " + position);
+
+	glActiveTexture(GL_TEXTURE0 + position);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureHandle);
+}
+
+void CubeTexture::unbind()
+{
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+void CubeTexture::setFilterAndWrap(TextureFilter minMag, TextureWrapMode wrap)
+{
+	minMagfilter = minMag;
+	wrapMode = wrap;
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap));
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap));
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, static_cast<GLint>(wrap));
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(minMag));
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(minMag));
+}
+
+void CubeTexture::destroy()
+{
+	if (textureHandle != -1)
+		glDeleteTextures(1, &textureHandle);
+
+	textureHandle = -1;
 }
 
 }

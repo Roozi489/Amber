@@ -1,13 +1,17 @@
 Critical:
 ------------------------------------
+World size
+Frustum culling
+Layered Images
 
 Major:
 ------------------------------------
-Shadow mapping
+Add Shader name
+Mesh loader
+Stencil buffer for optimalization
 Proper models with pbr materials
 Specular component
 Uniform buffer object
-Frustrum culling
 Proper logging
 Entity tag as string
 Memory allocators
@@ -19,7 +23,6 @@ Cleanup EntityManager
 Proper file system stuff
 Better resource managment
 Better Camera
-Fix loading of models with no texture coords
 HDR
 Displacement mapping (terrain)
 Anisotropic reflections

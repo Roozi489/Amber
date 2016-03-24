@@ -8,6 +8,8 @@ namespace Amber
 const uint8* Input::m_keyboardState;
 uint32 Input::m_mouseState;
 
+uint8* Input::m_lastKeyboardState;
+
 int Input::m_mouseX;
 int Input::m_mouseY;
 
@@ -28,6 +30,8 @@ Input::~Input()
 
 void Input::init()
 {
+	m_lastKeyboardState = new uint8[SDL_NUM_SCANCODES];
+
 	SDL_PumpEvents();
 	m_keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -36,6 +40,8 @@ void Input::init()
 
 void Input::update()
 {
+	memcpy(m_lastKeyboardState, m_keyboardState, SDL_NUM_SCANCODES);
+
 	SDL_PumpEvents();
 	m_keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -71,6 +77,11 @@ int Input::mouseRelativeChangeY()
 bool Input::isKeyDown(SDL_Scancode code)
 {
 	return m_keyboardState[code] != 0;
+}
+
+bool Input::isKeyPressed(SDL_Scancode code)
+{
+	return m_keyboardState[code] != 0 && m_lastKeyboardState[code] == 0;
 }
 
 bool Input::MouseLeftDown()

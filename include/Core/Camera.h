@@ -6,10 +6,18 @@
 
 namespace Amber
 {
+struct CameraDirs
+{
+	Vector3f dir;
+	Vector3f up;
+};
 
 class Camera
 {
 public:
+	static const CameraDirs CameraDirections[];
+
+	// TODO implement these
 	bool lockOnTarget = false;
 	bool smoothMovement = false;
 
@@ -42,10 +50,11 @@ public:
 	const Matrix4x4f& getViewMatrix() const;
 	
 	static Matrix4x4f perspectiveFov(float fov, float width, float height, float zNear);
-	static Matrix4x4f lookAt(Vector3f& eye, Vector3f center, Vector3f up);
+	static Matrix4x4f perspectiveFov(float fovX, float width, float height, float zNear, float zFar);
+	static Matrix4x4f lookAt(const Vector3f& eye, const Vector3f center, const Vector3f up);
 
 private:
-	float m_nearPlane = 0.1f;
+	float m_nearPlane = 0.01f;
 	float m_farPlane = 10000.f;
 
 	Quaternion orientation;

@@ -16,6 +16,7 @@ public:
 	static void update();
 
 	static bool isKeyDown(SDL_Scancode code);
+	static bool isKeyPressed(SDL_Scancode code);
 
 	static int mouseX();
 	static int mouseY();
@@ -28,6 +29,8 @@ public:
 private:
 	static const uint8* m_keyboardState;
 	static uint32 m_mouseState;
+
+	static uint8* m_lastKeyboardState;
 
 	static int m_mouseX;
 	static int m_mouseY;
