@@ -2,5 +2,5 @@
 bin/
 *.opendb
 *.sdf
-data/log.txt
-data/error.txt
+/data/log.txt
+/data/error.txt

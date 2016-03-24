@@ -84,9 +84,9 @@ void RenderSystem::init()
 	
 	PointLight pointLight;
 	//pointLight.castsShadow = false;
-	pointLight.intensity = 300.f;
+	pointLight.intensity = 700.f;
 	pointLight.color = Color::White;
-	pointLight.position = Vector3f(7.f, 7.f, 7.f);
+	pointLight.position = Vector3f(7.f, 9.f, 7.f);
 	pointLight.attenuation.range = 30.f;
 	m_pointLights.push_back(pointLight);
 
@@ -351,7 +351,7 @@ void RenderSystem::lightPass()
 
 					TransformComponent transformComp;
 					RenderComponent renderComp;
-
+					
 					for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 					{
 						Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);

@@ -10,12 +10,12 @@ namespace Amber
 
 const CameraDirs Camera::CameraDirections[] =
 {
-	{ Vector3f::Right, Vector3f(0.0f, -1.0f, 0.0f) },
-	{ Vector3f::Left, Vector3f(0.0f, -1.0f, 0.0f) },
-	{ Vector3f::Up, Vector3f(0.0f, 0.0f, -1.0f) },
-	{ Vector3f::Down, Vector3f(0.0f, 0.0f, -1.0f) },
-	{ Vector3f::Backward, Vector3f(0.0f, -1.0f, 0.0f) },
-	{ Vector3f::Forward, Vector3f(0.0f, -1.0f, 0.0f) },
+	{ { 1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+	{ { -1.f, 0.f, 0.f }, { 0.f, -1.f, 0.f } },
+	{ { 0.f, 1.f, 0.f }, { 0.f, 0.f, -1.f } },
+	{ { 0.f, -1.f, 0.f }, { 0.f, 0.f, -1.f } },
+	{ { 0.f, 0.f, 1.f }, { 0.f, -1.f, 0.f } },
+	{ { 0.f, 0.f, -1.f }, { 0.f, -1.f, 0.f } },
 };
 
 Camera::Camera()
