@@ -18,9 +18,66 @@ Quaternion::Quaternion(float x, float y, float z, float w)
 
 }
 
-Vector3f Quaternion::getXYZVec()
+Matrix4x4f Quaternion::toMatrix() const
 {
-	return xyz;
+	Matrix4x4f mat = Matrix4x4f::Identity;
+	Quaternion a = normalize(*this);
+
+	float xx = a.x * a.x;
+	float yy = a.y * a.y;
+	float zz = a.z * a.z;
+	float xy = a.x * a.y;
+	float xz = a.x * a.z;
+	float yz = a.y * a.z;
+	float wx = a.w * a.x;
+	float wy = a.w * a.y;
+	float wz = a.w * a.z;
+
+	mat[0][0] = 1.0f - 2.0f * (yy + zz);
+	mat[0][1] = 2.0f * (xy + wz);
+	mat[0][2] = 2.0f * (xz - wy);
+
+	mat[1][0] = 2.0f * (xy - wz);
+	mat[1][1] = 1.0f - 2.0f * (xx + zz);
+	mat[1][2] = 2.0f * (yz + wx);
+
+	mat[2][0] = 2.0f * (xz + wy);
+	mat[2][1] = 2.0f * (yz - wx);
+	mat[2][2] = 1.0f - 2.0f * (xx + yy);
+
+	return mat;
+}
+
+float Quaternion::angle() const
+{
+	return 2.f * acos(w);
+}
+
+Vector3f Quaternion::axis() const
+{
+	// 1 - cos(theta/2)*cos(theta/2) = sin(theta/2)*sin(theta/2)
+	float s2 = 1.f - w * w;
+	if (s2 <= 0.f)
+		return Vector3f(0, 0, 1.f);
+
+	float invs2 = 1.f / sqrt(s2);
+
+	return xyz * invs2;
+}
+
+float Quaternion::roll() const
+{
+	return atan2(2.0f * x * y + z * w, x * x + w * w - y * y - z * z);
+}
+
+float Quaternion::pitch() const
+{
+	return atan2(2.0f * y * z + w * x, w * w - x * x - y * y + z * z);
+}
+
+float Quaternion::yaw() const
+{
+	return asin(-2.0f * (x * z - w * y));
 }
 
 Quaternion operator-(const Quaternion& lhs)
@@ -112,23 +169,6 @@ Vector3f operator*(const Quaternion& q, const Vector3f& v)
 	return (v + q.w * t + cross(q.xyz, t));
 }
 
-float angle(const Quaternion& q)
-{
-	return 2.f * acos(q.w);
-}
-
-Vector3f axis(const Quaternion& q)
-{
-	// 1 - cos(theta/2)*cos(theta/2) = sin(theta/2)*sin(theta/2)
-	float s2 = 1.f - q.w * q.w;
-	if (s2 <= 0.f)
-		return Vector3f(0, 0, 1.f);
-
-	float invs2 = 1.f / sqrt(s2);
-
-	return q.xyz * invs2;
-}
-
 Quaternion angleAxis(float angle, const Vector3f& axis)
 {
 	Quaternion q;
@@ -144,32 +184,7 @@ Quaternion angleAxis(float angle, const Vector3f& axis)
 
 Matrix4x4f quaternionToMatrix4x4f(const Quaternion& q)
 {
-	Matrix4x4f mat = Matrix4x4f::Identity;
-	Quaternion a = normalize(q);
-
-	float xx = a.x * a.x;
-	float yy = a.y * a.y;
-	float zz = a.z * a.z;
-	float xy = a.x * a.y;
-	float xz = a.x * a.z;
-	float yz = a.y * a.z;
-	float wx = a.w * a.x;
-	float wy = a.w * a.y;
-	float wz = a.w * a.z;
-
-	mat[0][0] = 1.0f - 2.0f * (yy + zz);
-	mat[0][1] = 2.0f * (xy + wz);
-	mat[0][2] = 2.0f * (xz - wy);
-
-	mat[1][0] = 2.0f * (xy - wz);
-	mat[1][1] = 1.0f - 2.0f * (xx + zz);
-	mat[1][2] = 2.0f * (yz + wx);
-
-	mat[2][0] = 2.0f * (xz + wy);
-	mat[2][1] = 2.0f * (yz - wx);
-	mat[2][2] = 1.0f - 2.0f * (xx + yy);
-
-	return mat;
+	return q.toMatrix();
 }
 
 Quaternion matrix4x4fToQuaternion(const Matrix4x4f& m)
@@ -204,55 +219,40 @@ Quaternion matrix4x4fToQuaternion(const Matrix4x4f& m)
 
 	switch (biggestIndex)
 	{
-		case 0:
-			q.w = biggestVal;
-			q.x = (m[1][2] - m[2][1]) * mult;
-			q.y = (m[2][0] - m[0][2]) * mult;
-			q.z = (m[0][1] - m[1][0]) * mult;
-			break;
-		case 1:
-			q.w = (m[1][2] - m[2][1]) * mult;
-			q.x = biggestVal;
-			q.y = (m[0][1] + m[1][0]) * mult;
-			q.z = (m[2][0] + m[0][2]) * mult;
-			break;
-		case 2:
-			q.w = (m[2][0] - m[0][2]) * mult;
-			q.x = (m[0][1] + m[1][0]) * mult;
-			q.y = biggestVal;
-			q.z = (m[1][2] + m[2][1]) * mult;
-			break;
-		case 3:
-			q.w = (m[0][1] - m[1][0]) * mult;
-			q.x = (m[2][0] + m[0][2]) * mult;
-			q.y = (m[1][2] + m[2][1]) * mult;
-			q.z = biggestVal;
-			break;
-		default: // Should never happen.
-			break;
+	case 0:
+		q.w = biggestVal;
+		q.x = (m[1][2] - m[2][1]) * mult;
+		q.y = (m[2][0] - m[0][2]) * mult;
+		q.z = (m[0][1] - m[1][0]) * mult;
+		break;
+	case 1:
+		q.w = (m[1][2] - m[2][1]) * mult;
+		q.x = biggestVal;
+		q.y = (m[0][1] + m[1][0]) * mult;
+		q.z = (m[2][0] + m[0][2]) * mult;
+		break;
+	case 2:
+		q.w = (m[2][0] - m[0][2]) * mult;
+		q.x = (m[0][1] + m[1][0]) * mult;
+		q.y = biggestVal;
+		q.z = (m[1][2] + m[2][1]) * mult;
+		break;
+	case 3:
+		q.w = (m[0][1] - m[1][0]) * mult;
+		q.x = (m[2][0] + m[0][2]) * mult;
+		q.y = (m[1][2] + m[2][1]) * mult;
+		q.z = biggestVal;
+		break;
+	default: // Should never happen.
+		break;
 	}
 
 	return q;
 }
 
-float roll(const Quaternion& q)
-{
-	return atan2(2.0f * q.x * q.y + q.z * q.w, q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z);
-}
-
-float pitch(const Quaternion& q)
-{
-	return atan2(2.0f * q.y * q.z + q.w * q.x, q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
-}
-
-float yaw(const Quaternion& q)
-{
-	return asin(-2.0f * (q.x * q.z - q.w * q.y));
-}
-
 EulerAngles quaternionToEulerAngles(const Quaternion& q)
 {
-	return{ pitch(q), yaw(q), roll(q) };
+	return{ q.pitch(), q.yaw(), q.roll() };
 }
 
 Quaternion eulerAnglesToQuaternion(const EulerAngles& e, const Vector3f& xAxis, const Vector3f& yAxis, const Vector3f& zAxis)

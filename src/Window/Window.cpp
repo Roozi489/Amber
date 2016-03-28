@@ -108,16 +108,6 @@ void Window::display()
 	SDL_GL_SwapWindow(m_sdlWindow);
 }
 
-int Window::getWidth() const
-{
-	return m_width;
-}
-
-int Window::getHeight() const
-{
-	return m_height;
-}
-
 void Window::setIcon(const std::string& path)
 {
 	SDL_Surface* iconSurface = loadSDL_SurfaceFromFile(path.c_str());

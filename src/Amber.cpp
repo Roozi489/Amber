@@ -55,8 +55,8 @@ void Amber::init()
 	g_world.setupLevel();
 
 	g_camera.init();
-	g_camera.setPosition(Vector3f(0.f, 50.f, 60.f));
-	g_camera.offsetOrientation(0.f, -0.75f);
+	g_camera.setPosition(Vector3f(0.f, 38.f, 40.f));
+	g_camera.offsetOrientation(0.f, -0.9f);
 }
 
 void Amber::update(Time delta)

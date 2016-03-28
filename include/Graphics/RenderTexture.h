@@ -37,6 +37,8 @@ public:
 	void destroy();
 	void bind();
 	void unbind();
+
+	float ratio() const;
 };
 
 }

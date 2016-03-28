@@ -30,9 +30,9 @@ Plane::Plane(Triangle triangle)
 
 }
 
-bool Plane::isFrontFacingTo(const Vector3f& direction) const
+bool Plane::isFrontFacingTo(const Vector3f& point) const
 {
-	return dot(normal, direction) <= 0;
+	return dot(point, normal) + equation[3] > 0;
 }
 
 float Plane::signedDistanceTo(const Vector3f& point) const

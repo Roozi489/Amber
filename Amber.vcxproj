@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;</IncludePath>
-    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);include;</IncludePath>
@@ -173,6 +173,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Math\Frustum.cpp" />
+    <ClCompile Include="src\Math\AABB.cpp" />
     <ClCompile Include="src\Graphics\RenderTextureCubeShadow.cpp" />
     <ClCompile Include="src\Window\File.cpp" />
     <ClCompile Include="src\Amber.cpp" />
@@ -219,6 +221,8 @@
     <ClCompile Include="src\Core\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Math\Frustum.h" />
+    <ClInclude Include="include\Math\AABB.h" />
     <ClInclude Include="include\Window\File.h" />
     <ClInclude Include="include\Amber.h" />
     <ClInclude Include="include\Components\BaseComponent.h" />

@@ -363,6 +363,16 @@ Matrix4x4<T> operator*(const Matrix4x4<T>& lhs, const Matrix4x4<T>& rhs)
 }
 
 template <typename T>
+Vector3<T> operator*(const Matrix4x4<T>& lhs, const Vector3<T>& rhs)
+{
+	Vector3<T> tmp;
+	tmp.x = rhs.x * lhs.getValue(0, 0) + rhs.y * lhs.getValue(1, 0) + rhs.z * lhs.getValue(2, 0) + lhs.getValue(3, 0);
+	tmp.y = rhs.x * lhs.getValue(0, 1) + rhs.y * lhs.getValue(1, 1) + rhs.z * lhs.getValue(2, 1) + lhs.getValue(3, 1);
+	tmp.z = rhs.x * lhs.getValue(0, 2) + rhs.y * lhs.getValue(1, 2) + rhs.z * lhs.getValue(2, 2) + lhs.getValue(3, 2);
+	return tmp;
+}
+
+template <typename T>
 Matrix4x4<T> operator*(const T& lhs, const Matrix4x4<T>& rhs)
 {
 	Matrix4x4<T> newMatrix;
@@ -376,73 +386,6 @@ Matrix4x4<T> operator/(const T& lhs, const Matrix4x4<T>& rhs)
 	Matrix4x4<T> newMatrix;
 	for (int i = 0; i < newMatrix.dataLength; ++i) newMatrix.data[i] = lhs / rhs.data[i];
 	return newMatrix;
-}
-
-
-template <typename T>
-Matrix4x4<T> Matrix4x4<T>::translate(const Vector3<T>& v)
-{
-	return translate(Matrix4x4f::Identity, v);
-}
-
-template <typename T>
-Matrix4x4<T> Matrix4x4<T>::translate(const Matrix4x4<T>& matrix, const Vector3<T>& v)
-{
-	Matrix4x4<T> result(matrix);
-	result[3][0] = matrix[0][0] * v.x + matrix[1][0] * v.y + matrix[2][0] * v.z + matrix[3][0];
-	result[3][1] = matrix[0][1] * v.x + matrix[1][1] * v.y + matrix[2][1] * v.z + matrix[3][1];
-	result[3][2] = matrix[0][2] * v.x + matrix[1][2] * v.y + matrix[2][2] * v.z + matrix[3][2];
-	result[3][3] = matrix[0][3] * v.x + matrix[1][3] * v.y + matrix[2][3] * v.z + matrix[3][3];
-	return result;
-}
-
-template <typename T>
-Matrix4x4<T> Matrix4x4<T>::rotate(T angle, Vector3<T> axis)
-{
-	return rotate(Matrix4x4f::Identity, angle, axis);
-}
-
-template <typename T>
-Matrix4x4<T> Matrix4x4<T>::rotate(Matrix4x4<T>& matrix, T angle, Vector3<T> axis)
-{
-	T c = cos(angle);
-	T s = sin(angle);
-
-	axis.normalize();
-
-	Vector3<T> temp = T(1 - c) * axis;
-
-	Matrix4x4<T> rot(0);
-	rot[0][0] = c + temp.x * axis.x;
-	rot[0][1] = 0 + temp.x * axis.y + s * axis.z;
-	rot[0][2] = 0 + temp.x * axis.z - s * axis.y;
-
-	rot[1][0] = 0 + temp.y * axis.x - s * axis.z;
-	rot[1][1] = c + temp.y * axis.y;
-	rot[1][2] = 0 + temp.y * axis.z + s * axis.x;
-
-	rot[2][0] = 0 + temp.z * axis.x + s * axis.y;
-	rot[2][1] = 0 + temp.z * axis.y - s * axis.x;
-	rot[2][2] = c + temp.z * axis.z;
-
-	Matrix4x4<T> result(0.f);
-	result[0][0] = matrix[0][0] * rot[0][0] + matrix[1][0] * rot[0][1] + matrix[2][0] * rot[0][2];
-	result[0][1] = matrix[0][1] * rot[0][0] + matrix[1][1] * rot[0][1] + matrix[2][1] * rot[0][2];
-	result[0][2] = matrix[0][2] * rot[0][0] + matrix[1][2] * rot[0][1] + matrix[2][2] * rot[0][2];
-	result[0][3] = matrix[0][3] * rot[0][0] + matrix[1][3] * rot[0][1] + matrix[2][3] * rot[0][2];
-	result[1][0] = matrix[0][0] * rot[1][0] + matrix[1][0] * rot[1][1] + matrix[2][0] * rot[1][2];
-	result[1][1] = matrix[0][1] * rot[1][0] + matrix[1][1] * rot[1][1] + matrix[2][1] * rot[1][2];
-	result[1][2] = matrix[0][2] * rot[1][0] + matrix[1][2] * rot[1][1] + matrix[2][2] * rot[1][2];
-	result[1][3] = matrix[0][3] * rot[1][0] + matrix[1][3] * rot[1][1] + matrix[2][3] * rot[1][2];
-	result[2][0] = matrix[0][0] * rot[2][0] + matrix[1][0] * rot[2][1] + matrix[2][0] * rot[2][2];
-	result[2][1] = matrix[0][1] * rot[2][0] + matrix[1][1] * rot[2][1] + matrix[2][1] * rot[2][2];
-	result[2][2] = matrix[0][2] * rot[2][0] + matrix[1][2] * rot[2][1] + matrix[2][2] * rot[2][2];
-	result[2][3] = matrix[0][3] * rot[2][0] + matrix[1][3] * rot[2][1] + matrix[2][3] * rot[2][2];
-	result[3][0] = matrix[3][0];
-	result[3][1] = matrix[3][1];
-	result[3][2] = matrix[3][2];
-	result[3][3] = matrix[3][3];
-	return result;
 }
 
 template <typename T>

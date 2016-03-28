@@ -116,10 +116,16 @@ template <typename T>
 Vector3<T> operator-(const Vector3<T>& lhs, const Vector3<T>& rhs) { return Vector3<T>(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z); }
 
 template <typename R, typename T>
-Vector3<T> operator*(R lhs, Vector3<T> rhs) { return Vector3<T>(T(lhs) * rhs.x, T(lhs) * rhs.y, T(lhs) * rhs.z); }
+Vector3<T> operator*(R lhs, Vector3<T> rhs) { return Vector3<T>(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z); }
 
 template <typename R, typename T>
 Vector3<T> operator/(R lhs, Vector3<T> rhs) { return Vector3<T>(T(lhs) / rhs.x, T(lhs) / rhs.y, T(lhs) / rhs.z); }
+
+template <typename T>
+bool operator==(const Vector3<T>& lhs, const Vector3<T>& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
+
+template <typename T>
+bool operator!=(const Vector3<T>& lhs, const Vector3<T>& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y || lhs.z != rhs.z; }
 
 template <typename T>
 T dot(const Vector3<T>& first, const Vector3<T>& second)
@@ -148,6 +154,12 @@ T distance(const Vector3<T>& first, const Vector3<T>& second)
 	T yDist = first.y - second.y;
 	T zDist = first.z - second.z;
 	return std::sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
+}
+
+template <typename T>
+T length(const Vector3<T>& v)
+{
+	return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 template <typename T>
@@ -209,7 +221,7 @@ void Vector2<T>::print() const
 }
 
 template <typename T>
-T Vector2<T>::magnitude() const
+T Vector2<T>::length() const
 {
 	return std::sqrt(x*x + y*y);
 }

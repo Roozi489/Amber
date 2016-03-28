@@ -126,11 +126,11 @@ void GameplaySystem::update(Time delta)
 							if (result.collisionOccured)
 							{
 								soundSystem->playSound("Bleep");
-								Vector3f tmp = sphere.origin - result.collisionPoint;
+								Vector3f tmp = sphere.center - result.collisionPoint;
 								Vector3f moveVector = normalize(Vector3f(tmp.x, 0.f, tmp.z));
 								Vector3f resultNormal = normalize(Vector3f(result.collisionNormal.x, 0.f, result.collisionNormal.z));
 								float speed = ballPhysicsComp.velocity.length() * speedIncrease;
-								Vector3f vectorToCenter = normalize(Vector3f(-sphere.origin.x, 0.f, -sphere.origin.z));
+								Vector3f vectorToCenter = normalize(Vector3f(-sphere.center.x, 0.f, -sphere.center.z));
 								float angle = dot(moveVector, vectorToCenter);
 								// If ball is on the side on the pad
 								if (angle < cosf(toRadians(45.f)))
@@ -144,7 +144,7 @@ void GameplaySystem::update(Time delta)
 								while (result.collisionOccured)
 								{
 									ballTransformComp.position += moveVector * 0.1f;
-									sphere.origin = ballTransformComp.position;
+									sphere.center = ballTransformComp.position;
 									result = sphereMeshCollisionFast(sphere, transformComp, physicsComp.collisionMesh);
 								}
 							}
@@ -160,7 +160,7 @@ void GameplaySystem::update(Time delta)
 
 				// Bounce ball from the edge
 				float ballSize = 1.f;
-				float ballDistFromCenter = distFromCenter(transformComp.position);
+				float ballDistFromCenter = length(transformComp.position);
 				if (ballDistFromCenter + ballSize >= 30.f)
 				{
 					if (lives <= 0)
@@ -191,7 +191,7 @@ void GameplaySystem::update(Time delta)
 					if (otherEntity.tag == Tag::Brick)
 					{
 						// Bounce from brick
-						if (distance(sphere.origin, otherTransformComp.position) <= 2 * otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
+						if (distance(sphere.center, otherTransformComp.position) <= 2 * otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
 						{
 							// TODO: check for collisions with all objects and respond to the first one, then repeat the collision check
 							CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
@@ -224,7 +224,7 @@ void GameplaySystem::update(Time delta)
 						}
 
 						// Bounce from pad
-						if (distance(sphere.origin, otherTransformComp.position) <= otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
+						if (distance(sphere.center, otherTransformComp.position) <= otherPhysicsComp.collisionMesh->getBoundingSphereRadiusFast() + sphere.radius)
 						{
 							CollisionResult result = movingSphereMeshCollision(sphere, physicsComp.velocity * delta.asSeconds(), otherTransformComp, otherPhysicsComp.collisionMesh);
 							if (result.collisionOccured)
@@ -273,11 +273,6 @@ void GameplaySystem::update(Time delta)
 	}	
 }
 
-float GameplaySystem::distFromCenter(Vector3f position)
-{
-	return distance(position, Vector3f::Zero);
-}
-
 float GameplaySystem::angleFromCenter(Vector3f position)
 {
 	Vector3f positionNorm = normalize(position);
@@ -288,14 +283,14 @@ CollisionResult GameplaySystem::sphereMeshCollisionFast(const Sphere& sphere, Tr
 {
 	CollisionResult result;
 	result.collisionOccured = false;
-	Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);;
+	Matrix4x4f modelMatrix = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
 	Matrix4x4f normalMatrix = transpose(inverse(modelMatrix));
 
 	for (size_t i = 0; i < mesh->indices.size(); ++i)
 	{
 		Vector3f vertex = modelMatrix * mesh->vertices[mesh->indices[i]];
 
-		float dist = distance(vertex, sphere.origin);
+		float dist = distance(vertex, sphere.center);
 		if ((dist <= sphere.radius && !result.collisionOccured) || (result.collisionOccured && dist <= sphere.radius && dist < result.collisionDistance))
 		{
 			result.collisionOccured = true;
@@ -314,7 +309,7 @@ CollisionResult GameplaySystem::movingSphereMeshCollision(const Sphere& sphere, 
 {
 	CollisionResult result;
 	result.collisionOccured = false;
-	Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+	Matrix4x4f modelMatrix = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
 	Matrix4x4f normalMatrix = transpose(inverse(modelMatrix));
 
 	for (size_t i = 0; i < mesh->indices.size(); i += 3)
@@ -348,7 +343,7 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 
 	Plane trianglePlane(triangle);
 
-	float sphereOriginDistance = trianglePlane.signedDistanceTo(sphere.origin);
+	float sphereOriginDistance = trianglePlane.signedDistanceTo(sphere.center);
 	float normalDotVelocity = dot(trianglePlane.normal, sphereVelocity);
 
 	float t0;
@@ -358,17 +353,13 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 	// Velocity is parallel to the plane
 	if (normalDotVelocity == 0.f)
 	{
-		if (fabs(sphereOriginDistance) >= 1.0f)
-		{
+		if (abs(sphereOriginDistance) >= 1.0f)
 			return result;
-		}
-		else
-		{
-			// It intersects in the whole range [0..1]
-			embeddedInPlane = true;
-			t0 = 0.0;
-			t1 = 1.0;
-		}
+		
+		// It intersects in the whole range [0..1]
+		embeddedInPlane = true;
+		t0 = 0.0;
+		t1 = 1.0;
 	}
 	else
 	{
@@ -395,7 +386,7 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 
 		if (!embeddedInPlane)
 		{
-			Vector3f planeIntersectionPoint = sphere.origin - trianglePlane.normal + t0 * sphereVelocity;
+			Vector3f planeIntersectionPoint = sphere.center - trianglePlane.normal + t0 * sphereVelocity;
 			if (checkPointInTriangle(planeIntersectionPoint, triangle))
 			{
 				result.collisionOccured = true;
@@ -415,8 +406,8 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 		// Collision with points
 		auto pointCollision = [a, &sphereVelocity, &sphere, &result](const Vector3f& point, const Vector3f& normal)
 		{
-			float b = 2.f * (dot(sphereVelocity, (sphere.origin - point)));
-			float c = (point - sphere.origin).lengthSquared() - 1.f;
+			float b = 2.f * (dot(sphereVelocity, (sphere.center - point)));
+			float c = (point - sphere.center).lengthSquared() - 1.f;
 			float newT;
 			float sphereVelocityLength = sphereVelocity.length();
 			// Collision happens, also checks for lowest time if collision with other stuff already happened
@@ -440,7 +431,7 @@ CollisionResult GameplaySystem::movingSphereTriangleCollision(const Sphere& sphe
 		auto edgeCollision = [a, &velocityLengthSquared, &sphereVelocity, &sphere, &result](const Vector3f& p1, const Vector3f& p2, const Vector3f& n1, const Vector3f& n2)
 		{
 			Vector3f edge = p2 - p1;
-			Vector3f sphereOriginToVertex = p1 - sphere.origin;
+			Vector3f sphereOriginToVertex = p1 - sphere.center;
 			float edgeLengthSquared = edge.lengthSquared();
 			float edgeDotVelocity = dot(edge, sphereVelocity);
 			float edgeDotSphereOriginToVertex = dot(edge, sphereOriginToVertex);

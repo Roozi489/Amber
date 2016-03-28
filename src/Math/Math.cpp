@@ -52,17 +52,127 @@ bool getLowestPosRoot(float a, float b, float c, float maxR, float* root)
 	return false;
 }
 
-Matrix4x4f ortho(float left, float right, float bottom, float top, float zNear, float zFar)
+Matrix4x4f Math::ortho(float left, float right, float bottom, float top, float near, float far)
 {
 	Matrix4x4f result = Matrix4x4f::Identity;
 
 	result[0][0] = 2.0f / (right - left);
 	result[1][1] = 2.0f / (top - bottom);
-	result[2][2] = -2.0f / (zFar - zNear);
+	result[2][2] = -2.0f / (far - near);
 	result[3][0] = -(right + left) / (right - left);
 	result[3][1] = -(top + bottom) / (top - bottom);
-	result[3][2] = -(zFar + zNear) / (zFar - zNear);
+	result[3][2] = -(far + near) / (far - near);
 
+	return result;
+}
+
+Matrix4x4f Math::perspectiveFov(float fovX, float ratio, float zNear)
+{
+	auto e = 1.f / tan(fovX / 2);
+	Matrix4x4f result(0.f);
+	result[0][0] = e;
+	result[1][1] = e / ratio;
+	result[2][2] = -1;
+	result[2][3] = -1;
+	result[3][2] = -2 * zNear;
+	return result;
+}
+
+Matrix4x4f Math::perspectiveFov(float fovX, float ratio, float zNear, float zFar)
+{
+	auto e = 1.f / tan(fovX / 2);
+	Matrix4x4f result(0.f);
+	result[0][0] = e;
+	result[1][1] = e / ratio;
+	result[2][2] = -zFar / (zFar - zNear);
+	result[2][3] = -1;
+	result[3][2] = -(zFar * zNear) / (zFar - zNear);
+	return result;
+}
+
+Matrix4x4f Math::lookAt(const Vector3f& eye, const Vector3f center, const Vector3f up)
+{
+	Vector3f f(normalize(center - eye));
+	Vector3f s(normalize(cross(f, up)));
+	Vector3f u(cross(s, f));
+
+	Matrix4x4f result(0);
+	result.fillDiag(1);
+
+	result[0][0] = s.x;
+	result[1][0] = s.y;
+	result[2][0] = s.z;
+	result[0][1] = u.x;
+	result[1][1] = u.y;
+	result[2][1] = u.z;
+	result[0][2] = -f.x;
+	result[1][2] = -f.y;
+	result[2][2] = -f.z;
+	result[3][0] = -dot(s, eye);
+	result[3][1] = -dot(u, eye);
+	result[3][2] = dot(f, eye);
+	return result;
+}
+
+Matrix4x4f Math::translate(const Vector3f& v)
+{
+	return translate(Matrix4x4f::Identity, v);
+}
+
+Matrix4x4f Math::translate(const Matrix4x4f& matrix, const Vector3f& v)
+{
+	Matrix4x4f result(matrix);
+	result[3][0] = matrix[0][0] * v.x + matrix[1][0] * v.y + matrix[2][0] * v.z + matrix[3][0];
+	result[3][1] = matrix[0][1] * v.x + matrix[1][1] * v.y + matrix[2][1] * v.z + matrix[3][1];
+	result[3][2] = matrix[0][2] * v.x + matrix[1][2] * v.y + matrix[2][2] * v.z + matrix[3][2];
+	result[3][3] = matrix[0][3] * v.x + matrix[1][3] * v.y + matrix[2][3] * v.z + matrix[3][3];
+	return result;
+}
+
+Matrix4x4f Math::rotate(float angle, Vector3f axis)
+{
+	return rotate(Matrix4x4f::Identity, angle, axis);
+}
+
+Matrix4x4f Math::rotate(const Matrix4x4f& matrix, float angle, Vector3f axis)
+{
+	float c = cos(angle);
+	float s = sin(angle);
+
+	axis.normalize();
+
+	Vector3f temp = (1 - c) * axis;
+
+	Matrix4x4f rot(0);
+	rot[0][0] = c + temp.x * axis.x;
+	rot[0][1] = 0 + temp.x * axis.y + s * axis.z;
+	rot[0][2] = 0 + temp.x * axis.z - s * axis.y;
+
+	rot[1][0] = 0 + temp.y * axis.x - s * axis.z;
+	rot[1][1] = c + temp.y * axis.y;
+	rot[1][2] = 0 + temp.y * axis.z + s * axis.x;
+
+	rot[2][0] = 0 + temp.z * axis.x + s * axis.y;
+	rot[2][1] = 0 + temp.z * axis.y - s * axis.x;
+	rot[2][2] = c + temp.z * axis.z;
+
+	Matrix4x4f result(0.f);
+	result[0][0] = matrix[0][0] * rot[0][0] + matrix[1][0] * rot[0][1] + matrix[2][0] * rot[0][2];
+	result[0][1] = matrix[0][1] * rot[0][0] + matrix[1][1] * rot[0][1] + matrix[2][1] * rot[0][2];
+	result[0][2] = matrix[0][2] * rot[0][0] + matrix[1][2] * rot[0][1] + matrix[2][2] * rot[0][2];
+	result[0][3] = matrix[0][3] * rot[0][0] + matrix[1][3] * rot[0][1] + matrix[2][3] * rot[0][2];
+	result[1][0] = matrix[0][0] * rot[1][0] + matrix[1][0] * rot[1][1] + matrix[2][0] * rot[1][2];
+	result[1][1] = matrix[0][1] * rot[1][0] + matrix[1][1] * rot[1][1] + matrix[2][1] * rot[1][2];
+	result[1][2] = matrix[0][2] * rot[1][0] + matrix[1][2] * rot[1][1] + matrix[2][2] * rot[1][2];
+	result[1][3] = matrix[0][3] * rot[1][0] + matrix[1][3] * rot[1][1] + matrix[2][3] * rot[1][2];
+	result[2][0] = matrix[0][0] * rot[2][0] + matrix[1][0] * rot[2][1] + matrix[2][0] * rot[2][2];
+	result[2][1] = matrix[0][1] * rot[2][0] + matrix[1][1] * rot[2][1] + matrix[2][1] * rot[2][2];
+	result[2][2] = matrix[0][2] * rot[2][0] + matrix[1][2] * rot[2][1] + matrix[2][2] * rot[2][2];
+	result[2][3] = matrix[0][3] * rot[2][0] + matrix[1][3] * rot[2][1] + matrix[2][3] * rot[2][2];
+	result[3][0] = matrix[3][0];
+	result[3][1] = matrix[3][1];
+	result[3][2] = matrix[3][2];
+	result[3][3] = matrix[3][3];
 	return result;
 }
 

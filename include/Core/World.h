@@ -4,6 +4,7 @@
 #include "Systems/BaseSystem.h"
 #include "Graphics/Color.h"
 #include "Math/Vector.h"
+#include "Math/AABB.h"
 
 #include <unordered_map>
 #include <memory>
@@ -30,6 +31,7 @@ public:
 	Entity* addBrick(Vector3f position, Color color);
 
 	void setupLevel();
+	AABB computeAABB();
 
 	/*std::unordered_map<ComponentID, Component*> components;
 	template <typename C>

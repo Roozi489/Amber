@@ -24,7 +24,7 @@ struct Vector2
 	Vector2(T _x, T _y);
 
 	void print() const;
-	T magnitude() const;
+	T length() const;
 	void normalize();
 
 	Vector2 operator+(const Vector2& rhs);
@@ -107,6 +107,12 @@ template <typename R, typename T>
 Vector3<T> operator/(R lhs, Vector3<T> rhs);
 
 template <typename T>
+bool operator==(const Vector3<T>& lhs, const Vector3<T>& rhs);
+
+template <typename T>
+bool operator!=(const Vector3<T>& lhs, const Vector3<T>& rhs);
+
+template <typename T>
 T dot(const Vector3<T>& first, const Vector3<T>& second);
 
 template <typename T>
@@ -117,6 +123,9 @@ T getAngleBetwNormVecs(Vector3<T>& first, Vector3<T>& second);
 
 template <typename T>
 T distance(const Vector3<T>& first, const Vector3<T>& second);
+
+template <typename T>
+T length(const Vector3<T>& v);
 
 template <typename T>
 Vector3<T> cross(const Vector3<T>& first, const Vector3<T>& second);

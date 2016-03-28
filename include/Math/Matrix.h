@@ -60,15 +60,6 @@ struct Matrix4x4
 	Matrix4x4 operator*(const T& rhs);
 	Vector3<T> operator*(const Vector3<T>& rhs);
 	Matrix4x4 operator/(const T& rhs);
-
-	// Creates translate matrix
-	static Matrix4x4 translate(const Vector3<T>& v);
-	// Translates the specified matrix by vector
-	static Matrix4x4 translate(const Matrix4x4<T>& matrix, const Vector3<T>& v);
-	// Creates rotation matrix
-	static Matrix4x4 rotate(T angle, Vector3<T> axis);
-	// Rotates the specified matrix by the angle (in radians) around the axis
-	static Matrix4x4 rotate(Matrix4x4& matrix, T angle, Vector3<T> axis);
 };
 
 template <typename T>
@@ -79,6 +70,9 @@ Matrix4x4<T> transpose(const Matrix4x4<T>& matrix);
 
 template <typename T>
 Matrix4x4<T> operator*(const Matrix4x4<T>& lhs, const Matrix4x4<T>& rhs);
+
+template <typename T>
+Vector3<T> operator*(const Matrix4x4<T>& lhs, const Vector3<T>& rhs);
 
 template <typename T>
 Matrix4x4<T> operator*(const T& lhs, const Matrix4x4<T>& rhs);

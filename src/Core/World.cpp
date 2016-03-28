@@ -87,7 +87,7 @@ void World::setupLevel()
 	sponza->addComponent<TransformComponent>(Vector3f::Zero, Vector3f(1.f));
 	sponza->addComponent<RenderComponent>("sponza.obj");
 	sponza->getComponent<RenderComponent>().material.color = Color::White;*/
-	
+
 	addFloor();
 	addBall(Vector3f(0.f, 1.f, 23.1f));
 
@@ -110,6 +110,38 @@ void World::setupLevel()
 		Entity* e = addPad(Vector3f(sinf(toRadians(120.f * i)) * 25, 0.f, cosf(toRadians(120.f * i)) * 25));
 		e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(180.f + 120.f * i), Vector3f::Up);
 	}
+}
+
+AABB World::computeAABB()
+{
+	Vector3f minValues { 9999.f, 9999.f, 9999.f };
+	Vector3f maxValues { -9999.f, -9999.f, -9999.f };
+
+	TransformComponent transformComp;
+	RenderComponent renderComp;
+	for (const Entity& entity : entityManager.entities_with_components(transformComp, renderComp))
+	{
+		Matrix4x4f modelMatrix = Math::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+		auto mesh = renderComp.mesh;
+
+		for (size_t i = 0; i < mesh->indices.size(); ++i)
+		{
+			Vector3f vertex = modelMatrix * mesh->vertices[mesh->indices[i]];
+			if (vertex.x < minValues.x)
+				minValues.x = vertex.x;
+			if (vertex.y < minValues.y)
+				minValues.y = vertex.y;
+			if (vertex.z < minValues.z)
+				minValues.z = vertex.z;
+			if (vertex.x > maxValues.x)
+				maxValues.x = vertex.x;
+			if (vertex.y > maxValues.y)
+				maxValues.y = vertex.y;
+			if (vertex.z > maxValues.z)
+				maxValues.z = vertex.z;
+		}
+	}
+	return AABB::fromMinMax(minValues, maxValues);
 }
 
 void World::initSystems()

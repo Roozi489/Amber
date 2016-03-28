@@ -58,5 +58,9 @@ void RenderTextureCubeShadow::unbind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+float RenderTextureCubeShadow::ratio() const
+{
+	return static_cast<float>(height) / width;
+}
 
 }

@@ -75,7 +75,7 @@ void Mesh::setTexture(const std::string& name)
 void Mesh::calculateBoundingSphereRadiusFast()
 {
 	float max = 0.f;
-	for (auto& v : vertices)
+	for (const auto& v : vertices)
 	{
 		float length = v.length();
 		if (length > max)

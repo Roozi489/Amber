@@ -25,11 +25,12 @@ Camera::Camera()
 
 void Camera::init()
 {
-	position = Vector3f::Zero;
-	orientation = Quaternion::Identity;
+	m_position = Vector3f::Zero;
+	m_orientation = Quaternion::Identity;
+	m_fieldOfViewX = toRadians(60.f);
 
-	m_projectionMatrix = perspectiveFov(toRadians(60.f), static_cast<float>(g_window.getWidth()), static_cast<float>(g_window.getHeight()), m_nearPlane);
-	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
+	m_projectionMatrix = Math::perspectiveFov(m_fieldOfViewX, g_window.windowRatio(), m_nearPlane, m_farPlane);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.m_orientation)) * Math::translate(-g_camera.m_position);
 }
 
 void Camera::update(Time delta)
@@ -66,40 +67,40 @@ void Camera::offsetOrientation(float yaw, float pitch)
 	// absolute up
 	const Quaternion yawRot = angleAxis(yaw, Vector3f::Up);
 	// relative right
-	const Quaternion pitchRot = angleAxis(pitch, orientation * Vector3f::Right);
+	const Quaternion pitchRot = angleAxis(pitch, m_orientation * Vector3f::Right);
 
-	orientation = yawRot * pitchRot * orientation;
+	m_orientation = yawRot * pitchRot * m_orientation;
 	recomputeViewMatrix();
 }
 
 void Camera::moveForward(float value)
 {
-	position += orientation * Vector3f::Forward * value;
+	m_position += forwardVector() * value;
 }
 
 void Camera::moveBackward(float value)
 {
-	position += orientation * Vector3f::Backward * value;
+	m_position += -forwardVector() * value;
 }
 
 void Camera::moveLeft(float value)
 {
-	position += orientation * Vector3f::Left * value;
+	m_position += -rightVector() * value;
 }
 
 void Camera::moveRight(float value)
 {
-	position += orientation * Vector3f::Right * value;
+	m_position += rightVector()  * value;
 }
 
 void Camera::moveUp(float value)
 {
-	position += orientation * Vector3f::Up * value;
+	m_position += upVector() * value;
 }
 
 void Camera::moveDown(float value)
 {
-	position += orientation * Vector3f::Down * value;
+	m_position += -upVector() * value;
 }
 
 void Camera::rotateUp(float value)
@@ -122,15 +123,40 @@ void Camera::rotateRight(float value)
 	offsetOrientation(-value, 0.f);
 }
 
+Vector3f Camera::forwardVector() const
+{
+	return m_orientation * Vector3f::Forward;
+}
+
+Vector3f Camera::upVector() const
+{
+	return m_orientation * Vector3f::Up;
+}
+
+Vector3f Camera::rightVector() const
+{
+	return m_orientation * Vector3f::Right;
+}
+
 Vector3f Camera::getPosition() const
 {
-	return position;
+	return m_position;
 }
 
 void Camera::setPosition(Vector3f pos)
 {
-	position = pos;
+	m_position = pos;
 	recomputeViewMatrix();
+}
+
+float Camera::getFieldOfViewX() const
+{
+	return m_fieldOfViewX;
+}
+
+void Camera::setFieldOfViewX(float fovX)
+{
+	m_fieldOfViewX = fovX;
 }
 
 const Matrix4x4f& Camera::getProjectionMatrix() const
@@ -143,59 +169,19 @@ const Matrix4x4f& Camera::getViewMatrix() const
 	return m_viewMatrix;
 }
 
-Matrix4x4f Camera::perspectiveFov(float fovX, float width, float height, float zNear)
+float Camera::getNearPlane() const
 {
-	float ratio = (height / width);
-	auto e = 1.f / tan(fovX * ratio / 2);
-	Matrix4x4f result(0.f);
-	result[0][0] = e;
-	result[1][1] = e / ratio;
-	result[2][2] = -1;
-	result[2][3] = -1;
-	result[3][2] = -2 * zNear;
-	return result;
+	return m_nearPlane;
 }
 
-Matrix4x4f Camera::perspectiveFov(float fovX, float width, float height, float zNear, float zFar)
+float Camera::getFarPlane() const
 {
-	float ratio = (height / width);
-	auto e = 1.f / tan(fovX * ratio / 2);
-	Matrix4x4f result(0.f);
-	result[0][0] = e;
-	result[1][1] = e / ratio;
-	result[2][2] = -zFar / (zFar - zNear);
-	result[2][3] = -1;
-	result[3][2] = -(zFar * zNear) / (zFar - zNear);
-	return result;
-}
-
-Matrix4x4f Camera::lookAt(const Vector3f& eye, const Vector3f center, const Vector3f up)
-{
-	Vector3f f(normalize(center - eye));
-	Vector3f s(normalize(cross(f, up)));
-	Vector3f u(cross(s, f));
-
-	Matrix4x4f result(0);
-	result.fillDiag(1);
-
-	result[0][0] = s.x;
-	result[1][0] = s.y;
-	result[2][0] = s.z;
-	result[0][1] = u.x;
-	result[1][1] = u.y;
-	result[2][1] = u.z;
-	result[0][2] = -f.x;
-	result[1][2] = -f.y;
-	result[2][2] = -f.z;
-	result[3][0] = -dot(s, eye);
-	result[3][1] = -dot(u, eye);
-	result[3][2] = dot(f, eye);
-	return result;
+	return m_farPlane;
 }
 
 void Camera::recomputeViewMatrix()
 {
-	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.orientation)) * Matrix4x4f::translate(-g_camera.position);
+	m_viewMatrix = quaternionToMatrix4x4f(conjugate(g_camera.m_orientation)) * Math::translate(-g_camera.m_position);
 }
 
 }

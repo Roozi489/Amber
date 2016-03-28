@@ -3,6 +3,7 @@
 #include "Core/String.h"
 #include "Components/TransformComponent.h"
 #include "Components/RenderComponent.h"
+#include "Math/Frustum.h"
 
 namespace Amber
 {
@@ -72,8 +73,8 @@ void RenderSystem::init()
 	//m_skybox.init();
 
 	// Lights
-	m_ambientLight.color = Color::fromByteRGB(50, 50, 50);
-	m_ambientLight.intensity = 0.07f;
+	m_ambientLight.color = Color::White;
+	m_ambientLight.intensity = 0.02f;
 	
 	DirectionalLight dirLight;
 	//dirLight.castsShadow = false;
@@ -84,9 +85,9 @@ void RenderSystem::init()
 	
 	PointLight pointLight;
 	//pointLight.castsShadow = false;
-	pointLight.intensity = 700.f;
-	pointLight.color = Color::White;
-	pointLight.position = Vector3f(7.f, 9.f, 7.f);
+	pointLight.intensity = 300.f;
+	pointLight.color = Color::fromByteRGB(255, 255, 100);
+	pointLight.position = Vector3f(10.f, 12.f, 0.f);
 	pointLight.attenuation.range = 30.f;
 	m_pointLights.push_back(pointLight);
 
@@ -100,7 +101,7 @@ void RenderSystem::init()
 	m_spotLights.push_back(spotLight);
 
 	// Shadow maps
-	// TODO: setting for shadow map size
+	// TODO: settings for shadow map size
 	m_dirLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
 	m_spotLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
 	m_pointLightShadowRT.create(1024, 1024);
@@ -167,7 +168,6 @@ void RenderSystem::drawFullscreenQuad()
 void RenderSystem::geometryPass()
 {
 	/* TODO: sorting
-	1) Run through your game objects and do the update tick on each one. No rendering happens yet.
 	2) Run through the list of game objects, frustum/visibility cull each one, and if visible add its meshes (one mesh per material) to a render list. Generally you want two render lists, one for opaque and one for transparent objects.
 	3) Sort the render list(s) into order. The exact ordering is up to you, but you generally want to at least sort by material/texture/shader for the opaque list, or by depth for the transparent list.
 	4) Run through the sorted render list and do the actual OpenGL calls for each mesh. Only change materials as needed.
@@ -186,17 +186,36 @@ void RenderSystem::geometryPass()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	const Matrix4x4f& vp = g_camera.getProjectionMatrix() * g_camera.getViewMatrix();
+	Frustum cameraFrustum(g_camera.getPosition(), g_camera.forwardVector(), g_camera.getFieldOfViewX(), g_window.windowRatio(), g_camera.getNearPlane(), g_camera.getFarPlane());
 
 	static ShaderProgram* activeShaderProgram = g_shaderManager.getShaderProgram("geometry");
 	activeShaderProgram->use();
 	
 	TransformComponent transformComp;
 	RenderComponent renderComp;
-
-	for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+	
+	for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
 		// TODO: add scale
-		Matrix4x4f modelMatrix = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+		Matrix4x4f modelMatrix = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
+		if (m_frustumCullingEnabled)
+		{
+			// TODO: scene graph that stores and updates aabb (or maybe spheres)
+			auto containsAny = [&cameraFrustum](const Matrix4x4f& model, Mesh* mesh)
+			{
+				for (size_t i = 0; i < mesh->indices.size(); ++i)
+				{
+					Vector3f vertex = model * mesh->vertices[mesh->indices[i]];
+					if (cameraFrustum.containsPoint(vertex))
+						return true;
+				}
+				return false;
+			};
+
+			if (!containsAny(modelMatrix, renderComp.mesh))
+				continue;
+		}
+
 		Matrix4x4f mvp = vp * modelMatrix;
 
 		// TODO: different shaders for different objects ???
@@ -243,9 +262,9 @@ void RenderSystem::lightPass()
 		TransformComponent transformComp;
 		RenderComponent renderComp;
 
-		for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+		for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 		{
-			Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+			Matrix4x4f model = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
 			Matrix4x4f mvp = projection * view * model;
 			program->setUniform("mvp", mvp);
 
@@ -300,9 +319,11 @@ void RenderSystem::lightPass()
 		{
 			if (light.castsShadow)
 			{
-				Matrix4x4f view = Camera::lookAt(-light.direction, Vector3f::Zero, Vector3f::Up);
-				// TODO: proper size
-				Matrix4x4f projection = ortho(-35, 35, -35, 35, -35, 35);
+				Matrix4x4f view = Math::lookAt(-light.direction, Vector3f::Zero, Vector3f::Up);
+				AABB worldAABB = g_world.computeAABB();
+				// TODO: find out why it doesnt work with aabb values
+				float maxDist = max(abs(worldAABB.left()), worldAABB.right(), abs(worldAABB.bottom()), worldAABB.top(), abs(worldAABB.back()), worldAABB.front());
+				Matrix4x4f projection = Math::ortho(-maxDist, maxDist, -maxDist, maxDist, -maxDist, maxDist);
 				
 				m_dirLightShadowRT.bind();
 				renderGeometry(view, projection, m_dirLightShadowRT.width, m_dirLightShadowRT.height, directionalShadowMapProgram);
@@ -332,13 +353,13 @@ void RenderSystem::lightPass()
 		{
 			if (light.castsShadow)
 			{
-				Matrix4x4f projection = Camera::perspectiveFov(toRadians(90.f), static_cast<float>(m_pointLightShadowRT.width), static_cast<float>(m_pointLightShadowRT.height), zNear, light.attenuation.range);
+				Matrix4x4f projection = Math::perspectiveFov(toRadians(90.f), m_pointLightShadowRT.ratio(), zNear, light.attenuation.range);
 
 				m_pointLightShadowRT.bind();
 				for (int i = 0; i < 6; ++i)
 				{
 					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_pointLightShadowRT.shadowTexture.textureHandle, 0);
-					Matrix4x4f view = Camera::lookAt(light.position, light.position + Camera::CameraDirections[i].dir, Camera::CameraDirections[i].up);
+					Matrix4x4f view = Math::lookAt(light.position, light.position + Camera::CameraDirections[i].dir, Camera::CameraDirections[i].up);
 
 					glDepthMask(true);
 					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -352,9 +373,9 @@ void RenderSystem::lightPass()
 					TransformComponent transformComp;
 					RenderComponent renderComp;
 					
-					for (Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
+					for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 					{
-						Matrix4x4f model = Matrix4x4f::translate(transformComp.position) * quaternionToMatrix4x4f(transformComp.orientation);
+						Matrix4x4f model = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
 						Matrix4x4f mvp = projection * view * model;
 						pointShadowMapProgram->setUniform("mvp", mvp);
 						pointShadowMapProgram->setUniform("model", model);
@@ -404,8 +425,8 @@ void RenderSystem::lightPass()
 		{
 			if (light.castsShadow)
 			{
-				Matrix4x4f view = Camera::lookAt(light.position, light.position + light.direction, Vector3f::Up);
-				Matrix4x4f projection = Camera::perspectiveFov(2 * light.coneAngle, static_cast<float>(m_spotLightShadowRT.width), static_cast<float>(m_spotLightShadowRT.height), zNear, light.attenuation.range);
+				Matrix4x4f view = Math::lookAt(light.position, light.position + light.direction, Vector3f::Up);
+				Matrix4x4f projection = Math::perspectiveFov(2 * light.coneAngle, m_spotLightShadowRT.ratio(), zNear, light.attenuation.range);
 
 				m_spotLightShadowRT.bind();
 				renderGeometry(view, projection, m_spotLightShadowRT.width, m_spotLightShadowRT.height, spotShadowMapProgram);

@@ -18,8 +18,9 @@ public:
 	void update();
 	void display();
 
-	int getWidth() const;
-	int getHeight() const;
+	int getWidth() const { return m_width; };
+	int getHeight() const { return m_height; };
+	float windowRatio() const { return static_cast<float>(m_height) / m_width; };
 
 	void setIcon(const std::string& path);
 	SDL_Window* getSdlWindow() const;

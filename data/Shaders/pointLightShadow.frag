@@ -41,6 +41,7 @@ void main()
     vec3 position_ws = calculatePositionFromDepth(texCoord, gl_FragCoord.w, depthValue, cameraVpInv);
     vec3 normal = normalize(2.0 * normalEncoded - vec3(1.0));
 
+    // shadow stuff
     vec3 surfaceToLight = normalize(light.position - position_ws);
     float distanceToLight = length(light.position - position_ws);
 

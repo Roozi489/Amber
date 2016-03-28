@@ -19,13 +19,20 @@ struct Quaternion
 		Vector3f xyz;
 		float data[4];
 	};
-
+	
 	static const Quaternion Identity;
 
 	Quaternion();
 	Quaternion(float x, float y, float z, float w);
 
-	Vector3f getXYZVec();
+	Matrix4x4f toMatrix() const;
+
+	float angle() const;
+	Vector3f axis() const;
+
+	float roll() const;
+	float pitch() const;
+	float yaw() const;
 };
 
 Quaternion operator-(const Quaternion& lhs);
@@ -55,8 +62,6 @@ Quaternion inverse(const Quaternion& q);
 // Rotates v by q
 Vector3f operator*(const Quaternion& q, const Vector3f& v);
 
-float angle(const Quaternion& q);
-Vector3f axis(const Quaternion& q);
 Quaternion angleAxis(float angle, const Vector3f& axis);
 
 Matrix4x4f quaternionToMatrix4x4f(const Quaternion& q);
@@ -69,10 +74,6 @@ struct EulerAngles
 	float yaw;
 	float roll;
 };
-
-float roll(const Quaternion& q);
-float pitch(const Quaternion& q);
-float yaw(const Quaternion& q);
 
 EulerAngles quaternionToEulerAngles(const Quaternion& q);
 Quaternion eulerAnglesToQuaternion(const EulerAngles& e, const Vector3f& xAxis = { 1, 0, 0 }, const Vector3f& yAxis = { 0, 1, 0 }, const Vector3f& zAxis = { 0, 0, 1 });

@@ -147,6 +147,12 @@
     <ClCompile Include="src\Graphics\RenderTextureCubeShadow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math\Frustum.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\String.h">
@@ -297,6 +303,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\RenderTextureCubeShadow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Math\AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Math\Frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

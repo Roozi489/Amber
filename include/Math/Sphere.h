@@ -7,7 +7,7 @@ namespace Amber
 class Sphere
 {
 public:
-	Vector3f origin;
+	Vector3f center;
 	float radius;
 
 	Sphere() = default;

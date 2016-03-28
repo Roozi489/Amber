@@ -1,7 +1,5 @@
 Critical:
 ------------------------------------
-World size
-Frustum culling
 Layered Images
 
 Major:
@@ -11,12 +9,14 @@ Mesh loader
 Stencil buffer for optimalization
 Proper models with pbr materials
 Specular component
+Scene graph
 Uniform buffer object
 Proper logging
+Nicer shadows (VSM)
 Entity tag as string
+Custom String class with string id
 Memory allocators
 Instanced rendering
-Custom String class with string id
 Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
@@ -28,6 +28,7 @@ Displacement mapping (terrain)
 Anisotropic reflections
 Math (trigonometry)
 Proper text rendering
+Better frustum culling (cull shadow maps)
 
 Minor:
 ------------------------------------

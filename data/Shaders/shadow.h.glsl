@@ -32,7 +32,6 @@ float shadowValue(in sampler2DShadow shadowMap, in vec3 position_ws, in mat4 sha
     shadowCoord.xyz = shadowCoord.xyz * vec3(0.5, 0.5, 0.5) + vec3(0.5, 0.5, 0.5);
     
     float sum = 0;
-
     for (int i = 0; i < sampleCount; ++i)
     {
         vec3 tmp = shadowCoord.xyz;
@@ -45,7 +44,8 @@ float shadowValue(in sampler2DShadow shadowMap, in vec3 position_ws, in mat4 sha
 
 float shadowCubeValue(in samplerCubeShadow shadowMap, in vec3 lightToSurface, in float distanceToLight, in float cosTheta)
 {
-    float bias = 0.05 + 0.05 * tan(acos(cosTheta));
+    // TODO: change bias based on the distance from light
+    float bias = 0.1 + 0.2 * tan(acos(cosTheta));
     return texture(shadowMap, vec4(lightToSurface, distanceToLight - bias));
 }
 

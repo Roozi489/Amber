@@ -47,6 +47,8 @@ private:
 	RenderTexture m_outRT;
 	RenderTexture m_lightingRT;
 
+	bool m_frustumCullingEnabled = true;
+
 	GLuint m_fontVao;
 	GLuint m_fontVbo;
 	Texture m_fontTexture;

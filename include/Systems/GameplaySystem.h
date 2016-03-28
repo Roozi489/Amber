@@ -42,7 +42,6 @@ public:
 	virtual void init() override;
 	virtual void update(Time delta) override;
 
-	float distFromCenter(Vector3f position);
 	float angleFromCenter(Vector3f position);
 
 	CollisionResult sphereMeshCollisionFast(const Sphere& sphere, TransformComponent& transformComp, Mesh* mesh);

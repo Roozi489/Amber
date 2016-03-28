@@ -4,7 +4,7 @@ namespace Amber
 {
 
 Sphere::Sphere(Vector3f origin, float radius)
-	: origin(origin)
+	: center(origin)
 	, radius(radius)
 {
 }

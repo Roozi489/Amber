@@ -43,22 +43,28 @@ public:
 	void rotateLeft(float value = 0.005f);
 	void rotateRight(float value = 0.005f);
 
+	Vector3f forwardVector() const;
+	Vector3f upVector() const;
+	Vector3f rightVector() const;
+
 	Vector3f getPosition() const;
 	void setPosition(Vector3f pos);
+	float getFieldOfViewX() const;
+	void setFieldOfViewX(float fovX);
+
+	float getNearPlane() const;
+	float getFarPlane() const;
 
 	const Matrix4x4f& getProjectionMatrix() const;
 	const Matrix4x4f& getViewMatrix() const;
-	
-	static Matrix4x4f perspectiveFov(float fov, float width, float height, float zNear);
-	static Matrix4x4f perspectiveFov(float fovX, float width, float height, float zNear, float zFar);
-	static Matrix4x4f lookAt(const Vector3f& eye, const Vector3f center, const Vector3f up);
 
 private:
 	float m_nearPlane = 0.01f;
 	float m_farPlane = 10000.f;
+	float m_fieldOfViewX;
 
-	Quaternion orientation;
-	Vector3f position;
+	Quaternion m_orientation;
+	Vector3f m_position;
 
 	Matrix4x4f m_projectionMatrix;
 	Matrix4x4f m_viewMatrix;
