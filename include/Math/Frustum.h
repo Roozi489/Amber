@@ -31,7 +31,9 @@ public:
 
 	bool containsPoint(const Vector3f& point) const;
 	bool containsSphere(const Sphere& sphere) const;
-	bool containsAABB(const AABB& aabb) const;
+
+	bool intersectsSphere(const Sphere& sphere) const;
+	bool intersectsAABB(const AABB& aabb) const;
 };
 
 	

@@ -114,8 +114,8 @@ void World::setupLevel()
 
 AABB World::computeAABB()
 {
-	Vector3f minValues { 9999.f, 9999.f, 9999.f };
-	Vector3f maxValues { -9999.f, -9999.f, -9999.f };
+	Vector3f minValues { std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() };
+	Vector3f maxValues { std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() };
 
 	TransformComponent transformComp;
 	RenderComponent renderComp;

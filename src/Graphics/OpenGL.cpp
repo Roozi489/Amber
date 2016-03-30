@@ -1,5 +1,6 @@
 #include "Graphics/OpenGL.h"
-#include "Core/Utility.h"
+#include "Core/Log.h"
+#include "Core/String.h"
 
 #include <string>
 
@@ -8,7 +9,7 @@ namespace Amber
 
 void _checkGlError(const char* file, int line, const char* function)
 {
-	GLenum err(glGetError());
+	GLenum err{ glGetError() };
 
 	while (err != GL_NO_ERROR)
 	{
@@ -33,8 +34,7 @@ void _checkGlError(const char* file, int line, const char* function)
 			break;
 		}
 
-		log("GL Error - " + error + " - " + file + ":" + std::to_string(line) + "  -  " + function);
-		err = glGetError();
+		Log::error(stringFormat("GL Error - %s - %d:%s  -  %s", error, file, line, function));
 	}
 }
 

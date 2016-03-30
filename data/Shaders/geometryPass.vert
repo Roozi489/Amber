@@ -25,7 +25,7 @@ void main()
 {
     position = in_position;
     texCoord = in_texCoord;
-	normal = in_normal;
+    normal = in_normal;
 
     //position_WS = transform.position + quaternionRotate(transform.orientation, transform.scale * position);
 

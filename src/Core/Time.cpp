@@ -1,6 +1,8 @@
 #include "Core/Time.h"
 
 #include <thread>
+#include <iomanip>
+#include <sstream>
 
 namespace Amber
 {
@@ -8,23 +10,33 @@ namespace Amber
 const Time Time::Zero = Time(0);
 
 Time::Time()
-	: mMicroseconds(0)
+	: m_microseconds(0)
 {
 }
 
 float Time::asSeconds() const
 {
-	return mMicroseconds.count() / 1000000.0f;
+	return m_microseconds.count() / 1000000.0f;
 }
 
 float Time::asMilliseconds() const
 {
-	return mMicroseconds.count() / 1000.0f;
+	return m_microseconds.count() / 1000.0f;
 }
 
 int64_t Time::asMicroseconds() const
 {
-	return mMicroseconds.count();
+	return m_microseconds.count();
+}
+
+std::string Time::localTimeString(const char* format)
+{
+	auto in_time_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::stringstream ss;
+	tm timeInfo;
+	localtime_s(&timeInfo, &in_time_t);
+	ss << std::put_time(&timeInfo, format);
+	return ss.str();
 }
 
 Time Time::now()
@@ -40,7 +52,7 @@ void Time::sleep(Time time)
 }
 
 Time::Time(long long microseconds)
-	: mMicroseconds(std::chrono::microseconds(microseconds))
+	: m_microseconds(std::chrono::microseconds(microseconds))
 {
 }
 

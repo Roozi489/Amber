@@ -1,7 +1,7 @@
 #include "Window/Window.h"
 #include "Window/ContextSettings.h"
 #include "Window/Input.h"
-#include "Core/Utility.h"
+#include "Core/Log.h"
 #include "Core/String.h"
 #include "Core/Globals.h"
 #include "Graphics/OpenGL.h"
@@ -28,14 +28,14 @@ void Window::create()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, static_cast<int>(settings.profileMask));
 	// TODO: add double buffering setting (its on by default)
 
-	log("Creating window...");
+	Log::message("Creating window.");
 	m_sdlWindow = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_width, m_height, SDL_WINDOW_OPENGL);
 	if (!m_sdlWindow)
 		criticalError(SDL_GetError());
 
 	setIcon("Textures/amber_icon.png");
 
-	log("Creating context...");
+	Log::message("Creating context.");
 	m_context = SDL_GL_CreateContext(m_sdlWindow);
 	if (!m_context)
 		criticalError(SDL_GetError());
@@ -46,9 +46,9 @@ void Window::create()
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &m_actualGlVersionMajor);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &m_actualGlVersionMinor);
 
-	log(stringFormat("GL Context version: %d.%d", m_actualGlVersionMajor, m_actualGlVersionMinor));
+	Log::message(stringFormat("GL Context version: %d.%d", m_actualGlVersionMajor, m_actualGlVersionMinor));
 
-	log("Initializing GLEW...");
+	Log::message("Initializing GLEW.");
 	glewExperimental = true;
 	if (glewInit() != GLEW_OK)
 		criticalError("Failed to initialize GLEW");

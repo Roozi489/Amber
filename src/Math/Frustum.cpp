@@ -64,11 +64,30 @@ bool Frustum::containsSphere(const Sphere& sphere) const
 	return true;
 }
 
-bool Frustum::containsAABB(const AABB& aabb) const
+bool Frustum::intersectsAABB(const AABB& aabb) const
 {
 	for (const auto& plane : planes)
 	{
-		if (!plane.isFrontFacingTo(aabb.min()) || !plane.isFrontFacingTo(aabb.max()))
+		Vector3f positive{ aabb.min().x, aabb.min().y, aabb.min().z };
+		if (plane.normal.x >= 0)
+			positive.x = aabb.max().x;
+		if (plane.normal.y >= 0)
+			positive.y = aabb.max().y;
+		if (plane.normal.z >= 0)
+			positive.z = aabb.max().z;
+
+		if (plane.signedDistanceTo(positive) < 0)
+			return false;
+	}
+	return true;
+}
+
+bool Frustum::intersectsSphere(const Sphere& sphere) const
+{
+	for (const auto& plane : planes)
+	{
+		float dist = plane.signedDistanceTo(sphere.center);
+		if (dist < -sphere.radius)
 			return false;
 	}
 

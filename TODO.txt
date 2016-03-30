@@ -1,17 +1,15 @@
-Critical:
+Do first:
 ------------------------------------
 Layered Images
 
 Major:
 ------------------------------------
-Add Shader name
 Mesh loader
 Stencil buffer for optimalization
 Proper models with pbr materials
 Specular component
 Scene graph
 Uniform buffer object
-Proper logging
 Nicer shadows (VSM)
 Entity tag as string
 Custom String class with string id
@@ -38,6 +36,7 @@ Antialiasing
 
 Other:
 ------------------------------------
+Worlspace vs homogenous space culling
 ARB_multi_draw_indirect
 Replace stdlib
 

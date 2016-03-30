@@ -1,5 +1,6 @@
 ﻿#include "Amber.h"
 #include "Core/Globals.h"
+#include "Core/Log.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/GameplaySystem.h"
 #include "Systems/SoundSystem.h"
@@ -19,8 +20,9 @@ Amber::~Amber()
 
 void Amber::run()
 {
-	clearFile("error.txt");
-	clearLog();
+	clearFile("Logs/shader_compile_error.txt");
+	Log::init();
+	Log::clearLogs();
 	init();
 
 	g_startTime = Time::now();

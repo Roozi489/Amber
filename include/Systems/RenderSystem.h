@@ -47,17 +47,20 @@ private:
 	RenderTexture m_outRT;
 	RenderTexture m_lightingRT;
 
-	bool m_frustumCullingEnabled = true;
 
 	GLuint m_fontVao;
 	GLuint m_fontVbo;
 	Texture m_fontTexture;
 
+	// Debug info
+	const Time m_fpsUpdateInterval = milliseconds(500);
 	int m_fps = 0;
 	int m_fpsCounter = 0;
 	Time m_timeSinceFpsUpdate = Time::Zero;
+	int m_culledObjectsCount = 0;
 	
-	const Time m_fpsUpdateInterval = milliseconds(500);
+	// Settings
+	bool m_frustumCullingEnabled = true;
 };
 
 }

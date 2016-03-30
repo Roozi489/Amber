@@ -10,7 +10,17 @@ class Plane
 public:
 	Vector3f origin;
 	Vector3f normal;
-	float equation[4];
+	union
+	{
+		struct
+		{
+			float a;
+			float b;
+			float c;
+			float d;
+		};
+		float equation[4];
+	};
 
 	Plane() = default;
 	Plane(Vector3f point, Vector3f normal);

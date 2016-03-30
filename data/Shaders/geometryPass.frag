@@ -26,7 +26,7 @@ layout(location = 0) out vec4 diffuseColor;
 layout(location = 1) out vec4 specularColor;
 layout(location = 2) out vec4 normalOut;
 
-uniform Transform transform;
+uniform vec4 orientation;
 uniform Material material;
 
 //uniform vec3 cameraPosition;
@@ -34,7 +34,7 @@ uniform Material material;
 
 void main()
 {
-    vec3 normal = normalize(quaternionRotate(transform.orientation, normal));
+    vec3 normal = normalize(quaternionRotate(orientation, normal));
 
     if (material.hasTexture)
         diffuseColor = texture(material.diffuseMap, texCoord);

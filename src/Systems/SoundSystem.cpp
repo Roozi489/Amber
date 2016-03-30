@@ -1,6 +1,7 @@
 #include "Systems/SoundSystem.h"
 #include "Core/String.h"
 #include "Core/Utility.h"
+#include "Core/Log.h"
 #include "Window/Window.h"
 
 #include <fmod/fmod_common.h>
@@ -63,7 +64,7 @@ void SoundSystem::update(Time delta)
 	{
 		std::string message = "FMOD::update error - ";
 		message += FMOD_ErrorString(result);
-		log(message);
+		Log::error(message);
 	}
 }
 

@@ -173,6 +173,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Math\Frustum.cpp" />
     <ClCompile Include="src\Math\AABB.cpp" />
     <ClCompile Include="src\Graphics\RenderTextureCubeShadow.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="include\Window\Window.h" />
     <ClInclude Include="include\Core\World.h" />
     <ClInclude Include="include\Graphics\RenderTextureCubeShadow.h" />
+    <ClInclude Include="include\Core\Log.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

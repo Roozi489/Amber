@@ -1,5 +1,5 @@
 #include "Managers/FontManager.h"
-#include "Core/Utility.h"
+#include "Core/Log.h"
 #include "Core/Globals.h"
 
 #include <freetype/ftglyph.h>
@@ -35,7 +35,7 @@ FontManager::~FontManager()
 
 void FontManager::init()
 {
-	log("Initializing FreeType library...");
+	Log::message("Initializing FreeType library...");
 
 	FT_Error error = FT_Init_FreeType(&ftLib);
 	if (error)

@@ -25,11 +25,6 @@ struct CollisionResult
 	CollisionHit collisionHit;
 };
 
-// TODO: Logger
-void log(std::string&& message);
-void log(const std::string& message);
-void clearLog();
-
 
 void _assert(bool expression, const char* message, const char* file, int line, const char* function);
 void _assert(bool expression, const std::string& message, const char* file, int line, const char* function);

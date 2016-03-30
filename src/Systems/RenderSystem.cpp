@@ -75,14 +75,14 @@ void RenderSystem::init()
 	// Lights
 	m_ambientLight.color = Color::White;
 	m_ambientLight.intensity = 0.02f;
-	
+
 	DirectionalLight dirLight;
 	//dirLight.castsShadow = false;
 	dirLight.color = Color::White;
 	dirLight.intensity = 0.2f;
 	dirLight.direction = normalize(Vector3f(0.8f, -1.f, 0.2f));
-    m_directionalLights.push_back(dirLight);
-	
+	m_directionalLights.push_back(dirLight);
+
 	PointLight pointLight;
 	//pointLight.castsShadow = false;
 	pointLight.intensity = 300.f;
@@ -138,6 +138,7 @@ void RenderSystem::update(Time delta)
 
 	displayText(stringFormat("%5.3f ms", g_frameTime.asMilliseconds()), { 0.01f, 0.02f });
 	displayText(stringFormat("%d fps", m_fps), { 0.01f, 0.04f });
+	displayText(stringFormat("Culled objects: %d", m_culledObjectsCount), { 0.01f, 0.06f });
 
 	geometryPass();
 	lightPass();
@@ -187,41 +188,31 @@ void RenderSystem::geometryPass()
 
 	const Matrix4x4f& vp = g_camera.getProjectionMatrix() * g_camera.getViewMatrix();
 	Frustum cameraFrustum(g_camera.getPosition(), g_camera.forwardVector(), g_camera.getFieldOfViewX(), g_window.windowRatio(), g_camera.getNearPlane(), g_camera.getFarPlane());
+	m_culledObjectsCount = 0;
 
 	static ShaderProgram* activeShaderProgram = g_shaderManager.getShaderProgram("geometry");
 	activeShaderProgram->use();
-	
+
 	TransformComponent transformComp;
 	RenderComponent renderComp;
-	
+
 	for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
-		// TODO: add scale
-		Matrix4x4f modelMatrix = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
-		if (m_frustumCullingEnabled)
+		// TODO: scene graph that stores and updates aabb (or maybe spheres)
+		if (m_frustumCullingEnabled && !cameraFrustum.intersectsSphere({ transformComp.position, renderComp.mesh->getBoundingSphereRadiusFast() }))
 		{
-			// TODO: scene graph that stores and updates aabb (or maybe spheres)
-			auto containsAny = [&cameraFrustum](const Matrix4x4f& model, Mesh* mesh)
-			{
-				for (size_t i = 0; i < mesh->indices.size(); ++i)
-				{
-					Vector3f vertex = model * mesh->vertices[mesh->indices[i]];
-					if (cameraFrustum.containsPoint(vertex))
-						return true;
-				}
-				return false;
-			};
-
-			if (!containsAny(modelMatrix, renderComp.mesh))
-				continue;
+			m_culledObjectsCount++;
+			continue;
 		}
 
+		// TODO: add scale
+		Matrix4x4f modelMatrix = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();
 		Matrix4x4f mvp = vp * modelMatrix;
 
 		// TODO: different shaders for different objects ???
 
 		activeShaderProgram->setUniform("mvp", mvp);
-		activeShaderProgram->setUniform("transform", transformComp);
+		activeShaderProgram->setUniform("orientation", transformComp.orientation);
 
 		activeShaderProgram->setUniform("material.hasTexture", renderComp.mesh->hasTexture);
 		if (renderComp.mesh->hasTexture)
@@ -249,7 +240,7 @@ void RenderSystem::lightPass()
 	m_gBuffer.textures[GBuffer::TextureType::Normal].activeAndBind(2);
 	m_gBuffer.textures[GBuffer::TextureType::Depth].activeAndBind(3);
 
-	auto renderGeometry = [] (const Matrix4x4f& view, const Matrix4x4f& projection, int viewportWidth, int viewportHeight, ShaderProgram* program)
+	auto renderGeometry = [](const Matrix4x4f& view, const Matrix4x4f& projection, int viewportWidth, int viewportHeight, ShaderProgram* program)
 	{
 		glDepthMask(true);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -273,7 +264,7 @@ void RenderSystem::lightPass()
 		}
 	};
 
-	auto setupForLightingWithShadows = [&] (const Matrix4x4f& view, const Matrix4x4f& projection, RenderTexture& shadowRT, ShaderProgram* program)
+	auto setupForLightingWithShadows = [&](const Matrix4x4f& view, const Matrix4x4f& projection, RenderTexture& shadowRT, ShaderProgram* program)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
@@ -324,7 +315,7 @@ void RenderSystem::lightPass()
 				// TODO: find out why it doesnt work with aabb values
 				float maxDist = max(abs(worldAABB.left()), worldAABB.right(), abs(worldAABB.bottom()), worldAABB.top(), abs(worldAABB.back()), worldAABB.front());
 				Matrix4x4f projection = Math::ortho(-maxDist, maxDist, -maxDist, maxDist, -maxDist, maxDist);
-				
+
 				m_dirLightShadowRT.bind();
 				renderGeometry(view, projection, m_dirLightShadowRT.width, m_dirLightShadowRT.height, directionalShadowMapProgram);
 				directionalLightProgram = g_shaderManager.getShaderProgram("directionalLightShadow");
@@ -372,7 +363,7 @@ void RenderSystem::lightPass()
 
 					TransformComponent transformComp;
 					RenderComponent renderComp;
-					
+
 					for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 					{
 						Matrix4x4f model = Math::translate(transformComp.position) * transformComp.orientation.toMatrix();

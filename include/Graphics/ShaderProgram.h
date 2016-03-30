@@ -13,6 +13,7 @@
 namespace Amber
 {
 
+// TODO: geometry shaders
 enum class ShaderType
 {
 	Vertex,
@@ -61,7 +62,7 @@ public:
 private:
 	std::unordered_map<std::string, GLint> m_UniformLocations;
 
-	void loadFromString(GLuint shaderHandle, const std::string& name, const char* content);
+	void compileShader(GLuint shaderHandle, const std::string& name, const char* content);
 };
 
 }

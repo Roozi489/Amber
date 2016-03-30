@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <string>
 
 namespace Amber
 {
@@ -15,13 +16,14 @@ public:
 	float asMilliseconds() const;
 	int64_t asMicroseconds() const;
 
+	static std::string localTimeString(const char* format);
 	static Time now();
 	static void sleep(Time time); // Sleep on current thread
 
 private:
 	explicit Time(int64_t microseconds);
 
-	std::chrono::microseconds mMicroseconds;
+	std::chrono::microseconds m_microseconds;
 
 	template <typename T>
 	friend Time seconds(T amount);
