@@ -42,11 +42,27 @@ float shadowValue(in sampler2DShadow shadowMap, in vec3 position_ws, in mat4 sha
     return sum / sampleCount;
 }
 
-float shadowCubeValue(in samplerCubeShadow shadowMap, in vec3 lightToSurface, in float distanceToLight, in float cosTheta)
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+); 
+
+float shadowCubeValue(in samplerCubeShadow shadowMap, in vec3 lightToFrag, in float distanceToLight, in float lightRange, in float cameraFragDist)
 {
-    // TODO: change bias based on the distance from light
-    float bias = 0.1 + 0.2 * tan(acos(cosTheta));
-    return texture(shadowMap, vec4(lightToSurface, distanceToLight - bias));
+    float bias = 0.1 * cameraFragDist / 20;
+    int samples = 20;
+    float diskRadius = (1.0 + (distanceToLight / lightRange)) / 350.0;
+    float shadow = 0.0;
+    for(int i = 0; i < samples; ++i)
+    {
+        shadow += texture(shadowMap, vec4(lightToFrag + sampleOffsetDirections[i] * diskRadius, distanceToLight - bias));
+    }
+    shadow /= float(samples);
+    return shadow;
 }
 
 #endif

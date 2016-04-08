@@ -29,12 +29,12 @@ enum class TextureInternalFormat : GLint
 	RG = GL_RG,
 	RGB = GL_RGB,
 	RGBA = GL_RGBA,
-
 	RGB8 = GL_RGB8,
 	RGB10A2 = GL_RGB10_A2,
 	Depth24 = GL_DEPTH_COMPONENT24,
 	Depth32 = GL_DEPTH_COMPONENT32,
 	Depth32F = GL_DEPTH_COMPONENT32F,
+	R32F = GL_R32F
 };
 
 enum class TextureFormat : GLenum

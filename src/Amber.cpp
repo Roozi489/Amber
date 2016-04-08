@@ -20,7 +20,7 @@ Amber::~Amber()
 
 void Amber::run()
 {
-	clearFile("Logs/shader_compile_error.txt");
+	clearFile("Logs/shader_compile_error.log");
 	Log::init();
 	Log::clearLogs();
 	init();

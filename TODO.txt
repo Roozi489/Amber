@@ -1,6 +1,5 @@
 Do first:
 ------------------------------------
-Layered Images
 
 Major:
 ------------------------------------
@@ -27,6 +26,7 @@ Anisotropic reflections
 Math (trigonometry)
 Proper text rendering
 Better frustum culling (cull shadow maps)
+Single-pass omnidirectional shadows
 
 Minor:
 ------------------------------------

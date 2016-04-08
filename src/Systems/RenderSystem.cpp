@@ -28,6 +28,12 @@ void RenderSystem::init()
 	m_lightingRT.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Lighting);
 	m_outRT.create(g_window.getWidth(), g_window.getHeight(), RenderTexture::Color);
 
+	// Shadow maps
+	// TODO: settings for shadow map size
+	m_dirLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
+	m_spotLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
+	m_pointLightShadowRT.create(1024, 1024);
+
 	// Shaders
 	ShaderProgram* shaderProgram = g_shaderManager.createProgram("geometry", "geometryPass.vert", "geometryPass.frag");
 	shaderProgram->use();
@@ -64,6 +70,7 @@ void RenderSystem::init()
 	shaderProgram->setUniform("shadow", 4);
 	shaderProgram = g_shaderManager.createProgram("shadowMap", "shadowMap.vert");
 	shaderProgram = g_shaderManager.createProgram("shadowMapCube", "shadowMapCube.vert", "shadowMapCube.frag");
+	shaderProgram = g_shaderManager.createProgram("shadowMapArray", "shadowMapArray.vert", "shadowMapArray.geom", "shadowMapArray.frag");
 	shaderProgram = g_shaderManager.createProgram("out", "fullscreenQuad.vert", "out.frag");
 	shaderProgram = g_shaderManager.createProgram("texPass", "fullscreenQuad.vert", "texPass.frag");
 	shaderProgram = g_shaderManager.createProgram("font", "font.vert", "font.frag");
@@ -81,7 +88,7 @@ void RenderSystem::init()
 	dirLight.color = Color::White;
 	dirLight.intensity = 0.2f;
 	dirLight.direction = normalize(Vector3f(0.8f, -1.f, 0.2f));
-	m_directionalLights.push_back(dirLight);
+	//m_directionalLights.push_back(dirLight);
 
 	PointLight pointLight;
 	//pointLight.castsShadow = false;
@@ -98,13 +105,7 @@ void RenderSystem::init()
 	spotLight.position = Vector3f(-20.f, 20.f, 1.f);
 	spotLight.direction = normalize(Vector3f(1.8f, -1.5f, -0.2f));
 	spotLight.coneAngle = toRadians(34.f);
-	m_spotLights.push_back(spotLight);
-
-	// Shadow maps
-	// TODO: settings for shadow map size
-	m_dirLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
-	m_spotLightShadowRT.create(1024, 1024, RenderTexture::Shadow);
-	m_pointLightShadowRT.create(1024, 1024);
+	//m_spotLights.push_back(spotLight);
 
 	// Meshes
 	auto fullscreenQuadMesh = std::make_unique<Mesh>();
@@ -195,6 +196,8 @@ void RenderSystem::geometryPass()
 
 	TransformComponent transformComp;
 	RenderComponent renderComp;
+
+
 
 	for (const Entity& entity : g_world.entityManager.entities_with_components(transformComp, renderComp))
 	{
@@ -396,6 +399,7 @@ void RenderSystem::lightPass()
 			}
 
 			pointLightProgram->setUniform("cameraVpInv", cameraVpInv);
+			pointLightProgram->setUniform("cameraPosition", g_camera.getPosition());
 			pointLightProgram->setUniform("light.base.coloredIntensity", light.color.toNormalizedRGB() * light.intensity);
 			pointLightProgram->setUniform("light.position", light.position);
 			pointLightProgram->setUniform("light.attenuation.constant", light.attenuation.constant);

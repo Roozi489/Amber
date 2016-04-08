@@ -11,7 +11,6 @@ namespace Amber
 class RenderTextureCubeShadow : public NonCopyable
 {
 public:
-
 	int width;
 	int height;
 
@@ -22,7 +21,7 @@ public:
 
 	RenderTextureCubeShadow() = default;
 
-	void create(int w, int h, TextureWrapMode wrap = TextureWrapMode::ClampToEdge);
+	void create(int w, int h);
 	void destroy();
 	void bind();
 	void unbind();

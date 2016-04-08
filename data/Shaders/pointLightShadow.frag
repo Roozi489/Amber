@@ -12,14 +12,15 @@ uniform sampler2D depth;
 uniform samplerCubeShadow shadow;
 
 uniform mat4 cameraVpInv;
+uniform vec3 cameraPosition;
 
 in vec2 texCoord;
 
 out vec4 color;
 
-vec4 calculatePointLight(in vec3 surfaceToLight, in float distanceToLight, in vec3 normal)
+vec4 calculatePointLight(in vec3 fragToLight, in float distanceToLight, in vec3 normal)
 {
-    float diffuseCoefficient = max(0.0, dot(normal, surfaceToLight));
+    float diffuseCoefficient = max(0.0, dot(normal, fragToLight));
 
     float falloff = square(saturate(1.0 - square(square(distanceToLight / light.attenuation.range)))) / 
                     (light.attenuation.constant + light.attenuation.linear * distanceToLight + light.attenuation.quadratic * square(distanceToLight));
@@ -42,9 +43,8 @@ void main()
     vec3 normal = normalize(2.0 * normalEncoded - vec3(1.0));
 
     // shadow stuff
-    vec3 surfaceToLight = normalize(light.position - position_ws);
+    vec3 fragToLight = normalize(light.position - position_ws);
     float distanceToLight = length(light.position - position_ws);
-
-    float cosTheta = saturate(dot(normal, surfaceToLight));
-    color = calculatePointLight(surfaceToLight, distanceToLight, normal) * shadowCubeValue(shadow, -surfaceToLight, distanceToLight, cosTheta);
+    float fragCameraDist = length(cameraPosition - position_ws);
+    color = calculatePointLight(fragToLight, distanceToLight, normal) * shadowCubeValue(shadow, -fragToLight, distanceToLight, light.attenuation.range, fragCameraDist);
 }

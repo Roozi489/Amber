@@ -16,8 +16,9 @@ public:
 
 	void destroy();
 
-	ShaderProgram* createProgram(const std::string& programName, const std::string& vertexShaderFilename);
-	ShaderProgram* createProgram(const std::string& programName, const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename);
+	ShaderProgram* createProgram(const std::string& programName, const std::string& vsFilename);
+	ShaderProgram* createProgram(const std::string& programName, const std::string& vsFilename, const std::string& fSFilename);
+	ShaderProgram* createProgram(const std::string& programName, const std::string& vsFilename, const std::string& gsFilename, const std::string& fsFilename);
 	ShaderProgram* getShaderProgram(const std::string& programName);
 
 private:

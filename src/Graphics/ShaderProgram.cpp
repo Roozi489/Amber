@@ -51,13 +51,15 @@ void ShaderProgram::attachShaderFromString(ShaderType type, const std::string& n
 	GLuint shaderHandle;
 	if (type == ShaderType::Vertex)
 		shaderHandle = glCreateShader(GL_VERTEX_SHADER);
+	else if (type == ShaderType::Geometry)
+		shaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
 	else if (type == ShaderType::Fragment)
 		shaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
 	else
 		criticalError("Unsupported shader type");
 
 	compileShader(shaderHandle, name, content.c_str());
-	
+
 	glAttachShader(handle, shaderHandle);
 }
 
@@ -220,6 +222,17 @@ void ShaderProgram::setUniform(const std::string& name, const Matrix4x4f& m)
 	glUniformMatrix4fv(loc, 1, false, m.data);
 }
 
+void ShaderProgram::setUniform(const std::string& name, const Matrix4x4f m[6])
+{
+	for (int i = 0; i < 6; ++i)
+	{
+		auto loc = getUniformLocation(stringFormat("%s[%d]", name, i));
+		if (loc == -1)
+			Log::warning("Uniform: " + name + " not found.\nShaderProgram: " + this->name);
+		glUniformMatrix4fv(loc, 1, false, m[i].data);
+	}
+}
+
 void ShaderProgram::setUniform(const std::string& name, const Quaternion& q)
 {
 	auto loc = getUniformLocation(name);
@@ -246,7 +259,7 @@ void ShaderProgram::setUniform(const std::string& name, const TransformComponent
 
 	loc = getUniformLocation(stringFormat("%s.scale", name.c_str()));
 	if (loc == -1)
-		Log::warning(stringFormat("Uniform: %s.scale not found.\nShaderProgram: %s", name.c_str(),  this->name));
+		Log::warning(stringFormat("Uniform: %s.scale not found.\nShaderProgram: %s", name.c_str(), this->name));
 	else
 		glUniform3fv(loc, 1, t.scale.data);
 }
@@ -268,7 +281,7 @@ void ShaderProgram::compileShader(GLuint shaderHandle, const std::string& name, 
 		glGetShaderiv(shaderHandle, GL_INFO_LOG_LENGTH, &logLenght);
 		std::unique_ptr<char[]> log(new char[logLenght]);
 		glGetShaderInfoLog(shaderHandle, logLenght, nullptr, log.get());
-		writeStringToFile("Logs/shader_compile_error.txt", content);
+		writeStringToFile("Logs/shader_compile_error.log", content);
 		criticalError(stringFormat("Failed to compile shader: %s\nReason: %s", name.c_str(), log.get()));
 	}
 

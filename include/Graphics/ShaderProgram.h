@@ -17,6 +17,7 @@ namespace Amber
 enum class ShaderType
 {
 	Vertex,
+	Geometry,
 	Fragment,
 };
 
@@ -56,6 +57,7 @@ public:
 	void setUniform(const std::string& name, const Vector3f& v);
 	void setUniform(const std::string& name, const Vector4f& v);
 	void setUniform(const std::string& name, const Matrix4x4f& m);
+	void setUniform(const std::string& name, const Matrix4x4f m[6]);
 	void setUniform(const std::string& name, const Quaternion& t);
 	void setUniform(const std::string& name, const TransformComponent& t);
 	void setUniform(const std::string& name, const Color& c);

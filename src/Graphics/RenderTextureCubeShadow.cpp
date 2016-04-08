@@ -4,7 +4,7 @@
 namespace Amber
 {
 
-void RenderTextureCubeShadow::create(int w, int h, TextureWrapMode wrap)
+void RenderTextureCubeShadow::create(int w, int h)
 {
 	width = w;
 	height = h;
@@ -20,7 +20,7 @@ void RenderTextureCubeShadow::create(int w, int h, TextureWrapMode wrap)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
 	for (int i = 0; i < 6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
 	}
 
 	glGenFramebuffers(1, &framebufferHandle);

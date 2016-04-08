@@ -1,6 +1,6 @@
 .vs/
 bin/
 *.opendb
+*.db
 *.sdf
-/data/log.txt
-/data/error.txt
+*.log
