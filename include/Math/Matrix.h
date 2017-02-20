@@ -29,7 +29,7 @@ struct Matrix4x4
 	};
 
 	// Default constructor doesn't initialize values
-	Matrix4x4();
+	Matrix4x4() = default;
 	// Fills the _whole_ matrix with value specified 
 	explicit Matrix4x4(T value);
 

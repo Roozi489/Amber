@@ -16,8 +16,8 @@ public:
 	AABB() = default;
 	~AABB() = default;
 
-	inline Vector3f min() const { return center - halfSize; };
-	inline Vector3f max() const { return center + halfSize; };
+	inline Vector3f minCoord() const { return center - halfSize; };
+	inline Vector3f maxCoord() const { return center + halfSize; };
 
 	inline float right() const { return (center + halfSize).x; };
 	inline float left() const { return (center - halfSize).x; };

@@ -20,10 +20,10 @@ enum class Tag
 	Pad
 };
 
-static constexpr int MAX_COMPONENTS = 16;
+static constexpr int MaxComponents = 16;
 
 using EntityID = std::uint32_t;
-using ComponentMask = std::bitset<MAX_COMPONENTS>;
+using ComponentMask = std::bitset<MaxComponents>;
 
 class Entity
 {
@@ -36,7 +36,7 @@ public:
 	//
 
 	ComponentMask componentMask;
-	std::array<BaseComponent*, MAX_COMPONENTS> componentArray;
+	std::array<BaseComponent*, MaxComponents> componentArray;
 
 	Entity();
 	~Entity();

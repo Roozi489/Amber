@@ -11,6 +11,7 @@ class TransformComponent : public BaseComponent
 public:
 	Vector3f position;
 	Quaternion orientation;
+	// Must be uniform
 	Vector3f scale;
 
 	TransformComponent();

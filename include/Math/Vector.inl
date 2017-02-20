@@ -256,6 +256,12 @@ template <typename T>
 bool Vector2<T>::operator!=(Vector2 const& rhs) { return x != rhs.x || y != rhs.y; }
 
 template <typename T>
+bool operator==(const Vector2<T>& lhs, const Vector2<T>& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+
+template <typename T>
+bool operator!=(const Vector2<T>& lhs, const Vector2<T>& rhs) { return lhs.x != rhs.x || lhs.y != rhs.y; }
+
+template <typename T>
 T dot(Vector2<T>& first, Vector2<T>& second)
 {
 	return first.x * second.x + first.y * second.y;
@@ -294,4 +300,52 @@ Vector4<T>::Vector4(T _x, T _y, T _z, T _w)
 {
 }
 
+}
+
+namespace std
+{
+	using namespace Amber;
+
+	template <class T>
+	inline void hash_combine(size_t& seed, const T& v)
+	{
+		hash<T> hasher;
+		seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	}
+
+	template<typename T>
+	struct hash<Vector2<T>>
+	{
+		size_t operator()(Vector2<T> const& vector) const
+		{
+			size_t h = std::hash<T>()(vector.data[0]);
+			hash_combine(h, vector.data[1]);
+			return h;
+		}
+	};
+
+	template<typename T>
+	struct hash<Vector3<T>>
+	{
+		size_t operator()(Vector3<T> const& vector) const
+		{
+			size_t h = std::hash<T>()(vector.data[0]);
+			hash_combine(h, vector.data[1]);
+			hash_combine(h, vector.data[2]);
+			return h;
+		}
+	};
+
+	template<typename T>
+	struct hash<Vector4<T>>
+	{
+		size_t operator()(Vector4<T> const& vector) const
+		{
+			size_t h = std::hash<T>()(vector.data[0]);
+			hash_combine(h, vector.data[1]);
+			hash_combine(h, vector.data[2]);
+			hash_combine(h, vector.data[3]);
+			return h;
+		}
+	};
 }

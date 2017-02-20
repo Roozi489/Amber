@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseComponent.h"
-#include "Core/Mesh.h"
+#include "Graphics/GL/Mesh.h"
 #include "Graphics/Material.h"
 
 #include <string>

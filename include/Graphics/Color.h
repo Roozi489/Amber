@@ -12,13 +12,14 @@ public:
 	{
 		struct
 		{
-			uint8 r;
-			uint8 g;
-			uint8 b;
-			uint8 a;
+			float r;
+			float g;
+			float b;
+			float a;
 		};
 		Vector3f rgb;
 		Vector4f rgba;
+		float data[4];
 	};
 
 	static const Color White;
@@ -35,9 +36,6 @@ public:
 	static const Color Transparent;
 
 	Color();
-
-	Vector3f toNormalizedRGB() const;
-	Vector4f toNormalizedRGBA() const;
 
 	static Color fromByteRGB(uint8 r, uint8 g, uint8 b);
 	static Color fromByteRGBA(uint8 r, uint8 g, uint8 b, uint8 a);

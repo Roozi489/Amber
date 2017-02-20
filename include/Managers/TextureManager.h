@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Texture.h"
+#include "Graphics/GL/Texture.h"
 
 #include <string>
 #include <unordered_map>

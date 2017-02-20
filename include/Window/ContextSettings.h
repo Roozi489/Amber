@@ -21,7 +21,7 @@ enum class ProfileMask
 struct ContextSettings
 {
 	int majorVersion = 4;
-	int minorVersion = 2;
+	int minorVersion = 3;
 	int depthBits = 16;
 	int stencilBits = 8;
 	int antialiasingLevel = 0;

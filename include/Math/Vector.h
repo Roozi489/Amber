@@ -8,6 +8,8 @@ namespace Amber
 template <typename T>
 struct Vector2
 {
+	static const int size = 2;
+
 	union
 	{
 		struct
@@ -15,7 +17,7 @@ struct Vector2
 			T x;
 			T y;
 		};
-		T data[2];
+		T data[size];
 	};
 
 	static const Vector2<T> Zero;
@@ -37,6 +39,12 @@ struct Vector2
 };
 
 template <typename T>
+bool operator==(const Vector2<T>& lhs, const Vector2<T>& rhs);
+
+template <typename T>
+bool operator!=(const Vector2<T>& lhs, const Vector2<T>& rhs);
+
+template <typename T>
 T dot(Vector2<T>& first, Vector2<T>& second);
 
 template <typename T>
@@ -48,6 +56,8 @@ Vector2<T> reflect(const Vector2<T>& vector, const Vector2<T>& normal);
 template <typename T>
 struct Vector3
 {
+	static const int size = 3;
+
 	union
 	{
 		struct
@@ -57,7 +67,7 @@ struct Vector3
 			T z;
 		};
 		Vector2<T> xy;
-		T data[3];
+		T data[size];
 	};
 
 	static const Vector3<T> Zero;
@@ -139,6 +149,8 @@ Vector3<T> reflect(const Vector3<T>& vector, const Vector3<T>& normal);
 template <typename T>
 struct Vector4
 {
+	static const int size = 4;
+
 	union
 	{
 		struct
@@ -149,9 +161,10 @@ struct Vector4
 			T w;
 		};
 		Vector3<T> xyz;
-		T data[4];
+		T data[size];
 	};
 
+	Vector4() = default;
 	Vector4(T _x, T _y, T _z, T _w);
 };
 

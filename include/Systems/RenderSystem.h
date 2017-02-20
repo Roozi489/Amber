@@ -1,14 +1,20 @@
 #pragma once
 #include "BaseSystem.h"
-#include "Graphics/RenderTexture.h"
-#include "Graphics/Skybox.h"
-#include "Graphics/GBuffer.h"
+#include "Graphics/GL/RenderTexture.h"
+#include "Graphics/GL/Skybox.h"
+#include "Graphics/GL/GBuffer.h"
 #include "Graphics/Lighting.h"
 #include "Graphics/RenderText.h"
-#include "Graphics/RenderTextureCubeShadow.h"
+#include "Graphics/GL/RenderTextureCubeShadow.h"
+#include <Graphics/GL/CommandQueue.h>
+#include "Graphics/Renderer.h"
 
 namespace Amber
 {
+
+struct UniformValue;
+struct CommandQueueSettings;
+class ShaderProgram;
 
 class RenderSystem : public BaseSystem
 {
@@ -30,6 +36,8 @@ public:
 	Texture& RenderSystem::getOutColorTexture();
 
 private:
+	std::unique_ptr<Renderer> m_renderer;
+
 	AmbientLight m_ambientLight;
 	std::vector<DirectionalLight> m_directionalLights;
 	std::vector<PointLight> m_pointLights;
@@ -47,7 +55,6 @@ private:
 	RenderTexture m_outRT;
 	RenderTexture m_lightingRT;
 
-
 	GLuint m_fontVao;
 	GLuint m_fontVbo;
 	Texture m_fontTexture;
@@ -58,9 +65,14 @@ private:
 	int m_fpsCounter = 0;
 	Time m_timeSinceFpsUpdate = Time::Zero;
 	int m_culledObjectsCount = 0;
-	
+
 	// Settings
-	bool m_frustumCullingEnabled = true;
+	static const int UseInstancingCountThreshold = 1000;
+	const bool m_frustumCullingEnabled = true;
+	
+	void applyCommandQueueSettings(const CommandQueueSettings& settings);
+	void setDynamicVBOs(const Batch& batch);
+	void setUniforms(ShaderProgram* program, const std::vector<UniformValue>& values);
 };
 
 }

@@ -6,7 +6,7 @@
 namespace Amber
 {
 
-static const uint32_t MAX_ENTITIES = 1024;
+static const uint32_t MaxEntities = 2048;
 
 class EntityManager;
 

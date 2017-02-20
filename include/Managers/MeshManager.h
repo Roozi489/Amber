@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Mesh.h"
+#include "Graphics/GL/Mesh.h"
 
 #include <unordered_map>
 #include <string>

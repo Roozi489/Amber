@@ -30,6 +30,12 @@ float rand01(vec3 seed, int i)
     return rand01(seed4);
 }
 
+vec3 quaternionRotate(vec4 q, vec3 v)
+{
+    vec3 t = 2.0 * cross(q.xyz, v);
+    return (v + q.w * t + cross(q.xyz, t));
+}
+
 vec3 calculatePositionFromDepth(in vec2 st, in float w, in float depthValue, in mat4 inverseCameraMatrix)
 {
     float x_ss = 2.0 * st.x - 1.0;

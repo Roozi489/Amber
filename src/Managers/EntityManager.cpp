@@ -1,5 +1,6 @@
 #include "Managers/EntityManager.h"
 #include "Core/Utility.h"
+#include "Window/Window.h"
 
 namespace Amber
 {
@@ -16,7 +17,7 @@ EntityManager::~EntityManager()
 void EntityManager::init()
 {
 	entityCount = 0;
-	entities = new Entity[MAX_ENTITIES];
+	entities = new Entity[MaxEntities];
 }
 
 void EntityManager::destroy()
@@ -26,11 +27,14 @@ void EntityManager::destroy()
 
 uint32_t EntityManager::capacity()
 {
-	return MAX_ENTITIES;
+	return MaxEntities;
 }
 
 Entity* EntityManager::addEntity()
 {
+	if (entityCount == MaxEntities)
+		criticalError("Too many entities");
+
 	EntityID id = newEntityID();
 	entities[id].id = id;
 	return &entities[id];

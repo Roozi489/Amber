@@ -1,0 +1,33 @@
+popisovat rozdily mezi vulkanem a opengl?
+
+vymyslet use casy:
+1) model se spoustou malych neinstancovanych objektu
+    - zkusit kdyz je hodne draw callu nebo kdyz je potreba hodne bufferu
+    - zkusit treba i kosticky ale delat jako ze to nejde instancovat
+2) vytvaret draw cally v ruznych vlaknech
+    - scene graph
+        - kazde vlakno pocita vetev stromu
+
+3) prepinani stavu
+    - porovnat command buffery vs opengl jednotlive prikazy (a take nv_command_list) 
+
+4) prenacitani veci
+    - shadery ze spir-v vs z textu
+    - pipeline cache (kdy se musi menit)
+
+
+rozsireni opengl:
+
+GL_NV_command_list
+GL_NV_bindless_multi_draw_indirect
+GL_NV_bindless_texture
+GL_NV_shader_buffer_load
+GL_NV_vertex_buffer_unified_memory
+GL_NV_shader_buffer_load
+GL_NV_vertex_buffer_unified_memory
+GL_NV_uniform_buffer_unified_memory
+
+GL_ARB_gl_spirv
+
+
+DirectX?

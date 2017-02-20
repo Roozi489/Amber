@@ -38,8 +38,8 @@ Entity* World::addFloor()
 	floor->addComponent<TransformComponent>(Vector3f::Zero, Vector3f(1.f));
 	floor->addComponent<PhysicsComponent>(BodyType::Static);
 	RenderComponent* renderComp = floor->addComponent<RenderComponent>("floor.obj");
-	renderComp->mesh->setTexture("marble2.jpg");
-	//renderComp->material.color = Color::fromNormalizedRGB(0.5f, 0.5f, 0.5f);
+	renderComp->mesh->setTexture("marble_dark.jpg");
+	renderComp->material.color = Color::White;
 
 	return floor;
 }
@@ -50,8 +50,9 @@ Entity* World::addBall(Vector3f position)
 	ball->setTag(Tag::Ball);
 	ball->addComponent<TransformComponent>(position, Vector3f(1.f));
 	ball->addComponent<PhysicsComponent>(BodyType::Kinematic, Vector3f::Zero);
-	ball->addComponent<RenderComponent>("sphere_lowPoly_smooth.obj");
-	ball->getComponent<RenderComponent>().material.color = Color::Cyan;
+	RenderComponent* renderComp = ball->addComponent<RenderComponent>("sphere_lowPoly_smooth.obj");
+	renderComp->mesh->setTexture("white.png");
+	renderComp->material.color = Color::Cyan;
 
 	return ball;
 }
@@ -63,7 +64,8 @@ Entity* World::addPad(Vector3f position)
 	pad->addComponent<TransformComponent>(position, Vector3f(1.f));
 	pad->addComponent<PhysicsComponent>(BodyType::Kinematic, "pad_smooth.obj");
 	RenderComponent* renderComp = pad->addComponent<RenderComponent>("pad.obj");
-	pad->getComponent<RenderComponent>().material.color = Color::Green;
+	renderComp->mesh->setTexture("white.png");
+	renderComp->material.color = Color::Green;
 
 	return pad;
 }
@@ -74,8 +76,9 @@ Entity* World::addBrick(Vector3f position, Color color)
 	brick->setTag(Tag::Brick);
 	brick->addComponent<TransformComponent>(position, Vector3f(1.f));
 	brick->addComponent<PhysicsComponent>(BodyType::Kinematic, "brick_smooth.obj");
-	brick->addComponent<RenderComponent>("brick.obj");
-	brick->getComponent<RenderComponent>().material.color = color;
+	RenderComponent* renderComp = brick->addComponent<RenderComponent>("brick.obj");
+	renderComp->mesh->setTexture("white.png");
+	renderComp->material.color = color;
 
 	return brick;
 }
@@ -83,6 +86,7 @@ Entity* World::addBrick(Vector3f position, Color color)
 void World::setupLevel()
 {
 	/*
+	// TODO: fix mesh loader
 	Entity* sponza = addEntity();
 	sponza->addComponent<TransformComponent>(Vector3f::Zero, Vector3f(1.f));
 	sponza->addComponent<RenderComponent>("sponza.obj");
@@ -91,17 +95,21 @@ void World::setupLevel()
 	addFloor();
 	addBall(Vector3f(0.f, 1.f, 23.1f));
 
-	for (int row = 0; row < 3; ++row)
+	const int brickColumns = 12;
+	const int rows = 100;
+	const float angleStep = 360.f / brickColumns;
+
+	for (int row = 0; row < rows; ++row)
 	{
-		for (int i = 0; i < 12; ++i)
+		for (int i = 0; i < brickColumns; ++i)
 		{
 			Color color;
-			if ((((row % 2) + i) % 2) == 0)
+			if ((row + i) % 2 == 0)
 				color = Color::Yellow;
 			else
 				color = Color::Red;
-			Entity* e = addBrick(Vector3f(sinf(toRadians(30.f * i)) * 5, (float)row * 2.2f, cosf(toRadians(30.f * i)) * 5), color);
-			e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(30.f * i - 90.f), Vector3f::Up);
+			Entity* e = addBrick(Vector3f(sinf(toRadians(angleStep * i)) * 5, static_cast<float>(row) * 2.2f, cosf(toRadians(angleStep * i)) * 5), color);
+			e->getComponent<TransformComponent>().orientation = angleAxis(toRadians(angleStep * i - 90.f), Vector3f::Up);
 		}
 	}
 

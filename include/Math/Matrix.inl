@@ -12,12 +12,7 @@ const Matrix4x4<T> Matrix4x4<T>::Identity = Matrix4x4<T>
 	0, 1, 0, 0,
 	0, 0, 1, 0,
 	0, 0, 0, 1
-	);
-
-template <typename T>
-Matrix4x4<T>::Matrix4x4()
-{
-}
+);
 
 template <typename T>
 Matrix4x4<T>::Matrix4x4(T value)

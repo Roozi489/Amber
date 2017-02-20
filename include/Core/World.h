@@ -37,9 +37,9 @@ public:
 	template <typename C>
 	void registerComponent()
 	{
-	C* c = new C[MAX_ENTITIES];
+	C* c = new C[MaxEntities];
 
-	for (int m_i = 0; m_i < MAX_ENTITIES; ++m_i)
+	for (int m_i = 0; m_i < MaxEntities; ++m_i)
 	c[m_i].id = C::getComponentID<C>();
 
 	components.insert(std::make_pair(C::getComponentID<C>(), c));

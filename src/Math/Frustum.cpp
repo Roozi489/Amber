@@ -68,13 +68,13 @@ bool Frustum::intersectsAABB(const AABB& aabb) const
 {
 	for (const auto& plane : planes)
 	{
-		Vector3f positive{ aabb.min().x, aabb.min().y, aabb.min().z };
+		Vector3f positive{ aabb.minCoord().x, aabb.minCoord().y, aabb.minCoord().z };
 		if (plane.normal.x >= 0)
-			positive.x = aabb.max().x;
+			positive.x = aabb.maxCoord().x;
 		if (plane.normal.y >= 0)
-			positive.y = aabb.max().y;
+			positive.y = aabb.maxCoord().y;
 		if (plane.normal.z >= 0)
-			positive.z = aabb.max().z;
+			positive.z = aabb.maxCoord().z;
 
 		if (plane.signedDistanceTo(positive) < 0)
 			return false;

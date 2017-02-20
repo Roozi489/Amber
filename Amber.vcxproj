@@ -94,10 +94,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>external/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;_DEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;freetype263d.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;freetype263d.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external/lib/$(Platform)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -113,10 +113,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>external/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;_DEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;freetype263d.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;freetype263d.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external/lib/$(Platform)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -134,12 +134,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>external/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;NDEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;freetype263.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;freetype263.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external/lib/$(Platform)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -157,12 +157,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>external/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;NDEBUG;_WINDOWS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;freetype263.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;freetype263.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>external/lib/$(Platform)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
@@ -173,47 +173,50 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Graphics\RenderTextureArrayShadow.cpp" />
+    <ClCompile Include="src\Graphics\Renderer.cpp" />
+    <ClCompile Include="src\Graphics\Vulkan\VulkanRenderer.cpp" />
+    <ClCompile Include="src\Graphics\GL\CommandQueue.cpp" />
+    <ClCompile Include="src\Graphics\GL\RenderTextureArrayShadow.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Math\Frustum.cpp" />
     <ClCompile Include="src\Math\AABB.cpp" />
-    <ClCompile Include="src\Graphics\RenderTextureCubeShadow.cpp" />
+    <ClCompile Include="src\Graphics\GL\RenderTextureCubeShadow.cpp" />
     <ClCompile Include="src\Window\File.cpp" />
     <ClCompile Include="src\Amber.cpp" />
     <ClCompile Include="src\Components\BaseComponent.cpp" />
     <ClCompile Include="src\Systems\BaseSystem.cpp" />
     <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\Graphics\Color.cpp" />
-    <ClCompile Include="src\Graphics\CubeTexture.cpp" />
+    <ClCompile Include="src\Graphics\GL\CubeTexture.cpp" />
     <ClCompile Include="src\Core\Entity.cpp" />
     <ClCompile Include="src\Managers\EntityManager.cpp" />
     <ClCompile Include="src\Managers\FontManager.cpp" />
     <ClCompile Include="src\Systems\GameplaySystem.cpp" />
-    <ClCompile Include="src\Graphics\GBuffer.cpp" />
+    <ClCompile Include="src\Graphics\GL\GBuffer.cpp" />
     <ClCompile Include="src\Core\Globals.cpp" />
     <ClCompile Include="src\Graphics\Image.cpp" />
     <ClCompile Include="src\Window\Input.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Graphics\Material.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
-    <ClCompile Include="src\Core\Mesh.cpp" />
+    <ClCompile Include="src\Graphics\GL\Mesh.cpp" />
     <ClCompile Include="src\Managers\MeshManager.cpp" />
     <ClCompile Include="src\Graphics\Model.cpp" />
-    <ClCompile Include="src\Graphics\OpenGL.cpp" />
+    <ClCompile Include="src\Graphics\GL\OpenGL.cpp" />
     <ClCompile Include="src\Components\PhysicsComponent.cpp" />
     <ClCompile Include="src\Math\Plane.cpp" />
     <ClCompile Include="src\Math\Quaternion.cpp" />
     <ClCompile Include="src\Components\RenderComponent.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
-    <ClCompile Include="src\Graphics\RenderText.cpp" />
-    <ClCompile Include="src\Graphics\RenderTexture.cpp" />
+    <ClCompile Include="src\Graphics\GL\RenderText.cpp" />
+    <ClCompile Include="src\Graphics\GL\RenderTexture.cpp" />
     <ClCompile Include="src\Managers\ShaderManager.cpp" />
-    <ClCompile Include="src\Graphics\ShaderProgram.cpp" />
-    <ClCompile Include="src\Graphics\Skybox.cpp" />
+    <ClCompile Include="src\Graphics\GL\ShaderProgram.cpp" />
+    <ClCompile Include="src\Graphics\GL\Skybox.cpp" />
     <ClCompile Include="src\Systems\SoundSystem.cpp" />
     <ClCompile Include="src\Math\Sphere.cpp" />
     <ClCompile Include="src\Core\String.cpp" />
-    <ClCompile Include="src\Graphics\Texture.cpp" />
+    <ClCompile Include="src\Graphics\GL\Texture.cpp" />
     <ClCompile Include="src\Managers\TextureManager.cpp" />
     <ClCompile Include="src\Core\Time.cpp" />
     <ClCompile Include="src\Components\TransformComponent.cpp" />
@@ -223,6 +226,7 @@
     <ClCompile Include="src\Core\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Graphics\GL\CommandQueue.h" />
     <ClInclude Include="include\Math\Frustum.h" />
     <ClInclude Include="include\Math\AABB.h" />
     <ClInclude Include="include\Window\File.h" />
@@ -232,12 +236,12 @@
     <ClInclude Include="include\Core\Camera.h" />
     <ClInclude Include="include\Graphics\Color.h" />
     <ClInclude Include="include\Window\ContextSettings.h" />
-    <ClInclude Include="include\Graphics\CubeTexture.h" />
+    <ClInclude Include="include\Graphics\GL\CubeTexture.h" />
     <ClInclude Include="include\Core\Entity.h" />
     <ClInclude Include="include\Managers\EntityManager.h" />
     <ClInclude Include="include\Managers\FontManager.h" />
     <ClInclude Include="include\Systems\GameplaySystem.h" />
-    <ClInclude Include="include\Graphics\GBuffer.h" />
+    <ClInclude Include="include\Graphics\GL\GBuffer.h" />
     <ClInclude Include="include\Core\Globals.h" />
     <ClInclude Include="include\Graphics\Image.h" />
     <ClInclude Include="include\Window\Input.h" />
@@ -245,11 +249,11 @@
     <ClInclude Include="include\Graphics\Material.h" />
     <ClInclude Include="include\Math\Math.h" />
     <ClInclude Include="include\Math\Matrix.h" />
-    <ClInclude Include="include\Core\Mesh.h" />
+    <ClInclude Include="include\Graphics\GL\Mesh.h" />
     <ClInclude Include="include\Managers\MeshManager.h" />
     <ClInclude Include="include\Graphics\Model.h" />
     <ClInclude Include="include\Core\NonCopyable.h" />
-    <ClInclude Include="include\Graphics\OpenGL.h" />
+    <ClInclude Include="include\Graphics\GL\OpenGL.h" />
     <ClInclude Include="include\Components\PhysicsComponent.h" />
     <ClInclude Include="include\Math\Plane.h" />
     <ClInclude Include="include\Math\Quaternion.h" />
@@ -257,14 +261,14 @@
     <ClInclude Include="include\Components\RenderComponent.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Graphics\RenderText.h" />
-    <ClInclude Include="include\Graphics\RenderTexture.h" />
+    <ClInclude Include="include\Graphics\GL\RenderTexture.h" />
     <ClInclude Include="include\Managers\ShaderManager.h" />
-    <ClInclude Include="include\Graphics\ShaderProgram.h" />
-    <ClInclude Include="include\Graphics\Skybox.h" />
+    <ClInclude Include="include\Graphics\GL\ShaderProgram.h" />
+    <ClInclude Include="include\Graphics\GL\Skybox.h" />
     <ClInclude Include="include\Systems\SoundSystem.h" />
     <ClInclude Include="include\Math\Sphere.h" />
     <ClInclude Include="include\Core\String.h" />
-    <ClInclude Include="include\Graphics\Texture.h" />
+    <ClInclude Include="include\Graphics\GL\Texture.h" />
     <ClInclude Include="include\Managers\TextureManager.h" />
     <ClInclude Include="include\Core\Time.h" />
     <ClInclude Include="include\Components\TransformComponent.h" />
@@ -274,9 +278,12 @@
     <ClInclude Include="include\Math\Vector.h" />
     <ClInclude Include="include\Window\Window.h" />
     <ClInclude Include="include\Core\World.h" />
-    <ClInclude Include="include\Graphics\RenderTextureCubeShadow.h" />
+    <ClInclude Include="include\Graphics\GL\RenderTextureCubeShadow.h" />
     <ClInclude Include="include\Core\Log.h" />
-    <ClInclude Include="include\Graphics\RenderTextureArrayShadow.h" />
+    <ClInclude Include="include\Graphics\GL\RenderTextureArrayShadow.h" />
+    <ClInclude Include="include\Graphics\Vulkan\VDeleter.h" />
+    <ClInclude Include="include\Graphics\Vulkan\VulkanRenderer.h" />
+    <ClInclude Include="include\Graphics\Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

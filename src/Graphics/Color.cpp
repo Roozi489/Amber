@@ -21,59 +21,50 @@ Color::Color()
 }
 
 Color::Color(uint8 r, uint8 g, uint8 b, uint8 a)
-	: r(r)
-	, g(g)
-	, b(b)
-	, a(a)
+	: r(static_cast<float>(r) / 255)
+	, g(static_cast<float>(g) / 255)
+	, b(static_cast<float>(b) / 255)
+	, a(static_cast<float>(a) / 255)
 {
 
-}
-
-Vector3f Color::toNormalizedRGB() const
-{
-	return Vector3f(r / 255.f, g / 255.f, b / 255.f);
-}
-
-Vector4f Color::toNormalizedRGBA() const
-{
-	return Vector4f(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
 Color Color::fromByteRGB(uint8 r, uint8 g, uint8 b)
 {
 	Color color;
-	color.r = r;
-	color.g = g;
-	color.b = b;
+	color.r = static_cast<float>(r) / 255;
+	color.g = static_cast<float>(g) / 255;
+	color.b = static_cast<float>(b) / 255;
+	color.a = 1.f;
 	return color;
 }
 
 Color Color::fromByteRGBA(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	Color color;
-	color.r = r;
-	color.g = g;
-	color.b = b;
-	color.a = a;
+	color.r = static_cast<float>(r) / 255;
+	color.g = static_cast<float>(g) / 255;
+	color.b = static_cast<float>(b) / 255;
+	color.a = static_cast<float>(a) / 255;
 	return color;
 }
 
 Color Color::fromNormalizedRGB(float r, float g, float b)
 {
 	Color color;
-	color.r = static_cast<uint8_t>(r * 255);
-	color.g = static_cast<uint8_t>(g * 255);
-	color.b = static_cast<uint8_t>(b * 255);
+	color.r = r;
+	color.g = g;
+	color.b = b;
 	return color;
 }
 
 Color Color::fromNormalizedRGBA(float r, float g, float b, char a)
 {
 	Color color;
-	color.r = static_cast<uint8_t>(r * 255);
-	color.g = static_cast<uint8_t>(g * 255);
-	color.b = static_cast<uint8_t>(b * 255);
-	color.a = static_cast<uint8_t>(a * 255);
+	color.r = r;
+	color.g = g;
+	color.b = b;
+	color.a = a;
 	return color;
 }
 

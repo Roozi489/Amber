@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/ShaderProgram.h"
+#include "Graphics/GL/ShaderProgram.h"
 
 #include <string>
 #include <unordered_map>

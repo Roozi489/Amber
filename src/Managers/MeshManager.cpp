@@ -1,6 +1,5 @@
 #include "Managers/MeshManager.h"
 #include "Window/Window.h"
-#include "Window/File.h"
 
 #include <memory>
 #include <fstream>
@@ -90,6 +89,7 @@ bool MeshManager::preloadMesh(const std::string& fileName)
 	file.close();
 
 	auto mesh = std::make_unique<Mesh>();
+	mesh->name = fileName;
 	mesh->meshComponents = MeshComponents::VertexUVNormalIndex;
 
 	for (unsigned int i = 0; i < vertexIndices.size(); i++)
@@ -110,12 +110,11 @@ bool MeshManager::preloadMesh(const std::string& fileName)
 		mesh->indices.push_back(i);
 	}
 
-	// TODO: remove this when its not necessary
 	mesh->calculateBoundingSphereRadiusFast();
 
 	mesh->setVaoAndVbo();
 
-	meshes.insert(std::make_pair(fileName, std::move(mesh)));
+	meshes.insert(std::make_pair(mesh->name, std::move(mesh)));
 	return true;
 }
 

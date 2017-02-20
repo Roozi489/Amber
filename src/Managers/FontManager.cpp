@@ -35,7 +35,7 @@ FontManager::~FontManager()
 
 void FontManager::init()
 {
-	Log::message("Initializing FreeType library...");
+	Log::info("Initializing FreeType library...");
 
 	FT_Error error = FT_Init_FreeType(&ftLib);
 	if (error)
@@ -67,82 +67,82 @@ void FontManager::init()
 // TODO: add left top or center options
 void FontManager::renderText(const std::string& text, float x, float y)
 {
-	float sx = 2.0f / g_window.getWidth();
-	float sy = 2.0f / g_window.getHeight();
+	//float sx = 2.0f / g_window.getWidth();
+	//float sy = 2.0f / g_window.getHeight();
 
-	// TODO: fix y value not being top-left
-	// Change to <-1, 1> and invert y coord
-	auto xPos = [](float value) { return value * 2 - 1; };
-	auto yPos = [](float value) { return -(value * 2 - 1); };
-	x = xPos(x);
-	y = yPos(y);
+	//// TODO: fix y value not being top-left
+	//// Change to <-1, 1> and invert y coord
+	//auto xPos = [](float value) { return value * 2 - 1; };
+	//auto yPos = [](float value) { return -(value * 2 - 1); };
+	//x = xPos(x);
+	//y = yPos(y);
 
-	static ShaderProgram* fontShaderProgram = g_shaderManager.getShaderProgram("font");
-	// TODO: add color to the parameters
-	Color c = Color::White;
+	//static ShaderProgram* fontShaderProgram = g_shaderManager.getShaderProgram("font");
+	//// TODO: add color to the parameters
+	//Color c = Color::White;
 
-	fontShaderProgram->setUniform("fontColor", c);
-	//glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
+	//fontShaderProgram->setUniform("fontColor", c);
+	////glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 
-	// TODO: fix this
-	//		 only works with one font
-	FTC_FaceID faceID = (FTC_FaceID)fonts[0];
-	// #############################################
+	//// TODO: fix this
+	////		 only works with one font
+	//FTC_FaceID faceID = (FTC_FaceID)fonts[0];
+	//// #############################################
 
-	FT_Face face;
-	FT_Error error = FTC_Manager_LookupFace(ftCacheManager, faceID, &face);
-	if (error)
-		criticalError("FreeType - FTC_Manager_LookupFace");
+	//FT_Face face;
+	//FT_Error error = FTC_Manager_LookupFace(ftCacheManager, faceID, &face);
+	//if (error)
+	//	criticalError("FreeType - FTC_Manager_LookupFace");
 
-	FT_UInt prevGlyphIndex = 0;
-	for (std::size_t n = 0; n < text.size(); ++n)
-	{
-		FT_UInt glyphIndex = ftGetIndex(faceID, text[n]);
+	//FT_UInt prevGlyphIndex = 0;
+	//for (std::size_t n = 0; n < text.size(); ++n)
+	//{
+	//	FT_UInt glyphIndex = ftGetIndex(faceID, text[n]);
 
-		// Handle kerning
-		if (n > 0)
-		{
-			FT_Vector  delta;
-			error = FT_Get_Kerning(face, prevGlyphIndex, glyphIndex, FT_KERNING_DEFAULT, &delta);
-			if (error)
-				criticalError("FreeType - FT_Get_Kerning");
+	//	// Handle kerning
+	//	if (n > 0)
+	//	{
+	//		FT_Vector  delta;
+	//		error = FT_Get_Kerning(face, prevGlyphIndex, glyphIndex, FT_KERNING_DEFAULT, &delta);
+	//		if (error)
+	//			criticalError("FreeType - FT_Get_Kerning");
 
-			x += (delta.x >> 6) * sx;
-		}
+	//		x += (delta.x >> 6) * sx;
+	//	}
 
-		Bitmap bitmap;
-		FT_Glyph glyph;
-		int left, top;
-		int xAdvance, yAdvance;
-		error = ftIndexToBitmap(glyphIndex, faceID, &left, &top, &xAdvance, &yAdvance, &bitmap, &glyph);
-		if (error)
-			criticalError("ftIndexToBitmap returned error");
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.height, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
+	//	Bitmap bitmap;
+	//	FT_Glyph glyph;
+	//	int left, top;
+	//	int xAdvance, yAdvance;
+	//	error = ftIndexToBitmap(glyphIndex, faceID, &left, &top, &xAdvance, &yAdvance, &bitmap, &glyph);
+	//	if (error)
+	//		criticalError("ftIndexToBitmap returned error");
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.height, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 
 
-		// TODO: center the text position
-		float x2 = x + left * sx;
-		float y2 = -y - top * sy;
-		float w = bitmap.width * sx;
-		float h = bitmap.height * sy;
+	//	// TODO: center the text position
+	//	float x2 = x + left * sx;
+	//	float y2 = -y - top * sy;
+	//	float w = bitmap.width * sx;
+	//	float h = bitmap.height * sy;
 
-		GLfloat box[4][4] =
-		{
-			{ x2 + w, -y2 - h, 1.f, 1.f },
-			{ x2 + w, -y2, 1.f, 0.f },
-			{ x2, -y2 - h, 0.f, 1.f },
-			{ x2, -y2, 0.f, 0.f },
-		};
+	//	GLfloat box[4][4] =
+	//	{
+	//		{ x2 + w, -y2 - h, 1.f, 1.f },
+	//		{ x2 + w, -y2, 1.f, 0.f },
+	//		{ x2, -y2 - h, 0.f, 1.f },
+	//		{ x2, -y2, 0.f, 0.f },
+	//	};
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(box), box, GL_DYNAMIC_DRAW);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	//	glBufferData(GL_ARRAY_BUFFER, sizeof(box), box, GL_DYNAMIC_DRAW);
+	//	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-		x += xAdvance * sx;
-		// only needed for multi-line
-		//y -= (face->glyph->metrics.vertAdvance >> 6) * sy;
+	//	x += xAdvance * sx;
+	//	// only needed for multi-line
+	//	//y -= (face->glyph->metrics.vertAdvance >> 6) * sy;
 
-		prevGlyphIndex = glyphIndex;
-	}
+	//	prevGlyphIndex = glyphIndex;
+	//}
 }
 
 FT_Error FontManager::ftAddFont(const char* filepath, FT_Bool outline_only)

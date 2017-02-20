@@ -4,6 +4,12 @@
 namespace Amber
 {
 
+enum class GraphicsApi
+{
+	OpenGL,
+	Vulkan
+};
+
 class Amber
 {
 public:
@@ -12,6 +18,9 @@ public:
 
 	void run();
 private:
+	// TODO: load graphics api from config
+	GraphicsApi m_graphicsApi = GraphicsApi::Vulkan;
+
 	void init();
 	void update(Time delta);
 };

@@ -7,7 +7,7 @@ namespace Amber
 {
 enum class Severity
 {
-	Message,
+	Info,
 	Warning,
 	Error
 };
@@ -20,8 +20,8 @@ public:
 	static void log(const std::string& message, Severity severity);
 	static void log(std::string&& message, Severity severity);
 
-	static void message(const std::string& message);
-	static void message(std::string&& message);
+	static void info(const std::string& message);
+	static void info(std::string&& message);
 	static void warning(const std::string& message);
 	static void warning(std::string&& message);
 	static void error(const std::string& message);
@@ -32,7 +32,7 @@ public:
 	static constexpr char* logDir = "Logs/";
 
 	static constexpr char* allLogFileName = "all.log";
-	static constexpr char* messageLogFileName = "messages.log";
+	static constexpr char* infoLogFileName = "info.log";
 	static constexpr char* warningLogFileName = "warnings.log";
 	static constexpr char* errorLogFileName = "errors.log";
 
@@ -40,13 +40,13 @@ public:
 	~Log() = default;
 
 private:
-	static constexpr char* timeFormat = "%H:%M:%S";
+	static constexpr char* TimeFormat = "%d/%m/%Y %H:%M:%S";
 	
-	static void logOnlyToAll(const std::string& message);
-	static void logOnlyToAll(std::string&& message);
+	static void logOnlyToAll(const std::string& message, Severity severity);
+	static void logOnlyToAll(std::string&& message, Severity severity);
 
 	static std::ofstream m_allLogStream;
-	static std::ofstream m_messageLogStream;
+	static std::ofstream m_infoLogStream;
 	static std::ofstream m_warningLogStream;
 	static std::ofstream m_errorLogStream;
 };

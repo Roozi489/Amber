@@ -1,19 +1,30 @@
+Vulkan:
+------------------------------------
+Vulkan.hpp
+FontManager
+
+
 Do first:
 ------------------------------------
+Instanced rendering
 
 Major:
 ------------------------------------
+Config file
+Enitity components unique_ptr
+Mesh refactoring
+Pascal case for methods (functions?)
 Mesh loader
 Stencil buffer for optimalization
 Proper models with pbr materials
 Specular component
 Scene graph
 Uniform buffer object
+Z prepass
 Nicer shadows (VSM)
 Entity tag as string
 Custom String class with string id
 Memory allocators
-Instanced rendering
 Check for copying of components (does it happen on foreach)
 Fix component memory layout
 Cleanup EntityManager
@@ -27,9 +38,11 @@ Math (trigonometry)
 Proper text rendering
 Better frustum culling (cull shadow maps)
 Single-pass omnidirectional shadows
+Vulkan
 
 Minor:
 ------------------------------------
+Inline
 Optimize matrix (SSE)
 Antialiasing
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseComponent.h"
 #include "Math/Vector.h"
-#include "Core/Mesh.h"
+#include "Graphics/GL/Mesh.h"
 
 namespace Amber
 {

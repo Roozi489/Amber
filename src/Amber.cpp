@@ -42,7 +42,7 @@ void Amber::run()
 
 void Amber::init()
 {
-	g_window.create();
+	g_window.create(m_graphicsApi);
 	Input::init();
 
 	//
