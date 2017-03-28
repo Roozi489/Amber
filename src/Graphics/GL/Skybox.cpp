@@ -80,8 +80,8 @@ void Skybox::init()
 
 void Skybox::destroy()
 {
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
 }
 
 void Skybox::update()
@@ -102,7 +102,7 @@ void Skybox::update()
 void Skybox::render()
 {
     glDepthMask(GL_FALSE);
-	g_shaderManager.getShaderProgram("skybox")->use();
+    g_shaderManager.getShaderProgram("skybox")->use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture.textureHandle);
     glBindVertexArray(vao);

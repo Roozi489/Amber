@@ -160,6 +160,7 @@ void World::initSystems()
 
 void World::update(Time delta)
 {
+	// TODO: update delta while updating systems or maybe dont pass Time but DateTime
 	for (auto& pair : m_systems)
 	{
 		BaseSystem* system = pair.second.get();

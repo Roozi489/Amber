@@ -3,12 +3,24 @@
 namespace Amber
 {
 
-Renderer::Renderer()
+Renderer::Renderer(GraphicsApi api)
+	: m_graphicsApi(api)
 {
 }
 
-Amber::Renderer::~Renderer()
+Renderer::~Renderer()
 {
+}
+
+void Renderer::handleWindowSizeChange(int newWidth, int newHeight)
+{
+	outWidth = newWidth;
+	outHeight = newHeight;
+}
+
+GraphicsApi Renderer::getGraphicsApi()
+{
+	return m_graphicsApi;
 }
 
 }
